@@ -69,7 +69,7 @@ export function EvaluacionesTable({
     if (filtroFechaInicio) {
       const inicio = new Date(filtroFechaInicio);
       filtered = filtered.filter((e) => {
-        const fecha = new Date(e.fecha);
+        const fecha = e.fecha.toDate();
         return fecha >= inicio;
       });
     }
@@ -78,15 +78,15 @@ export function EvaluacionesTable({
       const fin = new Date(filtroFechaFin);
       fin.setHours(23, 59, 59, 999); // Final del día
       filtered = filtered.filter((e) => {
-        const fecha = new Date(e.fecha);
+        const fecha = e.fecha.toDate();
         return fecha <= fin;
       });
     }
 
     // Ordenar por fecha descendente
     return filtered.sort((a, b) => {
-      const fechaA = new Date(a.fecha).getTime();
-      const fechaB = new Date(b.fecha).getTime();
+      const fechaA = a.fecha.toDate().getTime();
+      const fechaB = b.fecha.toDate().getTime();
       return fechaB - fechaA;
     });
   }, [evaluaciones, filtroEmpleado, filtroEstado, filtroFechaInicio, filtroFechaFin]);
@@ -219,7 +219,7 @@ export function EvaluacionesTable({
                   className="cursor-pointer hover:bg-gray-50 transition-colors"
                 >
                   <TableCell className="font-medium">
-                    {format(new Date(evaluacion.fecha), 'dd/MM/yyyy', {
+                    {format(evaluacion.fecha.toDate(), 'dd/MM/yyyy', {
                       locale: es,
                     })}
                   </TableCell>

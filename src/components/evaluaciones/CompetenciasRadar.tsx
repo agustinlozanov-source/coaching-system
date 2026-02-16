@@ -90,11 +90,8 @@ export function CompetenciasRadar({
           <PolarAngleAxis
             dataKey="competencia"
             tick={{ fontSize: 12, fill: '#6b7280' }}
-            angle={90}
-            orientation="outer"
           />
           <PolarRadiusAxis
-            angle={90}
             domain={[0, maxValue]}
             tick={{ fontSize: 11, fill: '#9ca3af' }}
             tickCount={maxValue + 1}

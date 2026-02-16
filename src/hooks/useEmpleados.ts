@@ -169,3 +169,16 @@ export function useEmpleadosRealtime(): Empleado[] {
 
   return empleados;
 }
+
+/**
+ * Custom hook para acceder a las funciones de empleados
+ */
+export function useEmpleados() {
+  return {
+    getEmpleados,
+    getEmpleadoById,
+    createEmpleado,
+    updateEmpleado,
+    deleteEmpleado,
+  };
+}

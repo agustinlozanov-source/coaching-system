@@ -26,8 +26,10 @@ import {
 import {
   calcularDiasAntiguedad,
   calcularSemanasAntiguedad,
-  calcularAvanceCurva,
 } from '@/lib/utils/calculations';
+import { calcularAvanceCurva } from '@/lib/constants/curvaAprendizaje';
+
+export const dynamic = 'force-dynamic';
 
 interface PageProps {
   params: {
@@ -250,14 +252,23 @@ export default function EmpleadoDetailPage({ params }: PageProps) {
                   <div className="flex justify-between mb-2">
                     <p className="text-sm text-muted-foreground">Avance en Curva</p>
                     <span className="text-sm font-semibold">
-                      {calcularAvanceCurva(evaluaciones[0].promedioGeneral).toFixed(1)}%
+                      {calcularAvanceCurva(
+                        evaluaciones[0].promedioGeneral,
+                        calcularSemanasAntiguedad(empleado.fechaIngreso)
+                      ).toFixed(1)}%
                     </span>
                   </div>
                   <div className="h-2 bg-muted rounded-full overflow-hidden">
                     <div
                       className="h-full bg-blue-500"
                       style={{
-                        width: `${Math.min(calcularAvanceCurva(evaluaciones[0].promedioGeneral), 100)}%`,
+                        width: `${Math.min(
+                          calcularAvanceCurva(
+                            evaluaciones[0].promedioGeneral,
+                            calcularSemanasAntiguedad(empleado.fechaIngreso)
+                          ),
+                          100
+                        )}%`,
                       }}
                     />
                   </div>
@@ -325,9 +336,9 @@ export default function EmpleadoDetailPage({ params }: PageProps) {
           <CardContent>
             <ResponsiveContainer width="100%" height={300}>
               <LineChart
-                data={evaluaciones.reverse().map((eval) => ({
-                  fecha: format(new Date(eval.fecha), 'dd/MM', { locale: es }),
-                  efectividad: eval.efectividad,
+                data={evaluaciones.reverse().map((evaluation) => ({
+                  fecha: format(evaluation.fecha.toDate(), 'dd/MM', { locale: es }),
+                  efectividad: evaluation.efectividad,
                 }))}
               >
                 <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
@@ -379,35 +390,35 @@ export default function EmpleadoDetailPage({ params }: PageProps) {
             </div>
           ) : (
             <div className="space-y-3">
-              {evaluaciones.slice(0, 5).map((eval) => (
+              {evaluaciones.slice(0, 5).map((evaluation) => (
                 <div
-                  key={eval.id}
+                  key={evaluation.id}
                   className="flex items-center justify-between p-3 border rounded-lg hover:bg-gray-50 transition-colors"
                 >
                   <div className="flex-1">
                     <p className="font-medium">
-                      {format(new Date(eval.fecha), 'dd MMM yyyy', { locale: es })}
+                      {format(evaluation.fecha.toDate(), 'dd MMM yyyy', { locale: es })}
                     </p>
                     <p className="text-sm text-muted-foreground">
-                      Promedio: {eval.promedioGeneral.toFixed(2)}
+                      Promedio: {evaluation.promedioGeneral.toFixed(2)}
                     </p>
                   </div>
                   <div className="flex items-center gap-3">
                     <Badge
                       className={
-                        eval.efectividad >= 80
+                        evaluation.efectividad >= 80
                           ? 'bg-green-100 text-green-800'
-                          : eval.efectividad >= 60
+                          : evaluation.efectividad >= 60
                           ? 'bg-yellow-100 text-yellow-800'
                           : 'bg-red-100 text-red-800'
                       }
                     >
-                      {eval.efectividad.toFixed(1)}%
+                      {evaluation.efectividad.toFixed(1)}%
                     </Badge>
                     <Button
                       variant="ghost"
                       size="sm"
-                      onClick={() => router.push(`/dashboard/evaluaciones/${eval.id}`)}
+                      onClick={() => router.push(`/dashboard/evaluaciones/${evaluation.id}`)}
                     >
                       Ver
                     </Button>

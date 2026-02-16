@@ -18,6 +18,8 @@ import { EmpleadoDialog } from '@/components/empleados/EmpleadoDialog';
 import { DeleteEmpleadoDialog } from '@/components/empleados/DeleteEmpleadoDialog';
 import { Empleado } from '@/types/empleado';
 
+export const dynamic = 'force-dynamic';
+
 export default function EmpleadosPage() {
   const empleados = useEmpleadosRealtime();
   const [selectedEmpleado, setSelectedEmpleado] = useState<Empleado | null>(null);

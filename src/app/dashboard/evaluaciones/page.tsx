@@ -9,6 +9,8 @@ import { EvaluacionesTable } from '@/components/evaluaciones/EvaluacionesTable';
 import { useEvaluaciones } from '@/hooks/useEvaluaciones';
 import type { Evaluacion } from '@/types/evaluacion';
 
+export const dynamic = 'force-dynamic';
+
 export default function EvaluacionesPage() {
   const router = useRouter();
   const { getEvaluaciones } = useEvaluaciones();
@@ -39,7 +41,7 @@ export default function EvaluacionesPage() {
     const annoActual = ahora.getFullYear();
 
     const evaluacionesEseMes = evaluaciones.filter((e) => {
-      const fecha = new Date(e.fecha);
+      const fecha = e.fecha.toDate();
       return fecha.getMonth() === mesActual && fecha.getFullYear() === annoActual;
     });
 

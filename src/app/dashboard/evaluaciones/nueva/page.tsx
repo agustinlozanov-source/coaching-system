@@ -1,11 +1,12 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { Suspense } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { ChevronRight } from 'lucide-react';
-import { useEmpleados } from '@/hooks/useEmpleados';
 import { useEvaluaciones } from '@/hooks/useEvaluaciones';
 import { useToast } from '@/hooks/use-toast';
+import { getEmpleados } from '@/hooks/useEmpleados';
 import { EvaluacionForm } from '@/components/evaluaciones/EvaluacionForm';
 import { EmpleadoSelector } from '@/components/evaluaciones/EmpleadoSelector';
 import { Button } from '@/components/ui/button';
@@ -15,7 +16,9 @@ import { Loader2 } from 'lucide-react';
 import type { EvaluacionFormData } from '@/types/evaluacion';
 import type { Empleado } from '@/types/empleado';
 
-export default function NuevaEvaluacionPage() {
+export const dynamic = 'force-dynamic';
+
+function NuevaEvaluacionContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { toast } = useToast();
@@ -23,9 +26,31 @@ export default function NuevaEvaluacionPage() {
   const empleadoId = searchParams.get('empleadoId');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isDrafting, setIsDrafting] = useState(false);
+  const [empleados, setEmpleados] = useState<Empleado[]>([]);
+  const [loadingEmpleados, setLoadingEmpleados] = useState(true);
 
-  const { empleados, loading: empleadosLoading } = useEmpleados();
   const { createEvaluacion, saveDraft } = useEvaluaciones();
+
+  // Cargar empleados
+  useEffect(() => {
+    const loadEmpleados = async () => {
+      try {
+        setLoadingEmpleados(true);
+        const data = await getEmpleados();
+        setEmpleados(data);
+      } catch (error) {
+        console.error('Error loading empleados:', error);
+        toast({
+          title: 'Error',
+          description: 'No se pudieron cargar los empleados',
+          variant: 'destructive',
+        });
+      } finally {
+        setLoadingEmpleados(false);
+      }
+    };
+    loadEmpleados();
+  }, [toast]);
 
   // Obtener empleado seleccionado
   const empleadoSeleccionado = useMemo(() => {
@@ -90,15 +115,6 @@ export default function NuevaEvaluacionPage() {
   const handleCancel = () => {
     router.push('/dashboard/evaluaciones');
   };
-
-  // Estado: Cargando empleados
-  if (empleadosLoading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
-      </div>
-    );
-  }
 
   // Estado: Sin empleadoId - Mostrar selector
   if (!empleadoId) {
@@ -182,5 +198,13 @@ export default function NuevaEvaluacionPage() {
         onCancel={handleCancel}
       />
     </div>
+  );
+}
+
+export default function NuevaEvaluacionPage() {
+  return (
+    <Suspense fallback={<div className="flex justify-center items-center h-screen"><Loader2 className="h-8 w-8 animate-spin" /></div>}>
+      <NuevaEvaluacionContent />
+    </Suspense>
   );
 }

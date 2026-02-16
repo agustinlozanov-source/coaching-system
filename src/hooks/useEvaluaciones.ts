@@ -287,3 +287,17 @@ export async function saveDraft(
     throw error;
   }
 }
+
+/**
+ * Custom hook para acceder a las funciones de evaluaciones
+ */
+export function useEvaluaciones() {
+  return {
+    getEvaluaciones,
+    getEvaluacionesByEmpleado,
+    getEvaluacionById,
+    createEvaluacion,
+    updateEvaluacion,
+    saveDraft,
+  };
+}

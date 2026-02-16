@@ -3,7 +3,7 @@
 import { useState, useCallback, useEffect, useMemo } from 'react';
 import { format, formatDistanceToNow } from 'date-fns';
 import { es } from 'date-fns/locale';
-import { X, ChevronRight, CheckCircle2, Cloud, CloudCheck, CloudOff } from 'lucide-react';
+import { X, ChevronRight, CheckCircle2, Cloud, CloudOff } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -94,7 +94,7 @@ export function EvaluacionForm({
 
       // Cargar datos de evaluación existente
       if (evaluacion?.secciones) {
-        evaluacion.secciones.forEach((sec: any) => {
+        Object.values(evaluacion.secciones).forEach((sec: any) => {
           inicial[sec.titulo] = sec.items.reduce(
             (acc: Record<string, number>, item: any) => {
               acc[item.competencia] = item.puntuacion || 0;
@@ -160,19 +160,37 @@ export function EvaluacionForm({
 
       try {
         setIsSaving(true);
+        
+        // Construir secciones como objeto con arrays de ItemEvaluacion
+        const seccionesObj = {
+          planeacionOrganizacion: COMPETENCIAS_PLANEACION.map((comp) => ({
+            competencia: comp,
+            puntuacion: (secciones['Planeación y Organización']?.[comp] || 0) as any,
+            observaciones: '',
+          })),
+          noNegociables: COMPETENCIAS_NO_NEGOCIABLES.map((comp) => ({
+            competencia: comp,
+            puntuacion: (secciones['No Negociables']?.[comp] || 0) as any,
+            observaciones: '',
+          })),
+          usoSistemas: COMPETENCIAS_USO_SISTEMAS.map((comp) => ({
+            competencia: comp,
+            puntuacion: (secciones['Uso de Sistemas']?.[comp] || 0) as any,
+            observaciones: '',
+          })),
+          conocimientoProducto: COMPETENCIAS_CONOCIMIENTO_PRODUCTO.map((comp) => ({
+            competencia: comp,
+            puntuacion: (secciones['Conocimiento del Producto']?.[comp] || 0) as any,
+            observaciones: '',
+          })),
+        };
+        
         await onSaveDraft({
           fecha: new Date(),
-          secciones: SECCIONES_CONFIG.map((seccion) => ({
-            titulo: seccion.titulo,
-            items: seccion.competencias.map((comp) => ({
-              competencia: comp,
-              puntuacion: secciones[seccion.titulo]?.[comp] || 0,
-              observaciones: '',
-            })),
-          })),
+          secciones: seccionesObj,
           observacionesGenerales,
           compromisos,
-          proximaRevision: proximaRevision ? new Date(proximaRevision) : null,
+          proximaRevision: proximaRevision ? new Date(proximaRevision) : undefined,
         });
         setLastSaved(new Date());
         setIsDirty(false);
@@ -250,19 +268,37 @@ export function EvaluacionForm({
   const handleSaveDraftManual = async () => {
     try {
       setIsSaving(true);
+      
+      // Construir secciones como objeto con arrays de ItemEvaluacion
+      const seccionesObj = {
+        planeacionOrganizacion: COMPETENCIAS_PLANEACION.map((comp) => ({
+          competencia: comp,
+          puntuacion: (secciones['Planeación y Organización']?.[comp] || 0) as any,
+          observaciones: '',
+        })),
+        noNegociables: COMPETENCIAS_NO_NEGOCIABLES.map((comp) => ({
+          competencia: comp,
+          puntuacion: (secciones['No Negociables']?.[comp] || 0) as any,
+          observaciones: '',
+        })),
+        usoSistemas: COMPETENCIAS_USO_SISTEMAS.map((comp) => ({
+          competencia: comp,
+          puntuacion: (secciones['Uso de Sistemas']?.[comp] || 0) as any,
+          observaciones: '',
+        })),
+        conocimientoProducto: COMPETENCIAS_CONOCIMIENTO_PRODUCTO.map((comp) => ({
+          competencia: comp,
+          puntuacion: (secciones['Conocimiento del Producto']?.[comp] || 0) as any,
+          observaciones: '',
+        })),
+      };
+      
       await onSaveDraft({
         fecha: new Date(),
-        secciones: SECCIONES_CONFIG.map((seccion) => ({
-          titulo: seccion.titulo,
-          items: seccion.competencias.map((comp) => ({
-            competencia: comp,
-            puntuacion: secciones[seccion.titulo]?.[comp] || 0,
-            observaciones: '',
-          })),
-        })),
+        secciones: seccionesObj,
         observacionesGenerales,
         compromisos,
-        proximaRevision: proximaRevision ? new Date(proximaRevision) : null,
+        proximaRevision: proximaRevision ? new Date(proximaRevision) : undefined,
       });
       setLastSaved(new Date());
       setIsDirty(false);
@@ -326,16 +362,34 @@ export function EvaluacionForm({
 
     try {
       setIsLoading(true);
+      
+      // Construir secciones como objeto con arrays de ItemEvaluacion
+      const seccionesObj = {
+        planeacionOrganizacion: COMPETENCIAS_PLANEACION.map((comp) => ({
+          competencia: comp,
+          puntuacion: (secciones['Planeación y Organización']?.[comp] || 0) as any,
+          observaciones: '',
+        })),
+        noNegociables: COMPETENCIAS_NO_NEGOCIABLES.map((comp) => ({
+          competencia: comp,
+          puntuacion: (secciones['No Negociables']?.[comp] || 0) as any,
+          observaciones: '',
+        })),
+        usoSistemas: COMPETENCIAS_USO_SISTEMAS.map((comp) => ({
+          competencia: comp,
+          puntuacion: (secciones['Uso de Sistemas']?.[comp] || 0) as any,
+          observaciones: '',
+        })),
+        conocimientoProducto: COMPETENCIAS_CONOCIMIENTO_PRODUCTO.map((comp) => ({
+          competencia: comp,
+          puntuacion: (secciones['Conocimiento del Producto']?.[comp] || 0) as any,
+          observaciones: '',
+        })),
+      };
+      
       await onSave({
         fecha: new Date(),
-        secciones: SECCIONES_CONFIG.map((seccion) => ({
-          titulo: seccion.titulo,
-          items: seccion.competencias.map((comp) => ({
-            competencia: comp,
-            puntuacion: secciones[seccion.titulo]?.[comp] || 0,
-            observaciones: '',
-          })),
-        })),
+        secciones: seccionesObj,
         observacionesGenerales,
         compromisos,
         proximaRevision: new Date(proximaRevision),
@@ -376,7 +430,7 @@ export function EvaluacionForm({
                   </>
                 ) : lastSaved ? (
                   <>
-                    <CloudCheck className="h-4 w-4 text-green-600" />
+                    <CheckCircle2 className="h-4 w-4 text-green-600" />
                     <span className="text-muted-foreground">
                       Guardado: {formatDistanceToNow(lastSaved, { locale: es, addSuffix: true })}
                     </span>

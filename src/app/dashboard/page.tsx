@@ -27,12 +27,14 @@ import {
   ResponsiveContainer,
 } from 'recharts';
 import { useEvaluaciones } from '@/hooks/useEvaluaciones';
-import { useEmpleados } from '@/hooks/useEmpleados';
+import { useEmpleadosRealtime } from '@/hooks/useEmpleados';
+
+export const dynamic = 'force-dynamic';
 
 export default function DashboardPage() {
   const router = useRouter();
   const { getEvaluaciones } = useEvaluaciones();
-  const { empleados } = useEmpleados();
+  const empleados = useEmpleadosRealtime();
 
   const [evaluaciones, setEvaluaciones] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -61,7 +63,7 @@ export default function DashboardPage() {
 
     // Evaluaciones este mes
     const evalEseMes = evaluaciones.filter((e) => {
-      const fecha = new Date(e.fecha);
+      const fecha = e.fecha.toDate();
       return fecha >= inicioMes && fecha <= finMes;
     });
 
@@ -78,7 +80,7 @@ export default function DashboardPage() {
     const inicioMesAnterior = startOfMonth(subMonths(ahora, 1));
     const finMesAnterior = endOfMonth(subMonths(ahora, 1));
     const evalMesAnterior = evaluaciones.filter((e) => {
-      const fecha = new Date(e.fecha);
+      const fecha = e.fecha.toDate();
       return fecha >= inicioMesAnterior && fecha <= finMesAnterior;
     });
     const efectividadMesAnterior =
@@ -95,10 +97,10 @@ export default function DashboardPage() {
     const empleadosSinEvaluar = empleados.filter((emp) => {
       const ultimaEval = evaluaciones
         .filter((e) => e.empleadoId === emp.id)
-        .sort((a, b) => new Date(b.fecha).getTime() - new Date(a.fecha).getTime())[0];
+        .sort((a, b) => b.fecha.toDate().getTime() - a.fecha.toDate().getTime())[0];
 
       if (!ultimaEval) return true;
-      return new Date(ultimaEval.fecha) < hace30Dias;
+      return ultimaEval.fecha.toDate() < hace30Dias;
     });
 
     return {
@@ -274,15 +276,15 @@ export default function DashboardPage() {
                   .filter((e) => e.status === 'finalizada')
                   .sort((a, b) => new Date(b.fecha).getTime() - new Date(a.fecha).getTime())
                   .slice(0, 5)
-                  .map((eval) => (
+                  .map((evaluation) => (
                     <div
-                      key={eval.id}
+                      key={evaluation.id}
                       className="flex items-center gap-3 pb-3 border-b last:border-0 last:pb-0 cursor-pointer hover:bg-gray-50 -mx-2 px-2 py-1 rounded transition-colors"
-                      onClick={() => router.push(`/dashboard/evaluaciones/${eval.id}`)}
+                      onClick={() => router.push(`/dashboard/evaluaciones/${evaluation.id}`)}
                     >
                       <Avatar className="h-9 w-9">
                         <AvatarFallback>
-                          {eval.empleadoNombre
+                          {evaluation.empleadoNombre
                             .split(' ')
                             .map((n: string) => n[0])
                             .join('')
@@ -290,9 +292,9 @@ export default function DashboardPage() {
                         </AvatarFallback>
                       </Avatar>
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium">{eval.empleadoNombre}</p>
+                        <p className="text-sm font-medium">{evaluation.empleadoNombre}</p>
                         <p className="text-xs text-muted-foreground">
-                          {formatDistanceToNow(new Date(eval.fecha), {
+                          {formatDistanceToNow(new Date(evaluation.fecha), {
                             locale: es,
                             addSuffix: true,
                           })}
@@ -301,14 +303,14 @@ export default function DashboardPage() {
                       <div className="text-right">
                         <Badge
                           className={
-                            eval.efectividad >= 80
+                            evaluation.efectividad >= 80
                               ? 'bg-green-100 text-green-800'
-                              : eval.efectividad >= 60
+                              : evaluation.efectividad >= 60
                               ? 'bg-yellow-100 text-yellow-800'
                               : 'bg-red-100 text-red-800'
                           }
                         >
-                          {eval.efectividad.toFixed(1)}%
+                          {evaluation.efectividad.toFixed(1)}%
                         </Badge>
                       </div>
                     </div>
@@ -340,14 +342,14 @@ export default function DashboardPage() {
                   .filter((e) => e.status === 'borrador')
                   .sort((a, b) => new Date(b.fecha).getTime() - new Date(a.fecha).getTime())
                   .slice(0, 5)
-                  .map((eval) => (
+                  .map((evaluation) => (
                     <div
-                      key={eval.id}
+                      key={evaluation.id}
                       className="flex items-center gap-3 pb-3 border-b last:border-0 last:pb-0"
                     >
                       <Avatar className="h-9 w-9">
                         <AvatarFallback>
-                          {eval.empleadoNombre
+                          {evaluation.empleadoNombre
                             .split(' ')
                             .map((n: string) => n[0])
                             .join('')
@@ -355,10 +357,10 @@ export default function DashboardPage() {
                         </AvatarFallback>
                       </Avatar>
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium">{eval.empleadoNombre}</p>
+                        <p className="text-sm font-medium">{evaluation.empleadoNombre}</p>
                         <p className="text-xs text-muted-foreground">
                           Iniciado{' '}
-                          {formatDistanceToNow(new Date(eval.fecha), {
+                          {formatDistanceToNow(new Date(evaluation.fecha), {
                             locale: es,
                             addSuffix: true,
                           })}
@@ -368,7 +370,7 @@ export default function DashboardPage() {
                         variant="ghost"
                         size="sm"
                         onClick={() =>
-                          router.push(`/dashboard/evaluaciones/${eval.id}/editar`)
+                          router.push(`/dashboard/evaluaciones/${evaluation.id}/editar`)
                         }
                       >
                         <Eye className="h-4 w-4" />

@@ -38,6 +38,8 @@ import { ESCALA_EVALUACION } from '@/lib/constants/competencias';
 import type { Evaluacion } from '@/types/evaluacion';
 import type { Empleado } from '@/types/empleado';
 
+export const dynamic = 'force-dynamic';
+
 const ESCALA_COLORES: Record<number, string> = {
   1: 'bg-green-100 text-green-800',
   2: 'bg-blue-100 text-blue-800',
@@ -156,7 +158,7 @@ export default function EvaluacionDetailPage() {
             <div className="text-right space-y-2">
               {getEstadoBadge(evaluacion.status)}
               <p className="text-sm text-muted-foreground">
-                {format(new Date(evaluacion.fecha), 'dd MMM yyyy', { locale: es })}
+                {format(evaluacion.fecha.toDate(), 'dd MMM yyyy', { locale: es })}
               </p>
             </div>
           </div>
@@ -182,7 +184,7 @@ export default function EvaluacionDetailPage() {
               <div>
                 <p className="text-xs text-muted-foreground">Próxima Revisión</p>
                 <p className="font-medium">
-                  {format(new Date(evaluacion.proximaRevision), 'dd MMM yyyy', {
+                  {format(evaluacion.proximaRevision.toDate(), 'dd MMM yyyy', {
                     locale: es,
                   })}
                 </p>
@@ -194,7 +196,7 @@ export default function EvaluacionDetailPage() {
 
       {/* Secciones con Radar Charts */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {evaluacion.secciones.map((seccion: any) => {
+        {Object.values(evaluacion.secciones).map((seccion: any) => {
           // Preparar datos para el radar
           const radarData = seccion.items.map((item: any) => ({
             competencia: item.competencia,
@@ -250,7 +252,7 @@ export default function EvaluacionDetailPage() {
                         </Badge>
                       </div>
                       <p className="text-xs text-muted-foreground">
-                        {ESCALA_EVALUACION[item.puntuacion] || 'No aplica'}
+                        {ESCALA_EVALUACION[item.puntuacion as keyof typeof ESCALA_EVALUACION] || 'No aplica'}
                       </p>
                       {item.observaciones && (
                         <p className="text-xs mt-2 p-2 bg-gray-50 rounded">
@@ -397,7 +399,7 @@ export default function EvaluacionDetailPage() {
               <Calendar className="h-4 w-4 text-blue-600" />
               <span className="text-sm">
                 <strong>Próxima revisión:</strong>{' '}
-                {format(new Date(evaluacion.proximaRevision), 'dd MMM yyyy', {
+                {format(evaluacion.proximaRevision.toDate(), 'dd MMM yyyy', {
                   locale: es,
                 })}
               </span>

@@ -24,7 +24,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import { useEmpleados } from '@/hooks/useEmpleados';
+import { useEmpleadosRealtime } from '@/hooks/useEmpleados';
 import { useEvaluaciones } from '@/hooks/useEvaluaciones';
 import { calcularSemanasAntiguedad } from '@/lib/utils/calculations';
 import type { Empleado } from '@/types/empleado';
@@ -41,7 +41,7 @@ export function EmpleadoSelector({
   onSelect,
   empleadosConEvaluacionReciente = [],
 }: EmpleadoSelectorProps) {
-  const { empleados, loading } = useEmpleados();
+  const empleados = useEmpleadosRealtime();
   const { getEvaluacionesByEmpleado } = useEvaluaciones();
 
   const [searchTerm, setSearchTerm] = useState('');
@@ -60,7 +60,7 @@ export function EmpleadoSelector({
         try {
           const evals = await getEvaluacionesByEmpleado(emp.id);
           if (evals.length > 0) {
-            map[emp.id] = new Date(evals[0].fecha);
+            map[emp.id] = evals[0].fecha.toDate();
           }
         } catch (error) {
           console.error(`Error cargando evaluaciones de ${emp.id}:`, error);
@@ -143,14 +143,6 @@ export function EmpleadoSelector({
     }
     setMostrarConfirmacion(false);
   };
-
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center py-12">
-        <p className="text-muted-foreground">Cargando empleados...</p>
-      </div>
-    );
-  }
 
   const ultimaEval = empleadoConEvaluacionReciente
     ? ultimasEvaluaciones[empleadoConEvaluacionReciente.id]

@@ -16,6 +16,8 @@ import { useToast } from '@/hooks/use-toast';
 import type { Evaluacion, EvaluacionFormData } from '@/types/evaluacion';
 import type { Empleado } from '@/types/empleado';
 
+export const dynamic = 'force-dynamic';
+
 export default function EditarBorradorPage() {
   const params = useParams();
   const router = useRouter();
@@ -50,7 +52,7 @@ export default function EditarBorradorPage() {
         }
 
         // Verificar antigüedad del borrador
-        const diasAntiguedad = differenceInDays(new Date(), new Date(evalData.fecha));
+        const diasAntiguedad = differenceInDays(new Date(), evalData.fecha.toDate());
         if (diasAntiguedad > 7) {
           setIsOldDraft(true);
         }
@@ -78,7 +80,7 @@ export default function EditarBorradorPage() {
       await updateEvaluacion(id, {
         ...data,
         status: 'finalizada',
-      });
+      } as any);
 
       toast({
         title: 'Evaluación finalizada',
@@ -102,7 +104,7 @@ export default function EditarBorradorPage() {
       await updateEvaluacion(id, {
         ...data,
         status: 'borrador',
-      });
+      } as any);
 
       toast({
         title: 'Borrador actualizado',
@@ -199,7 +201,7 @@ export default function EditarBorradorPage() {
             <p className="text-sm text-muted-foreground">
               Empleado: <strong>{empleado.nombre}</strong> • Creado:{' '}
               <strong>
-                {format(new Date(evaluacion.fecha), 'dd MMM yyyy', { locale: es })}
+                {format(evaluacion.fecha.toDate(), 'dd MMM yyyy', { locale: es })}
               </strong>
             </p>
           </div>
