@@ -122,7 +122,7 @@ export default function DashboardPage() {
       const fin = new Date(inicio.getTime() + 7 * 24 * 60 * 60 * 1000);
 
       const evalSemana = evaluaciones.filter((e) => {
-        const fecha = new Date(e.fecha);
+        const fecha = typeof e.fecha === 'string' ? new Date(e.fecha) : e.fecha.toDate?.() ? e.fecha.toDate() : new Date(e.fecha);
         return fecha >= inicio && fecha <= fin;
       });
 
@@ -274,7 +274,11 @@ export default function DashboardPage() {
               <div className="space-y-4">
                 {evaluaciones
                   .filter((e) => e.status === 'finalizada')
-                  .sort((a, b) => new Date(b.fecha).getTime() - new Date(a.fecha).getTime())
+                  .sort((a, b) => {
+                    const fechaA = typeof a.fecha === 'string' ? new Date(a.fecha) : a.fecha.toDate?.() ? a.fecha.toDate() : new Date(a.fecha);
+                    const fechaB = typeof b.fecha === 'string' ? new Date(b.fecha) : b.fecha.toDate?.() ? b.fecha.toDate() : new Date(b.fecha);
+                    return fechaB.getTime() - fechaA.getTime();
+                  })
                   .slice(0, 5)
                   .map((evaluation) => (
                     <div
@@ -294,7 +298,7 @@ export default function DashboardPage() {
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-medium">{evaluation.empleadoNombre}</p>
                         <p className="text-xs text-muted-foreground">
-                          {formatDistanceToNow(new Date(evaluation.fecha), {
+                          {formatDistanceToNow(typeof evaluation.fecha === 'string' ? new Date(evaluation.fecha) : evaluation.fecha.toDate?.() ? evaluation.fecha.toDate() : new Date(evaluation.fecha), {
                             locale: es,
                             addSuffix: true,
                           })}
@@ -340,7 +344,11 @@ export default function DashboardPage() {
               <div className="space-y-4">
                 {evaluaciones
                   .filter((e) => e.status === 'borrador')
-                  .sort((a, b) => new Date(b.fecha).getTime() - new Date(a.fecha).getTime())
+                  .sort((a, b) => {
+                    const fechaA = typeof a.fecha === 'string' ? new Date(a.fecha) : a.fecha.toDate?.() ? a.fecha.toDate() : new Date(a.fecha);
+                    const fechaB = typeof b.fecha === 'string' ? new Date(b.fecha) : b.fecha.toDate?.() ? b.fecha.toDate() : new Date(b.fecha);
+                    return fechaB.getTime() - fechaA.getTime();
+                  })
                   .slice(0, 5)
                   .map((evaluation) => (
                     <div
@@ -360,7 +368,7 @@ export default function DashboardPage() {
                         <p className="text-sm font-medium">{evaluation.empleadoNombre}</p>
                         <p className="text-xs text-muted-foreground">
                           Iniciado{' '}
-                          {formatDistanceToNow(new Date(evaluation.fecha), {
+                          {formatDistanceToNow(typeof evaluation.fecha === 'string' ? new Date(evaluation.fecha) : evaluation.fecha.toDate?.() ? evaluation.fecha.toDate() : new Date(evaluation.fecha), {
                             locale: es,
                             addSuffix: true,
                           })}
