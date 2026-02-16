@@ -133,7 +133,7 @@ function dispatch(action: Action) {
   })
 }
 
-function toast(props: ToasterToast) {
+function toast(props: Omit<ToasterToast, "id">) {
   const id = genId()
 
   const update = (props: ToasterToast) =>

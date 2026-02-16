@@ -39,7 +39,6 @@ export function DeleteEmpleadoDialog({
       toast({
         title: 'Éxito',
         description: `${empleadoNombre} ha sido marcado como inactivo`,
-        variant: 'default',
       });
       onClose();
     } catch (error) {

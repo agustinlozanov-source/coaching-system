@@ -38,14 +38,12 @@ export function EmpleadoDialog({
         toast({
           title: 'Éxito',
           description: 'Empleado actualizado correctamente',
-          variant: 'default',
         });
       } else {
         await createEmpleado(data);
         toast({
           title: 'Éxito',
           description: 'Empleado creado correctamente',
-          variant: 'default',
         });
       }
       onSuccess();
