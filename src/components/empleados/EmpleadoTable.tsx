@@ -78,7 +78,7 @@ export function EmpleadoTable({
                 </span>
               </TableCell>
               <TableCell>{empleado.cargo}</TableCell>
-              <TableCell className="capitalize">{empleado.tipoPuesto}</TableCell>
+              <TableCell className="capitalize">{empleado.categorias?.['puesto'] || '-'}</TableCell>
               <TableCell>
                 {format(empleado.fechaIngreso.toDate(), 'dd/MM/yyyy', {
                   locale: es,

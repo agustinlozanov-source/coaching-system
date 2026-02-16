@@ -30,7 +30,7 @@ import type {
 export async function getReporteEjecutivos(): Promise<ReporteData> {
   try {
     const empleados = await getEmpleados();
-    const ejecutivos = empleados.filter((e) => e.tipoPuesto === 'ejecutivo');
+    const ejecutivos = empleados.filter((e) => e.categorias?.['puesto'] === 'Ejecutivo');
     return await generarReporte(ejecutivos);
   } catch (error) {
     console.error('Error al obtener reporte de ejecutivos:', error);
@@ -44,7 +44,7 @@ export async function getReporteEjecutivos(): Promise<ReporteData> {
 export async function getReporteTelemarketing(): Promise<ReporteData> {
   try {
     const empleados = await getEmpleados();
-    const telemarketing = empleados.filter((e) => e.tipoPuesto === 'telemarketing');
+    const telemarketing = empleados.filter((e) => e.categorias?.['puesto'] === 'Telemarketing');
     return await generarReporte(telemarketing);
   } catch (error) {
     console.error('Error al obtener reporte de telemarketing:', error);
@@ -58,7 +58,7 @@ export async function getReporteTelemarketing(): Promise<ReporteData> {
 export async function getReporteAsesores(): Promise<ReporteData> {
   try {
     const empleados = await getEmpleados();
-    const asesores = empleados.filter((e) => e.tipoPuesto === 'asesor');
+    const asesores = empleados.filter((e) => e.categorias?.['puesto'] === 'Asesor');
     return await generarReporte(asesores);
   } catch (error) {
     console.error('Error al obtener reporte de asesores:', error);

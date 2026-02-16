@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { ESCALA_EVALUACION, ESCALA_COLORES } from '@/lib/constants/competencias';
+import { useOrganization } from '@/contexts/OrganizationContext';
 import { cn } from '@/lib/utils/cn';
 
 interface CompetenciaRatingProps {
@@ -21,7 +22,9 @@ export function CompetenciaRating({
   observaciones = '',
   onObservacionesChange,
 }: CompetenciaRatingProps) {
-  const escalaKeys = [1, 2, 3, 4, 5] as const;
+  const { getEscalaPuntuacion } = useOrganization();
+  const escala = getEscalaPuntuacion();
+  const escalaKeys = Object.keys(escala).map(Number).sort((a, b) => a - b);
 
   return (
     <div className="space-y-3 p-4 border rounded-lg bg-card hover:bg-accent/50 transition-colors">
@@ -34,8 +37,8 @@ export function CompetenciaRating({
       <div className="flex items-center gap-2 flex-wrap">
         {escalaKeys.map((score) => {
           const isSelected = value === score;
-          const colorClass = ESCALA_COLORES[score as keyof typeof ESCALA_COLORES];
-          const label = ESCALA_EVALUACION[score as keyof typeof ESCALA_EVALUACION];
+          const colorClass = ESCALA_COLORES[score as keyof typeof ESCALA_COLORES] || 'bg-gray-500';
+          const label = escala[score as keyof typeof escala];
 
           return (
             <div key={score} className="flex flex-col items-center gap-1">

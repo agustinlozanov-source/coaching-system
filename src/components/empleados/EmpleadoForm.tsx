@@ -44,7 +44,7 @@ export function EmpleadoForm({
     defaultValues: {
       nombre: empleado?.nombre || '',
       cargo: empleado?.cargo || '',
-      tipoPuesto: empleado?.tipoPuesto || 'asesor',
+      categorias: empleado?.categorias || { puesto: 'Asesor' },
       fechaIngreso: empleado
         ? new Date(empleado.fechaIngreso.toDate())
         : new Date(),
@@ -55,11 +55,11 @@ export function EmpleadoForm({
     },
   });
 
-  const tipoPuesto = watch('tipoPuesto');
+  const categorias = watch('categorias');
   const activo = watch('activo');
 
-  const handleTipoPuestoChange = (value: string) => {
-    setValue('tipoPuesto', value as 'ejecutivo' | 'telemarketing' | 'asesor');
+  const handlePuestoChange = (value: string) => {
+    setValue('categorias', { ...categorias, puesto: value });
   };
 
   const onSubmit = async (data: any) => {
@@ -68,7 +68,7 @@ export function EmpleadoForm({
       const formData: EmpleadoFormData = {
         nombre: data.nombre,
         cargo: data.cargo,
-        tipoPuesto: data.tipoPuesto,
+        categorias: data.categorias,
         fechaIngreso: new Date(data.fechaIngreso),
         activo: data.activo,
         email: data.email || undefined,
@@ -112,21 +112,21 @@ export function EmpleadoForm({
           )}
         </div>
 
-        {/* Tipo Puesto */}
+        {/* Puesto */}
         <div className="space-y-2">
-          <Label htmlFor="tipoPuesto">Tipo de Puesto *</Label>
-          <Select value={tipoPuesto} onValueChange={handleTipoPuestoChange}>
-            <SelectTrigger id="tipoPuesto" disabled={isLoading}>
-              <SelectValue placeholder="Selecciona un tipo de puesto" />
+          <Label htmlFor="puesto">Puesto *</Label>
+          <Select value={categorias?.puesto || 'Asesor'} onValueChange={handlePuestoChange}>
+            <SelectTrigger id="puesto" disabled={isLoading}>
+              <SelectValue placeholder="Selecciona un puesto" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="ejecutivo">Ejecutivo</SelectItem>
-              <SelectItem value="telemarketing">Telemarketing</SelectItem>
-              <SelectItem value="asesor">Asesor</SelectItem>
+              <SelectItem value="Ejecutivo">Ejecutivo</SelectItem>
+              <SelectItem value="Telemarketing">Telemarketing</SelectItem>
+              <SelectItem value="Asesor">Asesor</SelectItem>
             </SelectContent>
           </Select>
-          {errors.tipoPuesto && (
-            <p className="text-sm text-red-600">{errors.tipoPuesto.message}</p>
+          {errors.categorias && (
+            <p className="text-sm text-red-600">Error en categorías</p>
           )}
         </div>
 

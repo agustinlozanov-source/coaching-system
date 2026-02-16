@@ -1,3 +1,7 @@
+import { SeccionCompetencias, CompetenciaConfig } from '@/types/competencia';
+import { Timestamp } from 'firebase/firestore';
+
+// Exportar como DEFAULT pero mantener compatibilidad
 export const COMPETENCIAS_PLANEACION = [
   'Creación de la agenda semanal de actividades',
   'Organización de subtareas en ASANA',
@@ -58,3 +62,79 @@ export const ESCALA_COLORES = {
   4: 'text-red-600 bg-red-50',
   5: 'text-gray-600 bg-gray-50',
 } as const;
+
+export const DEFAULT_COMPETENCIAS_PLANEACION = COMPETENCIAS_PLANEACION;
+export const DEFAULT_COMPETENCIAS_NO_NEGOCIABLES = COMPETENCIAS_NO_NEGOCIABLES;
+export const DEFAULT_COMPETENCIAS_USO_SISTEMAS = COMPETENCIAS_USO_SISTEMAS;
+export const DEFAULT_COMPETENCIAS_CONOCIMIENTO_PRODUCTO = COMPETENCIAS_CONOCIMIENTO_PRODUCTO;
+
+export function getDefaultSecciones(organizationId: string): SeccionCompetencias[] {
+  const now = Timestamp.now();
+  
+  return [
+    {
+      id: 'seccion-1',
+      organizationId,
+      nombre: 'Planeación y Organización',
+      orden: 1,
+      activo: true,
+      competencias: DEFAULT_COMPETENCIAS_PLANEACION.map((nombre, i) => ({
+        id: `comp-1-${i}`,
+        nombre,
+        requerida: true,
+        orden: i,
+        activo: true,
+      } as CompetenciaConfig)),
+      createdAt: now,
+      updatedAt: now,
+    },
+    {
+      id: 'seccion-2',
+      organizationId,
+      nombre: 'No Negociables',
+      orden: 2,
+      activo: true,
+      competencias: DEFAULT_COMPETENCIAS_NO_NEGOCIABLES.map((nombre, i) => ({
+        id: `comp-2-${i}`,
+        nombre,
+        requerida: true,
+        orden: i,
+        activo: true,
+      } as CompetenciaConfig)),
+      createdAt: now,
+      updatedAt: now,
+    },
+    {
+      id: 'seccion-3',
+      organizationId,
+      nombre: 'Uso de Sistemas',
+      orden: 3,
+      activo: true,
+      competencias: DEFAULT_COMPETENCIAS_USO_SISTEMAS.map((nombre, i) => ({
+        id: `comp-3-${i}`,
+        nombre,
+        requerida: true,
+        orden: i,
+        activo: true,
+      } as CompetenciaConfig)),
+      createdAt: now,
+      updatedAt: now,
+    },
+    {
+      id: 'seccion-4',
+      organizationId,
+      nombre: 'Conocimiento del Producto',
+      orden: 4,
+      activo: true,
+      competencias: DEFAULT_COMPETENCIAS_CONOCIMIENTO_PRODUCTO.map((nombre, i) => ({
+        id: `comp-4-${i}`,
+        nombre,
+        requerida: true,
+        orden: i,
+        activo: true,
+      } as CompetenciaConfig)),
+      createdAt: now,
+      updatedAt: now,
+    },
+  ];
+}

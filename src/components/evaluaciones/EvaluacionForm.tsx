@@ -19,6 +19,7 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { useToast } from '@/hooks/use-toast';
+import { useOrganization } from '@/contexts/OrganizationContext';
 import { SeccionEvaluacion } from './SeccionEvaluacion';
 import type { Empleado } from '@/types/empleado';
 import type { Evaluacion, EvaluacionFormData } from '@/types/evaluacion';

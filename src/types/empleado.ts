@@ -1,20 +1,21 @@
 import { Timestamp } from 'firebase/firestore';
 
-export type TipoPuesto = 'ejecutivo' | 'telemarketing' | 'asesor';
-
 export interface Empleado {
   id: string;
   organizationId: string;
   consecutivo: number;
   nombre: string;
   cargo: string;
-  tipoPuesto: TipoPuesto;
-  fechaIngreso: Timestamp;
-  activo: boolean;
+  // CAMBIO PRINCIPAL: reemplazar tipoPuesto por categorias
+  categorias: Record<string, string>; // Ej: { "puesto": "Ejecutivo", "nivel": "Senior" }
+  departamentoId?: string;
   coachAsignado?: string;
   email?: string;
   telefono?: string;
   photoURL?: string;
+  fechaIngreso: Timestamp;
+  activo: boolean;
+  customFields?: Record<string, any>;
   createdAt: Timestamp;
   updatedAt: Timestamp;
 }
@@ -22,10 +23,12 @@ export interface Empleado {
 export interface EmpleadoFormData {
   nombre: string;
   cargo: string;
-  tipoPuesto: TipoPuesto;
+  categorias: Record<string, string>;
+  departamentoId?: string;
   fechaIngreso: Date;
   activo: boolean;
   coachAsignado?: string;
   email?: string;
   telefono?: string;
+  customFields?: Record<string, any>;
 }

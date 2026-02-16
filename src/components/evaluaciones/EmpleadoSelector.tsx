@@ -34,7 +34,7 @@ interface EmpleadoSelectorProps {
   empleadosConEvaluacionReciente?: string[];
 }
 
-type TipoPuesto = 'ejecutivo' | 'telemarketing' | 'asesor';
+type Puesto = 'Ejecutivo' | 'Telemarketing' | 'Asesor';
 type EstadoEvaluacion = 'todas' | 'sin-evaluacion' | 'con-evaluacion';
 
 export function EmpleadoSelector({
@@ -45,7 +45,7 @@ export function EmpleadoSelector({
   const { getEvaluacionesByEmpleado } = useEvaluaciones();
 
   const [searchTerm, setSearchTerm] = useState('');
-  const [filtroTipo, setFiltroTipo] = useState<TipoPuesto | 'todos'>('todos');
+  const [filtroTipo, setFiltroTipo] = useState<Puesto | 'todos'>('todos');
   const [filtroEstado, setFiltroEstado] = useState<EstadoEvaluacion>('todas');
   const [ordenarPor, setOrdenarPor] = useState<'nombre' | 'antiguedad' | 'evaluacion'>('nombre');
   const [empleadoConEvaluacionReciente, setEmpleadoConEvaluacionReciente] = useState<Empleado | null>(null);
@@ -87,9 +87,9 @@ export function EmpleadoSelector({
       );
     }
 
-    // Filtro tipo puesto
+    // Filtro puesto
     if (filtroTipo !== 'todos') {
-      filtered = filtered.filter((emp) => emp.tipoPuesto === filtroTipo);
+      filtered = filtered.filter((emp) => emp.categorias?.['puesto'] === filtroTipo);
     }
 
     // Filtro estado evaluación
@@ -118,13 +118,13 @@ export function EmpleadoSelector({
     return filtered;
   }, [empleados, searchTerm, filtroTipo, filtroEstado, ordenarPor, ultimasEvaluaciones]);
 
-  const getTipoPuestoColor = (tipo: string) => {
+  const getPuestoColor = (tipo?: string) => {
     const colores: Record<string, string> = {
-      ejecutivo: 'bg-blue-100 text-blue-800',
-      telemarketing: 'bg-purple-100 text-purple-800',
-      asesor: 'bg-green-100 text-green-800',
+      'Ejecutivo': 'bg-blue-100 text-blue-800',
+      'Telemarketing': 'bg-purple-100 text-purple-800',
+      'Asesor': 'bg-green-100 text-green-800',
     };
-    return colores[tipo] || 'bg-gray-100 text-gray-800';
+    return colores[tipo || ''] || 'bg-gray-100 text-gray-800';
   };
 
   const handleEmpleadoClick = (empleado: Empleado) => {
@@ -170,9 +170,9 @@ export function EmpleadoSelector({
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="todos">Todos</SelectItem>
-                <SelectItem value="ejecutivo">Ejecutivo</SelectItem>
-                <SelectItem value="telemarketing">Telemarketing</SelectItem>
-                <SelectItem value="asesor">Asesor</SelectItem>
+                <SelectItem value="Ejecutivo">Ejecutivo</SelectItem>
+                <SelectItem value="Telemarketing">Telemarketing</SelectItem>
+                <SelectItem value="Asesor">Asesor</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -254,8 +254,8 @@ export function EmpleadoSelector({
 
                     {/* Badges */}
                     <div className="flex flex-wrap gap-2">
-                      <Badge className={getTipoPuestoColor(empleado.tipoPuesto)}>
-                        {empleado.tipoPuesto}
+                      <Badge className={getPuestoColor(empleado.categorias?.['puesto'])}>
+                        {empleado.categorias?.['puesto'] || '-'}
                       </Badge>
                       {tieneEvaluacionReciente && (
                         <Badge variant="destructive" className="flex items-center gap-1">

@@ -166,7 +166,7 @@ export default function EmpleadoDetailPage({ params }: PageProps) {
                 </div>
                 <div>
                   <span className="text-muted-foreground">Tipo Puesto:</span>
-                  <p className="font-semibold capitalize">{empleado.tipoPuesto}</p>
+                  <p className="font-semibold">{empleado.categorias?.['puesto'] || '-'}</p>
                 </div>
               </div>
             </div>

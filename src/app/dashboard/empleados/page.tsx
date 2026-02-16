@@ -30,7 +30,7 @@ export default function EmpleadosPage() {
     nombre: string;
   } | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
-  const [filterTipoPuesto, setFilterTipoPuesto] = useState<string>('todos');
+  const [filterPuesto, setFilterPuesto] = useState<string>('todos');
 
   const filteredEmpleados = useMemo(() => {
     let result = empleados;
@@ -45,13 +45,13 @@ export default function EmpleadosPage() {
       );
     }
 
-    // Filtro por tipo de puesto
-    if (filterTipoPuesto !== 'todos') {
-      result = result.filter((emp) => emp.tipoPuesto === filterTipoPuesto);
+    // Filtro por puesto
+    if (filterPuesto !== 'todos') {
+      result = result.filter((emp) => emp.categorias?.['puesto'] === filterPuesto);
     }
 
     return result;
-  }, [empleados, searchQuery, filterTipoPuesto]);
+  }, [empleados, searchQuery, filterPuesto]);
 
   const handleNewEmpleado = () => {
     setSelectedEmpleado(null);
@@ -139,15 +139,15 @@ export default function EmpleadosPage() {
               <label className="text-sm font-medium mb-2 block">Tipo de Puesto</label>
               <div className="flex items-center gap-2">
                 <Filter className="h-4 w-4 text-muted-foreground" />
-                <Select value={filterTipoPuesto} onValueChange={setFilterTipoPuesto}>
+                <Select value={filterPuesto} onValueChange={setFilterPuesto}>
                   <SelectTrigger className="w-full">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="todos">Todos</SelectItem>
-                    <SelectItem value="ejecutivo">Ejecutivo</SelectItem>
-                    <SelectItem value="telemarketing">Telemarketing</SelectItem>
-                    <SelectItem value="asesor">Asesor</SelectItem>
+                    <SelectItem value="Ejecutivo">Ejecutivo</SelectItem>
+                    <SelectItem value="Telemarketing">Telemarketing</SelectItem>
+                    <SelectItem value="Asesor">Asesor</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
