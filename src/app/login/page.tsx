@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { signInWithEmailAndPassword } from 'firebase/auth';
+import { signInWithEmailAndPassword, createUserWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '@/lib/firebase/config';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -13,22 +13,52 @@ export const dynamic = 'force-dynamic';
 
 export default function LoginPage() {
   const router = useRouter();
+  const [isSignUp, setIsSignUp] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const handleLogin = async (e: React.FormEvent) => {
+  const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
     setLoading(true);
 
     try {
-      await signInWithEmailAndPassword(auth, email, password);
+      if (isSignUp) {
+        // Sign Up
+        if (password !== confirmPassword) {
+          setError('Las contraseñas no coinciden');
+          setLoading(false);
+          return;
+        }
+        if (password.length < 6) {
+          setError('La contraseña debe tener al menos 6 caracteres');
+          setLoading(false);
+          return;
+        }
+        await createUserWithEmailAndPassword(auth, email, password);
+      } else {
+        // Sign In
+        await signInWithEmailAndPassword(auth, email, password);
+      }
       router.push('/dashboard');
     } catch (err: any) {
-      console.error('Error al iniciar sesión:', err);
-      setError('Credenciales incorrectas. Por favor, intenta de nuevo.');
+      console.error('Error de autenticación:', err);
+      if (err.code === 'auth/email-already-in-use') {
+        setError('Este correo ya está registrado');
+      } else if (err.code === 'auth/weak-password') {
+        setError('La contraseña es muy débil');
+      } else if (err.code === 'auth/invalid-email') {
+        setError('Correo inválido');
+      } else if (err.code === 'auth/user-not-found') {
+        setError('Usuario no encontrado');
+      } else if (err.code === 'auth/wrong-password') {
+        setError('Contraseña incorrecta');
+      } else {
+        setError(isSignUp ? 'Error al crear la cuenta' : 'Error al iniciar sesión');
+      }
     } finally {
       setLoading(false);
     }
@@ -48,13 +78,15 @@ export default function LoginPage() {
 
         <Card>
           <CardHeader>
-            <CardTitle>Iniciar Sesión</CardTitle>
+            <CardTitle>{isSignUp ? 'Crear Cuenta' : 'Iniciar Sesión'}</CardTitle>
             <CardDescription>
-              Ingresa tus credenciales para acceder al sistema
+              {isSignUp 
+                ? 'Crea una nueva cuenta para acceder al sistema' 
+                : 'Ingresa tus credenciales para acceder al sistema'}
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <form onSubmit={handleLogin} className="space-y-4">
+            <form onSubmit={handleAuth} className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="email">Correo Electrónico</Label>
                 <Input
@@ -81,6 +113,21 @@ export default function LoginPage() {
                 />
               </div>
 
+              {isSignUp && (
+                <div className="space-y-2">
+                  <Label htmlFor="confirmPassword">Confirmar Contraseña</Label>
+                  <Input
+                    id="confirmPassword"
+                    type="password"
+                    placeholder="••••••••"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    required
+                    disabled={loading}
+                  />
+                </div>
+              )}
+
               {error && (
                 <div className="p-3 text-sm text-red-600 bg-red-50 rounded-md">
                   {error}
@@ -92,17 +139,37 @@ export default function LoginPage() {
                 className="w-full" 
                 disabled={loading}
               >
-                {loading ? 'Iniciando sesión...' : 'Iniciar Sesión'}
+                {loading 
+                  ? (isSignUp ? 'Creando cuenta...' : 'Iniciando sesión...') 
+                  : (isSignUp ? 'Crear Cuenta' : 'Iniciar Sesión')}
               </Button>
             </form>
 
-            <div className="mt-6 text-center text-sm text-muted-foreground">
-              <p>
-                ¿Olvidaste tu contraseña?{' '}
-                <a href="#" className="text-primary hover:underline">
-                  Recuperar acceso
-                </a>
-              </p>
+            <div className="mt-6 text-center text-sm text-muted-foreground space-y-4">
+              <div>
+                <p>
+                  {isSignUp ? '¿Ya tienes cuenta?' : '¿No tienes cuenta?'}{' '}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsSignUp(!isSignUp);
+                      setError('');
+                    }}
+                    className="text-primary hover:underline font-medium"
+                  >
+                    {isSignUp ? 'Inicia sesión' : 'Crea una cuenta'}
+                  </button>
+                </p>
+              </div>
+              
+              {!isSignUp && (
+                <p>
+                  ¿Olvidaste tu contraseña?{' '}
+                  <a href="#" className="text-primary hover:underline">
+                    Recuperar acceso
+                  </a>
+                </p>
+              )}
             </div>
           </CardContent>
         </Card>
