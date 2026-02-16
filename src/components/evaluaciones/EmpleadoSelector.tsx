@@ -303,7 +303,7 @@ export function EmpleadoSelector({
           <AlertDialogHeader>
             <AlertDialogTitle>Evaluación reciente</AlertDialogTitle>
             <AlertDialogDescription>
-              {ultimaEval
+              {ultimaEval && ultimaEval instanceof Date
                 ? `Este empleado ya fue evaluado ${formatDistanceToNow(ultimaEval, {
                     locale: es,
                     addSuffix: true,

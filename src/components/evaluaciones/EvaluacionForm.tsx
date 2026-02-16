@@ -118,7 +118,14 @@ export function EvaluacionForm({
   );
   const [proximaRevision, setProximaRevision] = useState<string>(
     evaluacion?.proximaRevision
-      ? format(new Date(evaluacion.proximaRevision as any), 'yyyy-MM-dd')
+      ? format(
+          typeof evaluacion.proximaRevision === 'string'
+            ? new Date(evaluacion.proximaRevision)
+            : evaluacion.proximaRevision.toDate?.()
+            ? evaluacion.proximaRevision.toDate()
+            : new Date(evaluacion.proximaRevision as any),
+          'yyyy-MM-dd'
+        )
       : ''
   );
   const [nuevoCompromiso, setNuevoCompromiso] = useState('');
