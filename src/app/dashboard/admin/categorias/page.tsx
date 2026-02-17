@@ -13,7 +13,7 @@ import { AlertCircle, CheckCircle2, Loader2, Plus, Trash2, Edit2, X } from 'luci
 import { CategoriaPersonalizada } from '@/types/organization';
 
 export default function CategoriasPage() {
-  const { organization, refreshOrganization } = useOrganization();
+  const { organization, refreshOrganization, loading } = useOrganization();
   const { toast } = useToast();
   const [isSaving, setIsSaving] = useState(false);
   const [isAdding, setIsAdding] = useState(false);
@@ -152,7 +152,7 @@ export default function CategoriasPage() {
     }
   };
 
-  if (!organization) {
+  if (!organization || loading) {
     return (
       <div className="flex items-center justify-center py-12">
         <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />

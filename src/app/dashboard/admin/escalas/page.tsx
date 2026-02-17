@@ -13,7 +13,7 @@ import { AlertCircle, CheckCircle2, Loader2, Info } from 'lucide-react';
 import { EscalaPuntuacion } from '@/types/organization';
 
 export default function EscalasPage() {
-  const { organization, refreshOrganization } = useOrganization();
+  const { organization, refreshOrganization, loading } = useOrganization();
   const { toast } = useToast();
   const [isSaving, setIsSaving] = useState(false);
   const [escala, setEscala] = useState<EscalaPuntuacion>({} as EscalaPuntuacion);
@@ -59,7 +59,7 @@ export default function EscalasPage() {
     });
   };
 
-  if (!organization) {
+  if (!organization || loading) {
     return (
       <div className="flex items-center justify-center py-12">
         <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />

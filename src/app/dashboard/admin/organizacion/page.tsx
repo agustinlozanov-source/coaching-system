@@ -13,7 +13,7 @@ import { doc, updateDoc } from 'firebase/firestore';
 import { AlertCircle, CheckCircle2, Loader2 } from 'lucide-react';
 
 export default function OrganizacionPage() {
-  const { organization, refreshOrganization } = useOrganization();
+  const { organization, refreshOrganization, loading } = useOrganization();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
@@ -66,7 +66,7 @@ export default function OrganizacionPage() {
     }
   };
 
-  if (!organization) {
+  if (!organization || loading) {
     return (
       <div className="flex items-center justify-center py-12">
         <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
