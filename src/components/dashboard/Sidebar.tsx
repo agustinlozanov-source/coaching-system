@@ -44,9 +44,9 @@ const menuItems = [
     href: '/dashboard/areas-oportunidad',
   },
   {
-    label: 'Configuración',
+    label: 'Administración',
     icon: Settings,
-    href: '/dashboard/configuracion',
+    href: '/dashboard/admin',
   },
 ];
 

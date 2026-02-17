@@ -3,6 +3,9 @@ import { Timestamp } from 'firebase/firestore';
 export interface Organization {
   id: string;
   nombre: string;
+  descripcion?: string;
+  email?: string;
+  telefono?: string;
   logo?: string;
   plan: 'free' | 'pro' | 'enterprise';
   configuracion: OrganizationConfig;
@@ -15,17 +18,17 @@ export interface OrganizationConfig {
   nombreCoach: string; // "Coach", "Supervisor", "Líder"
   nombrePuesto: string; // "Puesto", "Rol", "Cargo"
   nombreDepartamento: string; // "Departamento", "Área", "División"
-  categoriasPersonalizadas: CategoriaPersonalizada[];
+  categorias: Record<string, CategoriaPersonalizada>; // ID → Categoría
   escalaPuntuacion: EscalaPuntuacion;
+  departamentos?: Departamento[];
 }
 
 export interface CategoriaPersonalizada {
   id: string;
   nombre: string; // "Ejecutivo", "Vendedor", etc.
-  tipo: string; // "puesto", "nivel", "turno", "area" - totalmente personalizable
-  activo: boolean;
   color?: string;
-  orden: number;
+  posicion: number;
+  activa: boolean;
 }
 
 export interface EscalaPuntuacion {

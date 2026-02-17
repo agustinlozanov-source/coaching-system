@@ -70,11 +70,11 @@ export function OrganizationProvider({ children }: { children: ReactNode }) {
         nombreCoach: 'Coach',
         nombrePuesto: 'Puesto',
         nombreDepartamento: 'Departamento',
-        categoriasPersonalizadas: [
-          { id: '1', nombre: 'Ejecutivo', tipo: 'puesto', activo: true, color: '#3B82F6', orden: 1 },
-          { id: '2', nombre: 'Telemarketing', tipo: 'puesto', activo: true, color: '#10B981', orden: 2 },
-          { id: '3', nombre: 'Asesor', tipo: 'puesto', activo: true, color: '#F59E0B', orden: 3 },
-        ],
+        categorias: {
+          '1': { id: '1', nombre: 'Ejecutivo', color: '#3B82F6', posicion: 1, activa: true },
+          '2': { id: '2', nombre: 'Telemarketing', color: '#10B981', posicion: 2, activa: true },
+          '3': { id: '3', nombre: 'Asesor', color: '#F59E0B', posicion: 3, activa: true },
+        },
         escalaPuntuacion: {
           1: 'Evidente',
           2: 'En Desarrollo',
@@ -92,19 +92,17 @@ export function OrganizationProvider({ children }: { children: ReactNode }) {
 
   const getCategoriasByTipo = (tipo: string): CategoriaPersonalizada[] => {
     return (
-      organization?.configuracion.categoriasPersonalizadas
-        .filter((cat) => cat.tipo === tipo && cat.activo)
-        .sort((a, b) => a.orden - b.orden) || []
+      Object.values(organization?.configuracion.categorias || {})
+        .filter((cat) => cat.activa)
+        .sort((a, b) => a.posicion - b.posicion) || []
     );
   };
 
   const getTiposCategorias = (): string[] => {
-    const tipos = new Set(
-      organization?.configuracion.categoriasPersonalizadas
-        .filter((cat) => cat.activo)
-        .map((cat) => cat.tipo) || []
-    );
-    return Array.from(tipos);
+    const categorias = Object.values(organization?.configuracion.categorias || {})
+      .filter((cat) => cat.activa)
+      .map((cat) => cat.nombre);
+    return categorias;
   };
 
   const getNombreEmpleado = () => organization?.configuracion.nombreEmpleado || 'Empleado';
