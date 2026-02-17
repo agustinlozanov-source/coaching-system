@@ -49,7 +49,7 @@ export default function CategoriasPage() {
           id: newId,
           nombre: newCategoria.nombre,
           color: newCategoria.color,
-          posicion: Object.keys(categorias).length,
+          posicion: Object.keys(categorias || {}).length,
           activa: true,
         },
       };
@@ -184,7 +184,7 @@ export default function CategoriasPage() {
             <div>
               <CardTitle>Categorías Existentes</CardTitle>
               <CardDescription>
-                {Object.keys(categorias).length} categorías definidas
+                {Object.keys(categorias || {}).length} categorías definidas
               </CardDescription>
             </div>
             {!isAdding && (
@@ -196,7 +196,7 @@ export default function CategoriasPage() {
           </div>
         </CardHeader>
         <CardContent className="space-y-3">
-          {Object.entries(categorias).map(([id, cat]) => (
+          {Object.entries(categorias || {}).map(([id, cat]) => (
             <div
               key={id}
               className="flex items-center gap-4 p-4 border rounded-lg hover:bg-gray-50 transition-colors"

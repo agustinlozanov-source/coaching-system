@@ -67,7 +67,7 @@ export default function EscalasPage() {
     );
   }
 
-  const scores = Object.keys(escala)
+  const scores = Object.keys(escala || {})
     .map(Number)
     .sort((a, b) => a - b);
 

@@ -110,7 +110,7 @@ export default function AdminPage() {
         <Card>
           <CardContent className="pt-6">
             <div className="text-2xl font-bold">
-              {Object.keys(organization.configuracion.categorias).length}
+              {Object.keys(organization.configuracion.categorias || {}).length}
             </div>
             <p className="text-sm text-muted-foreground">Categorías</p>
           </CardContent>
@@ -118,7 +118,7 @@ export default function AdminPage() {
         <Card>
           <CardContent className="pt-6">
             <div className="text-2xl font-bold">
-              {Object.keys(organization.configuracion.escalaPuntuacion).length}
+              {Object.keys(organization.configuracion.escalaPuntuacion || {}).length}
             </div>
             <p className="text-sm text-muted-foreground">Niveles en escala</p>
           </CardContent>

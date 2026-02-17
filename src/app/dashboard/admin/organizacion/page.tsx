@@ -166,7 +166,7 @@ export default function OrganizacionPage() {
         </CardHeader>
         <CardContent>
           <div className="space-y-2">
-            {Object.values(organization.configuracion.categorias).map((cat) => (
+            {Object.values(organization.configuracion.categorias || {}).map((cat) => (
               <div
                 key={cat.id}
                 className="flex items-center gap-3 p-3 border rounded-lg"
@@ -199,7 +199,7 @@ export default function OrganizacionPage() {
         </CardHeader>
         <CardContent>
           <div className="grid gap-2">
-            {Object.entries(organization.configuracion.escalaPuntuacion).map(([num, label]) => (
+            {Object.entries(organization.configuracion.escalaPuntuacion || {}).map(([num, label]) => (
               <div key={num} className="flex items-center gap-3 p-2 border rounded">
                 <div className="font-bold text-lg w-12">{num}</div>
                 <div>{label}</div>
