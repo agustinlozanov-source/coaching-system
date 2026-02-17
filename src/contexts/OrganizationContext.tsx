@@ -29,33 +29,94 @@ export function OrganizationProvider({ children }: { children: ReactNode }) {
     let isMounted = true;
     let timeoutId: NodeJS.Timeout;
 
+    const createDefaultOrganization = async (orgId: string) => {
+      try {
+        console.log('[Organization] Creating default organization:', orgId);
+        const now = Timestamp.now();
+        const defaultOrg = {
+          nombre: 'Mi Organización',
+          plan: 'free',
+          configuracion: {
+            nombreEmpleado: 'Empleado',
+            nombreCoach: 'Coach',
+            nombrePuesto: 'Puesto',
+            nombreDepartamento: 'Departamento',
+            categorias: {
+              '1': { id: '1', nombre: 'Ejecutivo', color: '#3B82F6', posicion: 1, activa: true },
+              '2': { id: '2', nombre: 'Telemarketing', color: '#10B981', posicion: 2, activa: true },
+              '3': { id: '3', nombre: 'Asesor', color: '#F59E0B', posicion: 3, activa: true },
+            },
+            escalaPuntuacion: {
+              1: 'Evidente',
+              2: 'En Desarrollo',
+              3: 'Por Desarrollar',
+              4: 'Sin Evidencia',
+              5: 'No Aplica',
+            },
+          },
+          createdAt: now,
+          updatedAt: now,
+        };
+
+        await setDoc(doc(db, 'organizations', orgId), defaultOrg);
+        console.log('[Organization] Default organization created successfully');
+      } catch (error) {
+        console.error('[Organization] Error creating default organization:', error);
+        throw error;
+      }
+    };
+
+    const loadOrganization = async (orgId: string): Promise<void> => {
+      try {
+        console.log('[Organization] Loading organization:', orgId);
+        const docRef = doc(db, 'organizations', orgId);
+        const docSnap = await getDoc(docRef);
+
+        if (docSnap.exists()) {
+          console.log('[Organization] Found organization:', docSnap.data());
+          if (isMounted) {
+            setOrganization({ id: docSnap.id, ...docSnap.data() } as Organization);
+            setLoading(false);
+          }
+        } else {
+          console.log('[Organization] Organization does not exist, creating default...');
+          await createDefaultOrganization(orgId);
+          if (isMounted) {
+            await loadOrganization(orgId);
+          }
+        }
+      } catch (error) {
+        console.error('[Organization] Error loading organization:', error);
+        if (isMounted) {
+          setOrganization(null);
+          setLoading(false);
+        }
+      }
+    };
+
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (!isMounted) return;
 
       try {
         if (user) {
-          // Por ahora, usar organizationId fijo 'org-default'
-          await loadOrganization('org-default');
+          console.log('[Organization] User authenticated:', user.uid);
         } else {
-          setOrganization(null);
-          setLoading(false);
+          console.log('[Organization] No user authenticated');
         }
+        
+        await loadOrganization('org-default');
       } catch (error) {
-        console.error('Error in auth state change:', error);
-        // Crear organización default incluso sin auth
-        try {
-          await loadOrganization('org-default');
-        } catch (fallbackError) {
-          console.error('Fallback error:', fallbackError);
+        console.error('[Organization] Error in auth state change:', error);
+        if (isMounted) {
           setLoading(false);
         }
       }
     });
 
-    // Safety timeout después de 10 segundos
+    // Safety timeout
     timeoutId = setTimeout(() => {
-      if (isMounted && loading) {
-        console.warn('Organization loading timeout - setting default');
+      if (isMounted) {
+        console.warn('[Organization] Loading timeout - force completing');
         setLoading(false);
       }
     }, 10000);
@@ -66,56 +127,6 @@ export function OrganizationProvider({ children }: { children: ReactNode }) {
       unsubscribe();
     };
   }, []);
-
-  async function loadOrganization(orgId: string) {
-    try {
-      const docRef = doc(db, 'organizations', orgId);
-      const docSnap = await getDoc(docRef);
-
-      if (docSnap.exists()) {
-        setOrganization({ id: docSnap.id, ...docSnap.data() } as Organization);
-      } else {
-        // Crear organización por defecto si no existe
-        await createDefaultOrganization(orgId);
-        await loadOrganization(orgId);
-      }
-    } catch (error) {
-      console.error('Error loading organization:', error);
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  async function createDefaultOrganization(orgId: string) {
-    // Implementar creación de organización default con categorías básicas
-    const now = Timestamp.now();
-    const defaultOrg = {
-      nombre: 'Mi Organización',
-      plan: 'free',
-      configuracion: {
-        nombreEmpleado: 'Empleado',
-        nombreCoach: 'Coach',
-        nombrePuesto: 'Puesto',
-        nombreDepartamento: 'Departamento',
-        categorias: {
-          '1': { id: '1', nombre: 'Ejecutivo', color: '#3B82F6', posicion: 1, activa: true },
-          '2': { id: '2', nombre: 'Telemarketing', color: '#10B981', posicion: 2, activa: true },
-          '3': { id: '3', nombre: 'Asesor', color: '#F59E0B', posicion: 3, activa: true },
-        },
-        escalaPuntuacion: {
-          1: 'Evidente',
-          2: 'En Desarrollo',
-          3: 'Por Desarrollar',
-          4: 'Sin Evidencia',
-          5: 'No Aplica',
-        },
-      },
-      createdAt: now,
-      updatedAt: now,
-    };
-
-    await setDoc(doc(db, 'organizations', orgId), defaultOrg);
-  }
 
   const getCategoriasByTipo = (tipo: string): CategoriaPersonalizada[] => {
     return (
@@ -147,7 +158,18 @@ export function OrganizationProvider({ children }: { children: ReactNode }) {
 
   const refreshOrganization = async () => {
     if (organization) {
-      await loadOrganization(organization.id);
+      setLoading(true);
+      try {
+        const docRef = doc(db, 'organizations', organization.id);
+        const docSnap = await getDoc(docRef);
+        if (docSnap.exists()) {
+          setOrganization({ id: docSnap.id, ...docSnap.data() } as Organization);
+        }
+      } catch (error) {
+        console.error('[Organization] Error refreshing organization:', error);
+      } finally {
+        setLoading(false);
+      }
     }
   };
 
