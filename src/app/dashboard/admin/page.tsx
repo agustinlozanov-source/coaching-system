@@ -55,11 +55,25 @@ export default function AdminPage() {
     },
   ];
 
-  if (loading || !organization) {
+  if (loading) {
     return (
       <div className="flex items-center justify-center py-12">
         <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
       </div>
+    );
+  }
+
+  // Si no hay organización después de cargar, mostrar error
+  if (!organization) {
+    return (
+      <Card className="border-red-200 bg-red-50">
+        <CardHeader>
+          <CardTitle className="text-red-700">Error cargando organización</CardTitle>
+          <CardDescription>
+            No se pudo cargar los datos de la organización. Por favor intenta recargar la página.
+          </CardDescription>
+        </CardHeader>
+      </Card>
     );
   }
 

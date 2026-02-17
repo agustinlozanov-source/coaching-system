@@ -26,18 +26,45 @@ export function OrganizationProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    let isMounted = true;
+    let timeoutId: NodeJS.Timeout;
+
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
-      if (user) {
-        // Por ahora, usar organizationId fijo 'org-default'
-        // En el futuro, obtener del user.organizationId
-        await loadOrganization('org-default');
-      } else {
-        setOrganization(null);
-        setLoading(false);
+      if (!isMounted) return;
+
+      try {
+        if (user) {
+          // Por ahora, usar organizationId fijo 'org-default'
+          await loadOrganization('org-default');
+        } else {
+          setOrganization(null);
+          setLoading(false);
+        }
+      } catch (error) {
+        console.error('Error in auth state change:', error);
+        // Crear organización default incluso sin auth
+        try {
+          await loadOrganization('org-default');
+        } catch (fallbackError) {
+          console.error('Fallback error:', fallbackError);
+          setLoading(false);
+        }
       }
     });
 
-    return () => unsubscribe();
+    // Safety timeout después de 10 segundos
+    timeoutId = setTimeout(() => {
+      if (isMounted && loading) {
+        console.warn('Organization loading timeout - setting default');
+        setLoading(false);
+      }
+    }, 10000);
+
+    return () => {
+      isMounted = false;
+      clearTimeout(timeoutId);
+      unsubscribe();
+    };
   }, []);
 
   async function loadOrganization(orgId: string) {
