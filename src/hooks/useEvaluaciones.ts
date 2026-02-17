@@ -51,13 +51,22 @@ export async function getEvaluacionesByEmpleado(
   try {
     const q = query(
       collection(db, 'evaluaciones'),
-      where('empleadoId', '==', empleadoId),
-      orderBy('fecha', 'desc')
+      where('empleadoId', '==', empleadoId)
     );
     const querySnapshot = await getDocs(q);
     const evaluaciones: Evaluacion[] = [];
     querySnapshot.forEach((doc) => {
       evaluaciones.push({ id: doc.id, ...doc.data() } as Evaluacion);
+    });
+    // Ordenar en memoria en lugar de en la BD (evita necesidad de índice compuesto)
+    evaluaciones.sort((a, b) => {
+      const fechaA = a.fecha instanceof Object && 'toDate' in a.fecha 
+        ? a.fecha.toDate().getTime()
+        : new Date(a.fecha).getTime();
+      const fechaB = b.fecha instanceof Object && 'toDate' in b.fecha 
+        ? b.fecha.toDate().getTime()
+        : new Date(b.fecha).getTime();
+      return fechaB - fechaA; // Descendente (más reciente primero)
     });
     return evaluaciones;
   } catch (error) {
