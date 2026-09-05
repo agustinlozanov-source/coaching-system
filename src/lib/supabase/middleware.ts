@@ -30,7 +30,7 @@ export async function updateSession(request: NextRequest) {
 
   // Rutas de plataforma protegidas (por ahora solo el launcher; /dashboard
   // sigue con Firebase hasta portar sus datos).
-  const protegidas = ['/launcher', '/dashboard'];
+  const protegidas = ['/launcher', '/dashboard', '/opsp'];
   const esProtegida = protegidas.some((p) => request.nextUrl.pathname.startsWith(p));
 
   if (!user && esProtegida) {

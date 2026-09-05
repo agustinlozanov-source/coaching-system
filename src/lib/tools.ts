@@ -5,6 +5,7 @@ import {
   Compass,
   Activity,
   Banknote,
+  Map,
   type LucideIcon,
 } from 'lucide-react';
 
@@ -31,6 +32,15 @@ export const HERRAMIENTAS: Herramienta[] = [
     ruta: '/dashboard',
     color: '#1aab99',
     icon: Users,
+    disponible: true,
+  },
+  {
+    slug: 'opsp',
+    nombre: 'OPSP',
+    descripcion: 'One Page Strategic Plan: tu estrategia completa en una sola página.',
+    ruta: '/opsp',
+    color: '#3533cd',
+    icon: Map,
     disponible: true,
   },
   {
