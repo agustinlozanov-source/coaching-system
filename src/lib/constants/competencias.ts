@@ -1,5 +1,5 @@
 import { SeccionCompetencias, CompetenciaConfig } from '@/types/competencia';
-import { Timestamp } from 'firebase/firestore';
+import { Timestamp } from '@/lib/firestore-compat';
 
 // Exportar como DEFAULT pero mantener compatibilidad
 export const COMPETENCIAS_PLANEACION = [

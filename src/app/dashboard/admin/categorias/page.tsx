@@ -7,8 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
-import { db } from '@/lib/firebase/config';
-import { doc, updateDoc } from 'firebase/firestore';
+import { saveConfiguracion } from '@/lib/teamx/config';
 import { AlertCircle, CheckCircle2, Loader2, Plus, Trash2, Edit2, X } from 'lucide-react';
 import { CategoriaPersonalizada } from '@/types/organization';
 
@@ -54,10 +53,9 @@ export default function CategoriasPage() {
         },
       };
 
-      const orgRef = doc(db, 'organizations', organization.id);
-      await updateDoc(orgRef, {
-        'configuracion.categorias': updatedCategorias,
-        updatedAt: new Date(),
+      await saveConfiguracion(organization.id, {
+        ...organization.configuracion,
+        categorias: updatedCategorias,
       });
 
       setCategorias(updatedCategorias);
@@ -93,10 +91,9 @@ export default function CategoriasPage() {
       const updatedCategorias = { ...categorias };
       delete updatedCategorias[id];
 
-      const orgRef = doc(db, 'organizations', organization.id);
-      await updateDoc(orgRef, {
-        'configuracion.categorias': updatedCategorias,
-        updatedAt: new Date(),
+      await saveConfiguracion(organization.id, {
+        ...organization.configuracion,
+        categorias: updatedCategorias,
       });
 
       setCategorias(updatedCategorias);
@@ -127,10 +124,9 @@ export default function CategoriasPage() {
         [id]: { ...categorias[id], ...updates },
       };
 
-      const orgRef = doc(db, 'organizations', organization.id);
-      await updateDoc(orgRef, {
-        'configuracion.categorias': updatedCategorias,
-        updatedAt: new Date(),
+      await saveConfiguracion(organization.id, {
+        ...organization.configuracion,
+        categorias: updatedCategorias,
       });
 
       setCategorias(updatedCategorias);

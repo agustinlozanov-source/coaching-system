@@ -7,8 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
-import { db } from '@/lib/firebase/config';
-import { doc, updateDoc } from 'firebase/firestore';
+import { saveConfiguracion } from '@/lib/teamx/config';
 import { AlertCircle, CheckCircle2, Loader2, Info } from 'lucide-react';
 import { EscalaPuntuacion } from '@/types/organization';
 
@@ -29,10 +28,9 @@ export default function EscalasPage() {
 
     try {
       setIsSaving(true);
-      const orgRef = doc(db, 'organizations', organization.id);
-      await updateDoc(orgRef, {
-        'configuracion.escalaPuntuacion': escala,
-        updatedAt: new Date(),
+      await saveConfiguracion(organization.id, {
+        ...organization.configuracion,
+        escalaPuntuacion: escala,
       });
 
       await refreshOrganization();

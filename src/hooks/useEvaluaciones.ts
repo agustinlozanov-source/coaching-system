@@ -1,18 +1,8 @@
 'use client';
 
-import {
-  collection,
-  addDoc,
-  updateDoc,
-  doc,
-  getDocs,
-  getDoc,
-  query,
-  where,
-  orderBy,
-  Timestamp,
-} from 'firebase/firestore';
-import { db, auth } from '@/lib/firebase/config';
+import { createClient } from '@/lib/supabase/client';
+import { getActiveOrgId } from '@/lib/teamx/org';
+import { Timestamp } from '@/lib/firestore-compat';
 import { Evaluacion, EvaluacionFormData } from '@/types/evaluacion';
 import {
   calcularPromedioSeccion,
@@ -21,117 +11,95 @@ import {
   identificarFortalezas,
 } from '@/lib/utils/calculations';
 
-/**
- * Obtiene todas las evaluaciones ordenadas por fecha descendente
- */
+const TABLE = 'teamx_evaluaciones';
+
+function rowToEvaluacion(row: any): Evaluacion {
+  return {
+    id: row.id,
+    organizationId: row.organizacion_id,
+    empleadoId: row.empleado_id,
+    empleadoNombre: row.empleado_nombre ?? '',
+    coachId: row.coach_id ?? '',
+    coachNombre: row.coach_nombre ?? '',
+    fecha: Timestamp.fromISO(row.fecha) ?? Timestamp.now(),
+    status: row.status,
+    secciones: row.secciones,
+    promedioGeneral: Number(row.promedio_general ?? 0),
+    efectividad: Number(row.efectividad ?? 0),
+    areasOportunidad: row.areas_oportunidad ?? [],
+    fortalezas: row.fortalezas ?? [],
+    observacionesGenerales: row.observaciones_generales ?? undefined,
+    compromisos: row.compromisos ?? [],
+    proximaRevision: Timestamp.fromISO(row.proxima_revision),
+    createdAt: Timestamp.fromISO(row.created_at) ?? Timestamp.now(),
+    updatedAt: Timestamp.fromISO(row.updated_at) ?? Timestamp.now(),
+  } as Evaluacion;
+}
+
 export async function getEvaluaciones(): Promise<Evaluacion[]> {
-  try {
-    const q = query(
-      collection(db, 'evaluaciones'),
-      orderBy('fecha', 'desc')
-    );
-    const querySnapshot = await getDocs(q);
-    const evaluaciones: Evaluacion[] = [];
-    querySnapshot.forEach((doc) => {
-      evaluaciones.push({ id: doc.id, ...doc.data() } as Evaluacion);
-    });
-    return evaluaciones;
-  } catch (error) {
+  const supabase = createClient();
+  const orgId = await getActiveOrgId();
+  if (!orgId) return [];
+  const { data, error } = await supabase
+    .from(TABLE)
+    .select('*')
+    .eq('organizacion_id', orgId)
+    .order('fecha', { ascending: false });
+  if (error) {
     console.error('Error al obtener evaluaciones:', error);
     throw error;
   }
+  return (data ?? []).map(rowToEvaluacion);
 }
 
-/**
- * Obtiene evaluaciones de un empleado específico
- */
-export async function getEvaluacionesByEmpleado(
-  empleadoId: string
-): Promise<Evaluacion[]> {
-  try {
-    const q = query(
-      collection(db, 'evaluaciones'),
-      where('empleadoId', '==', empleadoId)
-    );
-    const querySnapshot = await getDocs(q);
-    const evaluaciones: Evaluacion[] = [];
-    querySnapshot.forEach((doc) => {
-      evaluaciones.push({ id: doc.id, ...doc.data() } as Evaluacion);
-    });
-    // Ordenar en memoria en lugar de en la BD (evita necesidad de índice compuesto)
-    evaluaciones.sort((a, b) => {
-      const fechaA = a.fecha instanceof Object && 'toDate' in a.fecha 
-        ? a.fecha.toDate().getTime()
-        : new Date(a.fecha).getTime();
-      const fechaB = b.fecha instanceof Object && 'toDate' in b.fecha 
-        ? b.fecha.toDate().getTime()
-        : new Date(b.fecha).getTime();
-      return fechaB - fechaA; // Descendente (más reciente primero)
-    });
-    return evaluaciones;
-  } catch (error) {
+export async function getEvaluacionesByEmpleado(empleadoId: string): Promise<Evaluacion[]> {
+  const supabase = createClient();
+  const { data, error } = await supabase
+    .from(TABLE)
+    .select('*')
+    .eq('empleado_id', empleadoId)
+    .order('fecha', { ascending: false });
+  if (error) {
     console.error('Error al obtener evaluaciones del empleado:', error);
     throw error;
   }
+  return (data ?? []).map(rowToEvaluacion);
 }
 
-/**
- * Obtiene una evaluación por ID
- */
 export async function getEvaluacionById(id: string): Promise<Evaluacion | null> {
-  try {
-    const docRef = doc(db, 'evaluaciones', id);
-    const docSnap = await getDoc(docRef);
-    if (docSnap.exists()) {
-      return { id: docSnap.id, ...docSnap.data() } as Evaluacion;
-    }
-    return null;
-  } catch (error) {
+  const supabase = createClient();
+  const { data, error } = await supabase.from(TABLE).select('*').eq('id', id).maybeSingle();
+  if (error) {
     console.error('Error al obtener evaluación:', error);
     throw error;
   }
+  return data ? rowToEvaluacion(data) : null;
 }
 
-/**
- * Calcula los promedios y métricas de una evaluación
- */
+/** Calcula promedios y métricas (lógica de negocio, sin cambios). */
 function calcularMetricasEvaluacion(data: EvaluacionFormData) {
-  // Calcular promedio de cada sección
   const seccionesConPromedio = {
     planeacionOrganizacion: {
       items: data.secciones.planeacionOrganizacion,
-      promedio: calcularPromedioSeccion(
-        data.secciones.planeacionOrganizacion.map((i) => i.puntuacion)
-      ),
+      promedio: calcularPromedioSeccion(data.secciones.planeacionOrganizacion.map((i) => i.puntuacion)),
     },
     noNegociables: {
       items: data.secciones.noNegociables,
-      promedio: calcularPromedioSeccion(
-        data.secciones.noNegociables.map((i) => i.puntuacion)
-      ),
+      promedio: calcularPromedioSeccion(data.secciones.noNegociables.map((i) => i.puntuacion)),
     },
     usoSistemas: {
       items: data.secciones.usoSistemas,
-      promedio: calcularPromedioSeccion(
-        data.secciones.usoSistemas.map((i) => i.puntuacion)
-      ),
+      promedio: calcularPromedioSeccion(data.secciones.usoSistemas.map((i) => i.puntuacion)),
     },
     conocimientoProducto: {
       items: data.secciones.conocimientoProducto,
-      promedio: calcularPromedioSeccion(
-        data.secciones.conocimientoProducto.map((i) => i.puntuacion)
-      ),
+      promedio: calcularPromedioSeccion(data.secciones.conocimientoProducto.map((i) => i.puntuacion)),
     },
   };
 
-  // Calcular promedio general
   const promedios = Object.values(seccionesConPromedio).map((s) => s.promedio);
   const promedioGeneral = promedios.reduce((a, b) => a + b, 0) / promedios.length;
-
-  // Calcular efectividad
   const efectividad = calcularEfectividad(promedioGeneral);
-
-  // Identificar áreas de oportunidad y fortalezas
   const areasOportunidad = identificarAreasOportunidad(seccionesConPromedio);
   const fortalezas = identificarFortalezas(seccionesConPromedio);
 
@@ -144,162 +112,130 @@ function calcularMetricasEvaluacion(data: EvaluacionFormData) {
   };
 }
 
-/**
- * Crea una evaluación nueva
- */
+async function getCoach(supabase: ReturnType<typeof createClient>) {
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) throw new Error('No hay usuario autenticado');
+  const { data: perfil } = await supabase
+    .from('perfiles')
+    .select('nombre')
+    .eq('id', user.id)
+    .maybeSingle();
+  return { id: user.id, nombre: perfil?.nombre ?? user.email ?? '' };
+}
+
 export async function createEvaluacion(
   empleadoId: string,
   empleadoNombre: string,
-  data: EvaluacionFormData
+  data: EvaluacionFormData,
 ): Promise<string> {
-  try {
-    const user = auth.currentUser;
-    if (!user) {
-      throw new Error('No hay usuario autenticado');
-    }
+  const supabase = createClient();
+  const orgId = await getActiveOrgId();
+  if (!orgId) throw new Error('No hay organización activa');
+  const coach = await getCoach(supabase);
+  const metricas = calcularMetricasEvaluacion(data);
 
-    const metricas = calcularMetricasEvaluacion(data);
-    const now = Timestamp.now();
-
-    const newEvaluacion = {
-      organizationId: 'org-default',
-      empleadoId,
-      empleadoNombre,
-      coachId: user.uid,
-      coachNombre: user.displayName || user.email,
-      fecha: Timestamp.fromDate(data.fecha),
-      status: 'finalizada' as const,
+  const { data: inserted, error } = await supabase
+    .from(TABLE)
+    .insert({
+      organizacion_id: orgId,
+      empleado_id: empleadoId,
+      empleado_nombre: empleadoNombre,
+      coach_id: coach.id,
+      coach_nombre: coach.nombre,
+      fecha: data.fecha.toISOString(),
+      status: 'finalizada',
       secciones: metricas.secciones,
-      promedioGeneral: metricas.promedioGeneral,
+      promedio_general: metricas.promedioGeneral,
       efectividad: metricas.efectividad,
-      areasOportunidad: metricas.areasOportunidad,
+      areas_oportunidad: metricas.areasOportunidad,
       fortalezas: metricas.fortalezas,
-      observacionesGenerales: data.observacionesGenerales || null,
-      compromisos: data.compromisos || [],
-      proximaRevision: data.proximaRevision
-        ? Timestamp.fromDate(data.proximaRevision)
-        : null,
-      createdAt: now,
-      updatedAt: now,
-    };
+      observaciones_generales: data.observacionesGenerales ?? null,
+      compromisos: data.compromisos ?? [],
+      proxima_revision: data.proximaRevision ? data.proximaRevision.toISOString() : null,
+    })
+    .select('id')
+    .single();
 
-    const docRef = await addDoc(collection(db, 'evaluaciones'), newEvaluacion);
-    return docRef.id;
-  } catch (error) {
+  if (error) {
     console.error('Error al crear evaluación:', error);
     throw error;
   }
+  return inserted.id;
 }
 
-/**
- * Actualiza una evaluación recalculando todas las métricas
- */
-export async function updateEvaluacion(
-  id: string,
-  data: Partial<EvaluacionFormData>
-): Promise<void> {
-  try {
-    // Si hay datos de secciones, recalcular métricas
-    let updateData: any = { ...data };
+export async function updateEvaluacion(id: string, data: Partial<EvaluacionFormData>): Promise<void> {
+  const supabase = createClient();
+  const update: Record<string, any> = { updated_at: new Date().toISOString() };
 
-    if (data.secciones) {
-      const metricas = calcularMetricasEvaluacion(data as EvaluacionFormData);
-      updateData = {
-        ...updateData,
-        secciones: metricas.secciones,
-        promedioGeneral: metricas.promedioGeneral,
-        efectividad: metricas.efectividad,
-        areasOportunidad: metricas.areasOportunidad,
-        fortalezas: metricas.fortalezas,
-      };
-    }
+  if (data.secciones) {
+    const metricas = calcularMetricasEvaluacion(data as EvaluacionFormData);
+    update.secciones = metricas.secciones;
+    update.promedio_general = metricas.promedioGeneral;
+    update.efectividad = metricas.efectividad;
+    update.areas_oportunidad = metricas.areasOportunidad;
+    update.fortalezas = metricas.fortalezas;
+  }
+  if (data.fecha) update.fecha = data.fecha.toISOString();
+  if (data.proximaRevision) update.proxima_revision = data.proximaRevision.toISOString();
+  if (data.observacionesGenerales !== undefined)
+    update.observaciones_generales = data.observacionesGenerales ?? null;
+  if (data.compromisos !== undefined) update.compromisos = data.compromisos ?? [];
 
-    // Convertir fecha a Timestamp si existe
-    if (data.fecha) {
-      updateData.fecha = Timestamp.fromDate(data.fecha);
-    }
-
-    if (data.proximaRevision) {
-      updateData.proximaRevision = Timestamp.fromDate(data.proximaRevision);
-    }
-
-    // Actualizar updatedAt
-    updateData.updatedAt = Timestamp.now();
-
-    const docRef = doc(db, 'evaluaciones', id);
-    await updateDoc(docRef, updateData);
-  } catch (error) {
+  const { error } = await supabase.from(TABLE).update(update).eq('id', id);
+  if (error) {
     console.error('Error al actualizar evaluación:', error);
     throw error;
   }
 }
 
-/**
- * Guarda un borrador de evaluación sin validar que esté completo
- */
 export async function saveDraft(
   empleadoId: string,
   empleadoNombre: string,
-  data: Partial<EvaluacionFormData>
+  data: Partial<EvaluacionFormData>,
 ): Promise<string> {
-  try {
-    const user = auth.currentUser;
-    if (!user) {
-      throw new Error('No hay usuario autenticado');
-    }
+  const supabase = createClient();
+  const orgId = await getActiveOrgId();
+  if (!orgId) throw new Error('No hay organización activa');
+  const coach = await getCoach(supabase);
 
-    const now = Timestamp.now();
+  const secciones = {
+    planeacionOrganizacion: { items: data.secciones?.planeacionOrganizacion ?? [], promedio: 0 },
+    noNegociables: { items: data.secciones?.noNegociables ?? [], promedio: 0 },
+    usoSistemas: { items: data.secciones?.usoSistemas ?? [], promedio: 0 },
+    conocimientoProducto: { items: data.secciones?.conocimientoProducto ?? [], promedio: 0 },
+  };
 
-    const newDraft = {
-      organizationId: 'org-default',
-      empleadoId,
-      empleadoNombre,
-      coachId: user.uid,
-      coachNombre: user.displayName || user.email,
-      fecha: data.fecha ? Timestamp.fromDate(data.fecha) : now,
-      status: 'borrador' as const,
-      secciones: {
-        planeacionOrganizacion: {
-          items: data.secciones?.planeacionOrganizacion || [],
-          promedio: 0,
-        },
-        noNegociables: {
-          items: data.secciones?.noNegociables || [],
-          promedio: 0,
-        },
-        usoSistemas: {
-          items: data.secciones?.usoSistemas || [],
-          promedio: 0,
-        },
-        conocimientoProducto: {
-          items: data.secciones?.conocimientoProducto || [],
-          promedio: 0,
-        },
-      },
-      promedioGeneral: 0,
+  const { data: inserted, error } = await supabase
+    .from(TABLE)
+    .insert({
+      organizacion_id: orgId,
+      empleado_id: empleadoId,
+      empleado_nombre: empleadoNombre,
+      coach_id: coach.id,
+      coach_nombre: coach.nombre,
+      fecha: data.fecha ? data.fecha.toISOString() : new Date().toISOString(),
+      status: 'borrador',
+      secciones,
+      promedio_general: 0,
       efectividad: 0,
-      areasOportunidad: [],
+      areas_oportunidad: [],
       fortalezas: [],
-      observacionesGenerales: data.observacionesGenerales || null,
-      compromisos: data.compromisos || [],
-      proximaRevision: data.proximaRevision
-        ? Timestamp.fromDate(data.proximaRevision)
-        : null,
-      createdAt: now,
-      updatedAt: now,
-    };
+      observaciones_generales: data.observacionesGenerales ?? null,
+      compromisos: data.compromisos ?? [],
+      proxima_revision: data.proximaRevision ? data.proximaRevision.toISOString() : null,
+    })
+    .select('id')
+    .single();
 
-    const docRef = await addDoc(collection(db, 'evaluaciones'), newDraft);
-    return docRef.id;
-  } catch (error) {
+  if (error) {
     console.error('Error al guardar borrador:', error);
     throw error;
   }
+  return inserted.id;
 }
 
-/**
- * Custom hook para acceder a las funciones de evaluaciones
- */
 export function useEvaluaciones() {
   return {
     getEvaluaciones,

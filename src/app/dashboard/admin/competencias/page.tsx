@@ -8,8 +8,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
-import { db } from '@/lib/firebase/config';
-import { doc, updateDoc, collection, query, where, getDocs } from 'firebase/firestore';
+import { loadSeccionesRaw, saveSeccion } from '@/lib/teamx/config';
+import { Timestamp } from '@/lib/firestore-compat';
 import { AlertCircle, CheckCircle2, Loader2, Plus, Trash2, Edit2, X } from 'lucide-react';
 import { SeccionCompetencias, CompetenciaConfig } from '@/types/competencia';
 import { getDefaultSecciones } from '@/lib/constants/competencias';
@@ -40,19 +40,22 @@ export default function CompetenciasPage() {
 
     try {
       setIsLoading(true);
-      const seccRef = collection(db, 'secciones_competencias');
-      const q = query(seccRef, where('organizationId', '==', organization.id));
-      const snapshot = await getDocs(q);
+      const rows = await loadSeccionesRaw(organization.id);
 
-      if (snapshot.empty) {
-        // No hay secciones, cargar defaults
-        const defaults = getDefaultSecciones(organization.id);
-        setSecciones(defaults);
+      if (rows.length === 0) {
+        setSecciones(getDefaultSecciones(organization.id));
       } else {
-        const data = snapshot.docs.map((doc) => ({
-          ...doc.data(),
-          id: doc.id,
-        })) as SeccionCompetencias[];
+        const data: SeccionCompetencias[] = rows.map((row) => ({
+          id: row.id,
+          organizationId: row.organizacion_id,
+          nombre: row.nombre,
+          descripcion: row.descripcion ?? undefined,
+          orden: row.orden,
+          activo: row.activo,
+          competencias: row.competencias ?? [],
+          createdAt: Timestamp.fromISO(row.created_at) ?? Timestamp.now(),
+          updatedAt: Timestamp.fromISO(row.updated_at) ?? Timestamp.now(),
+        }));
         setSecciones(data.sort((a, b) => (a.orden || 0) - (b.orden || 0)));
       }
     } catch (error) {
@@ -96,8 +99,7 @@ export default function CompetenciasPage() {
         competencias: [...(section.competencias || []), newCompetencia],
       };
 
-      const secRef = doc(db, 'secciones_competencias', section.id);
-      await updateDoc(secRef, updatedSection);
+      await saveSeccion(organization!.id, updatedSection);
 
       setSecciones(
         secciones.map((s) => (s.id === section.id ? updatedSection : s))
@@ -133,8 +135,7 @@ export default function CompetenciasPage() {
         competencias: section.competencias.filter((c) => c.id !== compId),
       };
 
-      const secRef = doc(db, 'secciones_competencias', section.id);
-      await updateDoc(secRef, updatedSection);
+      await saveSeccion(organization!.id, updatedSection);
 
       setSecciones(
         secciones.map((s) => (s.id === section.id ? updatedSection : s))

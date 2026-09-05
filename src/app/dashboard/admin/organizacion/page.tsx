@@ -8,8 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
-import { db } from '@/lib/firebase/config';
-import { doc, updateDoc } from 'firebase/firestore';
+import { saveConfiguracion } from '@/lib/teamx/config';
 import { AlertCircle, CheckCircle2, Loader2 } from 'lucide-react';
 
 export default function OrganizacionPage() {
@@ -40,13 +39,12 @@ export default function OrganizacionPage() {
     
     try {
       setIsSaving(true);
-      const orgRef = doc(db, 'organizations', organization.id);
-      await updateDoc(orgRef, {
+      await saveConfiguracion(organization.id, {
+        ...organization.configuracion,
         nombre: formData.nombre,
         descripcion: formData.descripcion,
         email: formData.email,
         telefono: formData.telefono,
-        updatedAt: new Date(),
       });
 
       await refreshOrganization();

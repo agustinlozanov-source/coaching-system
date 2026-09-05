@@ -13,8 +13,8 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils/cn';
 import { Button } from '@/components/ui/button';
-import { signOut } from 'firebase/auth';
-import { auth } from '@/lib/firebase/config';
+import { createClient } from '@/lib/supabase/client';
+import { clearActiveOrgId } from '@/lib/teamx/org';
 import { useRouter } from 'next/navigation';
 
 const menuItems = [
@@ -56,8 +56,11 @@ export function Sidebar() {
 
   const handleLogout = async () => {
     try {
-      await signOut(auth);
+      const supabase = createClient();
+      await supabase.auth.signOut();
+      clearActiveOrgId();
       router.push('/login');
+      router.refresh();
     } catch (error) {
       console.error('Error al cerrar sesión:', error);
     }
@@ -67,12 +70,12 @@ export function Sidebar() {
     <div className="flex flex-col h-full bg-card border-r">
       {/* Logo */}
       <div className="p-6 border-b">
-        <h1 className="text-2xl font-bold text-primary font-jakarta">
-          Coaching System
-        </h1>
-        <p className="text-xs text-muted-foreground mt-1">
-          Gestión de Personal
-        </p>
+        <Link href="/launcher" className="block">
+          <h1 className="text-2xl font-bold font-jakarta tracking-tight">
+            TEAM<span className="text-[#1aab99]">x</span>
+          </h1>
+          <p className="text-xs text-muted-foreground mt-1">← Todas las herramientas</p>
+        </Link>
       </div>
 
       {/* Navigation */}

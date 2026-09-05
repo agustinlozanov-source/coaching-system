@@ -1,39 +1,50 @@
 'use client';
 
-import { collection, getDocs, query, where, orderBy } from 'firebase/firestore';
-import { db } from '@/lib/firebase/config';
+import { createClient } from '@/lib/supabase/client';
+import { Timestamp } from '@/lib/firestore-compat';
 import { SeccionCompetencias, CompetenciaConfig } from '@/types/competencia';
 import { useOrganization } from '@/contexts/OrganizationContext';
+
+const TABLE = 'teamx_secciones_competencias';
+
+function rowToSeccion(row: any): SeccionCompetencias {
+  return {
+    id: row.id,
+    organizationId: row.organizacion_id,
+    nombre: row.nombre,
+    descripcion: row.descripcion ?? undefined,
+    orden: row.orden,
+    activo: row.activo,
+    competencias: row.competencias ?? [],
+    createdAt: Timestamp.fromISO(row.created_at) ?? Timestamp.now(),
+    updatedAt: Timestamp.fromISO(row.updated_at) ?? Timestamp.now(),
+  };
+}
 
 export function useCompetencias() {
   const { organization } = useOrganization();
 
   async function getSeccionesByOrganization(): Promise<SeccionCompetencias[]> {
     if (!organization) return [];
+    const supabase = createClient();
 
     try {
-      const q = query(
-        collection(db, 'secciones_competencias'),
-        where('organizationId', '==', organization.id),
-        where('activo', '==', true),
-        orderBy('orden', 'asc')
-      );
+      const { data, error } = await supabase
+        .from(TABLE)
+        .select('*')
+        .eq('organizacion_id', organization.id)
+        .eq('activo', true)
+        .order('orden', { ascending: true });
 
-      const snapshot = await getDocs(q);
+      if (error) throw error;
 
-      if (snapshot.empty) {
-        // Si no hay secciones, usar las default
+      if (!data || data.length === 0) {
         const { getDefaultSecciones } = await import('@/lib/constants/competencias');
         return getDefaultSecciones(organization.id);
       }
-
-      return snapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      })) as SeccionCompetencias[];
+      return data.map(rowToSeccion);
     } catch (error) {
       console.error('Error loading secciones:', error);
-      // Si hay error, devolver las default
       const { getDefaultSecciones } = await import('@/lib/constants/competencias');
       return getDefaultSecciones(organization.id);
     }
@@ -41,13 +52,12 @@ export function useCompetencias() {
 
   function getCompetenciasAplicables(
     seccion: SeccionCompetencias,
-    empleadoCategorias: Record<string, string>
+    empleadoCategorias: Record<string, string>,
   ): CompetenciaConfig[] {
     return seccion.competencias.filter((comp) => {
       if (!comp.activo) return false;
-      if (!comp.aplicaA) return true; // Si no tiene restricciones, aplica a todos
+      if (!comp.aplicaA) return true;
 
-      // Verificar si aplica según categorías del empleado
       if (comp.aplicaA.categorias) {
         for (const [tipo, valores] of Object.entries(comp.aplicaA.categorias)) {
           const categoriaEmpleado = empleadoCategorias[tipo];
@@ -57,7 +67,6 @@ export function useCompetencias() {
         }
         return false;
       }
-
       return true;
     });
   }

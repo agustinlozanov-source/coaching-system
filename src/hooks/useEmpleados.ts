@@ -1,179 +1,171 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import {
-  collection,
-  addDoc,
-  updateDoc,
-  deleteDoc,
-  doc,
-  getDocs,
-  query,
-  where,
-  orderBy,
-  onSnapshot,
-  Timestamp,
-} from 'firebase/firestore';
-import { db } from '@/lib/firebase/config';
+import { createClient } from '@/lib/supabase/client';
+import { getActiveOrgId } from '@/lib/teamx/org';
+import { Timestamp } from '@/lib/firestore-compat';
 import { Empleado, EmpleadoFormData } from '@/types/empleado';
 
-/**
- * Obtiene todos los empleados activos ordenados por nombre
- */
+const TABLE = 'teamx_empleados';
+
+function rowToEmpleado(row: any): Empleado {
+  return {
+    id: row.id,
+    organizationId: row.organizacion_id,
+    consecutivo: row.consecutivo,
+    nombre: row.nombre,
+    cargo: row.cargo ?? '',
+    categorias: row.categorias ?? {},
+    departamentoId: row.departamento_id ?? undefined,
+    coachAsignado: row.coach_asignado ?? undefined,
+    email: row.email ?? undefined,
+    telefono: row.telefono ?? undefined,
+    photoURL: row.photo_url ?? undefined,
+    fechaIngreso: Timestamp.fromISO(row.fecha_ingreso) ?? Timestamp.now(),
+    activo: row.activo,
+    customFields: row.custom_fields ?? {},
+    createdAt: Timestamp.fromISO(row.created_at) ?? Timestamp.now(),
+    updatedAt: Timestamp.fromISO(row.updated_at) ?? Timestamp.now(),
+  };
+}
+
+function dateOnly(d: Date): string {
+  return d.toISOString().slice(0, 10);
+}
+
 export async function getEmpleados(): Promise<Empleado[]> {
-  try {
-    const q = query(
-      collection(db, 'empleados'),
-      where('activo', '==', true),
-      orderBy('nombre')
-    );
-    const querySnapshot = await getDocs(q);
-    const empleados: Empleado[] = [];
-    querySnapshot.forEach((doc) => {
-      empleados.push({ id: doc.id, ...doc.data() } as Empleado);
-    });
-    return empleados;
-  } catch (error) {
+  const supabase = createClient();
+  const orgId = await getActiveOrgId();
+  if (!orgId) return [];
+  const { data, error } = await supabase
+    .from(TABLE)
+    .select('*')
+    .eq('organizacion_id', orgId)
+    .eq('activo', true)
+    .order('nombre', { ascending: true });
+  if (error) {
     console.error('Error al obtener empleados:', error);
     throw error;
   }
+  return (data ?? []).map(rowToEmpleado);
 }
 
-/**
- * Obtiene un empleado por ID
- */
 export async function getEmpleadoById(id: string): Promise<Empleado | null> {
-  try {
-    const docRef = doc(db, 'empleados', id);
-    const docSnap = await getDocs(collection(db, 'empleados'));
-    const empleado = docSnap.docs.find((d) => d.id === id);
-    if (empleado) {
-      return { id: empleado.id, ...empleado.data() } as Empleado;
-    }
-    return null;
-  } catch (error) {
+  const supabase = createClient();
+  const { data, error } = await supabase.from(TABLE).select('*').eq('id', id).maybeSingle();
+  if (error) {
     console.error('Error al obtener empleado:', error);
     throw error;
   }
+  return data ? rowToEmpleado(data) : null;
 }
 
-/**
- * Crea un empleado nuevo
- * Genera consecutivo automático y convierte fechas a Timestamp
- */
-export async function createEmpleado(
-  data: EmpleadoFormData
-): Promise<string> {
-  try {
-    // Obtener el máximo consecutivo actual
-    const q = query(collection(db, 'empleados'));
-    const querySnapshot = await getDocs(q);
-    let maxConsecutivo = 0;
-    querySnapshot.forEach((doc) => {
-      const empleado = doc.data() as Empleado;
-      if (empleado.consecutivo > maxConsecutivo) {
-        maxConsecutivo = empleado.consecutivo;
-      }
-    });
+export async function createEmpleado(data: EmpleadoFormData): Promise<string> {
+  const supabase = createClient();
+  const orgId = await getActiveOrgId();
+  if (!orgId) throw new Error('No hay organización activa');
 
-    const now = Timestamp.now();
-    const newEmpleado = {
-      organizationId: 'org-default',
-      consecutivo: maxConsecutivo + 1,
+  // Consecutivo = max + 1 dentro de la organización
+  const { data: maxRow } = await supabase
+    .from(TABLE)
+    .select('consecutivo')
+    .eq('organizacion_id', orgId)
+    .order('consecutivo', { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  const consecutivo = (maxRow?.consecutivo ?? 0) + 1;
+
+  const { data: inserted, error } = await supabase
+    .from(TABLE)
+    .insert({
+      organizacion_id: orgId,
+      consecutivo,
       nombre: data.nombre,
       cargo: data.cargo,
-      categorias: data.categorias || {},
-      departamentoId: data.departamentoId || null,
-      fechaIngreso: Timestamp.fromDate(data.fechaIngreso),
+      categorias: data.categorias ?? {},
+      departamento_id: data.departamentoId ?? null,
+      fecha_ingreso: dateOnly(data.fechaIngreso),
       activo: data.activo,
-      coachAsignado: data.coachAsignado || null,
-      email: data.email || null,
-      telefono: data.telefono || null,
-      photoURL: null,
-      createdAt: now,
-      updatedAt: now,
-    };
+      coach_asignado: data.coachAsignado ?? null,
+      email: data.email ?? null,
+      telefono: data.telefono ?? null,
+      custom_fields: data.customFields ?? {},
+    })
+    .select('id')
+    .single();
 
-    const docRef = await addDoc(collection(db, 'empleados'), newEmpleado);
-    return docRef.id;
-  } catch (error) {
+  if (error) {
     console.error('Error al crear empleado:', error);
     throw error;
   }
+  return inserted.id;
 }
 
-/**
- * Actualiza un empleado
- */
-export async function updateEmpleado(
-  id: string,
-  data: Partial<EmpleadoFormData>
-): Promise<void> {
-  try {
-    const updateData: any = { ...data };
+export async function updateEmpleado(id: string, data: Partial<EmpleadoFormData>): Promise<void> {
+  const supabase = createClient();
+  const update: Record<string, any> = { updated_at: new Date().toISOString() };
+  if (data.nombre !== undefined) update.nombre = data.nombre;
+  if (data.cargo !== undefined) update.cargo = data.cargo;
+  if (data.categorias !== undefined) update.categorias = data.categorias;
+  if (data.departamentoId !== undefined) update.departamento_id = data.departamentoId ?? null;
+  if (data.activo !== undefined) update.activo = data.activo;
+  if (data.coachAsignado !== undefined) update.coach_asignado = data.coachAsignado ?? null;
+  if (data.email !== undefined) update.email = data.email ?? null;
+  if (data.telefono !== undefined) update.telefono = data.telefono ?? null;
+  if (data.customFields !== undefined) update.custom_fields = data.customFields;
+  if (data.fechaIngreso) update.fecha_ingreso = dateOnly(data.fechaIngreso);
 
-    // Convertir fecha a Timestamp si existe
-    if (data.fechaIngreso) {
-      updateData.fechaIngreso = Timestamp.fromDate(data.fechaIngreso);
-    }
-
-    // Actualizar updatedAt
-    updateData.updatedAt = Timestamp.now();
-
-    const docRef = doc(db, 'empleados', id);
-    await updateDoc(docRef, updateData);
-  } catch (error) {
+  const { error } = await supabase.from(TABLE).update(update).eq('id', id);
+  if (error) {
     console.error('Error al actualizar empleado:', error);
     throw error;
   }
 }
 
-/**
- * Marca un empleado como inactivo (soft delete)
- */
 export async function deleteEmpleado(id: string): Promise<void> {
-  try {
-    const docRef = doc(db, 'empleados', id);
-    await updateDoc(docRef, {
-      activo: false,
-      updatedAt: Timestamp.now(),
-    });
-  } catch (error) {
+  const supabase = createClient();
+  const { error } = await supabase
+    .from(TABLE)
+    .update({ activo: false, updated_at: new Date().toISOString() })
+    .eq('id', id);
+  if (error) {
     console.error('Error al eliminar empleado:', error);
     throw error;
   }
 }
 
-/**
- * Hook que retorna lista de empleados en tiempo real
- */
+/** Lista de empleados en tiempo real (Supabase Realtime). */
 export function useEmpleadosRealtime(): Empleado[] {
   const [empleados, setEmpleados] = useState<Empleado[]>([]);
 
   useEffect(() => {
-    const q = query(
-      collection(db, 'empleados'),
-      where('activo', '==', true),
-      orderBy('nombre')
-    );
+    let active = true;
+    const supabase = createClient();
 
-    const unsubscribe = onSnapshot(q, (querySnapshot) => {
-      const empleadosData: Empleado[] = [];
-      querySnapshot.forEach((doc) => {
-        empleadosData.push({ id: doc.id, ...doc.data() } as Empleado);
-      });
-      setEmpleados(empleadosData);
-    });
+    const load = async () => {
+      try {
+        const data = await getEmpleados();
+        if (active) setEmpleados(data);
+      } catch {
+        if (active) setEmpleados([]);
+      }
+    };
+    load();
 
-    return () => unsubscribe();
+    const channel = supabase
+      .channel('teamx_empleados_changes')
+      .on('postgres_changes', { event: '*', schema: 'public', table: TABLE }, () => load())
+      .subscribe();
+
+    return () => {
+      active = false;
+      supabase.removeChannel(channel);
+    };
   }, []);
 
   return empleados;
 }
 
-/**
- * Custom hook para acceder a las funciones de empleados
- */
 export function useEmpleados() {
   return {
     getEmpleados,

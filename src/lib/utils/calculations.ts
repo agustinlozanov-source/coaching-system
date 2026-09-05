@@ -1,4 +1,4 @@
-import { Timestamp } from 'firebase/firestore';
+import { Timestamp } from '@/lib/firestore-compat';
 import { differenceInDays, differenceInWeeks } from 'date-fns';
 
 export function calcularDiasAntiguedad(fechaIngreso: Timestamp | Date): number {
