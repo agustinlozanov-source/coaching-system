@@ -1,13 +1,4 @@
-import {
-  Users,
-  Eye,
-  Dna,
-  Compass,
-  Activity,
-  Banknote,
-  Map,
-  type LucideIcon,
-} from 'lucide-react';
+import { Users, Compass, type LucideIcon } from 'lucide-react';
 
 export type Herramienta = {
   slug: string;
@@ -16,15 +7,26 @@ export type Herramienta = {
   ruta: string;
   color: string; // hex de acento de la herramienta
   icon: LucideIcon;
-  disponible: boolean; // false = "Próximamente" (módulo aún no montado en la app)
+  disponible: boolean; // false = "Próximamente"
 };
 
 /**
- * TEMP · Catálogo local que refleja la tabla `herramientas` de Supabase.
- * TODO: reemplazar por lectura real de Supabase (herramientas + org_herramientas
- * filtrado por la organización del usuario) una vez migrado el auth a Supabase.
+ * Las 2 aplicaciones del ecosistema SCALEx.
+ * - SCALEx: la plataforma de metodología completa (dashboard + OPSP, Rituales,
+ *   Reflejo, Vector, Flujo, Ritmo, ADN… con su propio sidebar interno).
+ * - TEAMx: gestión de equipos / coaching de performance.
+ * Cada una se abre como su propia experiencia independiente.
  */
 export const HERRAMIENTAS: Herramienta[] = [
+  {
+    slug: 'scalex',
+    nombre: 'SCALEx',
+    descripcion: 'La metodología completa: estrategia, procesos, ritmo y finanzas de tu empresa.',
+    ruta: '/scalex',
+    color: '#3533cd',
+    icon: Compass,
+    disponible: true,
+  },
   {
     slug: 'teamx',
     nombre: 'TEAMx',
@@ -33,59 +35,5 @@ export const HERRAMIENTAS: Herramienta[] = [
     color: '#1aab99',
     icon: Users,
     disponible: true,
-  },
-  {
-    slug: 'opsp',
-    nombre: 'OPSP',
-    descripcion: 'One Page Strategic Plan: tu estrategia completa en una sola página.',
-    ruta: '/opsp',
-    color: '#3533cd',
-    icon: Map,
-    disponible: true,
-  },
-  {
-    slug: 'reflejo',
-    nombre: 'Reflejo',
-    descripcion: 'El espejo del líder: cierra la brecha entre tú y tus problemas.',
-    ruta: '/reflejo',
-    color: '#8b5cf6',
-    icon: Eye,
-    disponible: false,
-  },
-  {
-    slug: 'adn',
-    nombre: 'ADN',
-    descripcion: 'Cultura y pirámide invertida: empresas rápidas, no muertas.',
-    ruta: '/adn',
-    color: '#ec4899',
-    icon: Dna,
-    disponible: false,
-  },
-  {
-    slug: 'vector',
-    nombre: 'Vector',
-    descripcion: 'Estrategia aterrizada: norte, OPSP, trimestre y rocks.',
-    ruta: '/vector',
-    color: '#3533cd',
-    icon: Compass,
-    disponible: false,
-  },
-  {
-    slug: 'ritmo',
-    nombre: 'Ritmo',
-    descripcion: 'El pulso de la ejecución: reunión diaria y cadencia.',
-    ruta: '/ritmo',
-    color: '#14806a',
-    icon: Activity,
-    disponible: false,
-  },
-  {
-    slug: 'flujo',
-    nombre: 'Flujo',
-    descripcion: 'Finanzas y capital: costeo, punto de equilibrio y flujo de caja.',
-    ruta: '/flujo',
-    color: '#f59e0b',
-    icon: Banknote,
-    disponible: false,
   },
 ];

@@ -53,23 +53,23 @@ const emptyTrimestral = (): Trimestral => ({
   celebracion: '', recompensa: '',
 });
 
-/* ── UI helpers ─────────────────────────────────────────────────────────── */
+/* ── UI helpers (dark-glow) ─────────────────────────────────────────────── */
 function Section({ emoji, title, children }: { emoji: string; title: string; children: React.ReactNode }) {
   return (
-    <div className="rounded-xl border border-slate-200 bg-white p-5">
+    <div className="rounded-2xl border border-white/[0.08] bg-[#1c1c1e] p-5">
       <div className="mb-4 flex items-center gap-2">
         <span className="text-lg">{emoji}</span>
-        <h3 className="text-sm font-bold text-slate-900">{title}</h3>
+        <h3 className="text-sm font-bold text-white">{title}</h3>
       </div>
       {children}
     </div>
   );
 }
 function Label({ children }: { children: React.ReactNode }) {
-  return <div className="mb-1.5 text-xs font-semibold uppercase tracking-wide text-slate-500">{children}</div>;
+  return <div className="mb-1.5 text-xs font-semibold uppercase tracking-wide text-white/40">{children}</div>;
 }
 const inputCls =
-  'w-full rounded-md border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-900 outline-none transition focus:border-[#1aab99] focus:bg-white focus:ring-2 focus:ring-[#1aab99]/20';
+  'w-full rounded-lg border border-white/10 bg-[#141416] px-3 py-2 text-sm text-white outline-none transition placeholder:text-white/25 focus:border-[#1aab99] focus:ring-2 focus:ring-[#1aab99]/25';
 function TextInput(props: React.InputHTMLAttributes<HTMLInputElement>) {
   return <input {...props} className={`${inputCls} ${props.className ?? ''}`} />;
 }
@@ -85,12 +85,12 @@ function NumBadge({ n }: { n: number }) {
 }
 function KpiMini({ label, value, onChange }: { label: string; value: string; onChange: (v: string) => void }) {
   return (
-    <div className="rounded-lg border border-slate-200 bg-slate-50 p-3">
-      <div className="mb-1 text-[11px] font-semibold uppercase tracking-wide text-slate-500">{label}</div>
+    <div className="rounded-xl border border-white/10 bg-[#141416] p-3">
+      <div className="mb-1 text-[11px] font-semibold uppercase tracking-wide text-white/40">{label}</div>
       <input
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="w-full bg-transparent text-xl font-extrabold text-slate-900 outline-none placeholder:text-slate-300"
+        className="w-full bg-transparent text-xl font-extrabold text-white outline-none placeholder:text-white/20"
         placeholder="—"
       />
     </div>
@@ -167,13 +167,13 @@ export function OpspEditor() {
     loading: 'Cargando…', saving: 'Guardando…', saved: 'Guardado', error: 'Error al guardar',
   };
   const statusColor: Record<Status, string> = {
-    loading: 'text-slate-400', saving: 'text-amber-500', saved: 'text-emerald-600', error: 'text-red-500',
+    loading: 'text-white/40', saving: 'text-amber-400', saved: 'text-emerald-400', error: 'text-red-400',
   };
 
   if (status === 'loading') {
     return (
       <div className="flex items-center justify-center py-20">
-        <Loader2 className="h-8 w-8 animate-spin text-slate-400" />
+        <Loader2 className="h-8 w-8 animate-spin text-white/40" />
       </div>
     );
   }
@@ -183,16 +183,16 @@ export function OpspEditor() {
       <div className="mb-6 flex items-center justify-between">
         <div>
           <p className="text-xs font-semibold uppercase tracking-wide text-[#1aab99]">One Page Strategic Plan</p>
-          <h1 className="text-2xl font-bold text-slate-900">OPSP</h1>
+          <h1 className="text-2xl font-bold text-white">OPSP</h1>
         </div>
         <div className={`flex items-center gap-2 text-sm ${statusColor[status]}`}>
-          <span className={`h-1.5 w-1.5 rounded-full ${status === 'error' ? 'bg-red-500' : status === 'saving' ? 'bg-amber-500' : 'bg-emerald-500'}`} />
+          <span className={`h-1.5 w-1.5 rounded-full ${status === 'error' ? 'bg-red-400' : status === 'saving' ? 'bg-amber-400' : 'bg-emerald-400'}`} />
           {statusText[status]}
         </div>
       </div>
 
       {/* Tabs */}
-      <div className="mb-6 flex gap-1 border-b border-slate-200">
+      <div className="mb-6 flex gap-1 border-b border-white/10">
         {tabs.map((t) => {
           const Icon = t.icon;
           const active = tab === t.id;
@@ -201,12 +201,12 @@ export function OpspEditor() {
               key={t.id}
               onClick={() => setTab(t.id)}
               className={`-mb-px flex items-center gap-2 border-b-2 px-4 py-3 text-sm font-semibold transition ${
-                active ? 'border-[#1aab99] text-slate-900' : 'border-transparent text-slate-400 hover:text-slate-600'
+                active ? 'border-[#1aab99] text-white' : 'border-transparent text-white/40 hover:text-white/70'
               }`}
             >
               <Icon className="h-4 w-4" />
               {t.label}
-              <span className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${active ? 'bg-[#1aab99]/10 text-[#1aab99]' : 'bg-slate-100 text-slate-400'}`}>
+              <span className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${active ? 'bg-[#1aab99]/15 text-[#1aab99]' : 'bg-white/[0.06] text-white/40'}`}>
                 {t.badge}
               </span>
             </button>
@@ -323,16 +323,16 @@ export function OpspEditor() {
           <Section emoji="📊" title="KPIs anuales con semáforos">
             <div className="grid gap-4 md:grid-cols-3">
               {anual.kpis_anuales.map((kpi, i) => (
-                <div key={i} className="rounded-lg border border-slate-200 bg-slate-50 p-3">
+                <div key={i} className="rounded-xl border border-white/10 bg-[#141416] p-3">
                   <input value={kpi.nombre} placeholder="Nombre del KPI"
                     onChange={(e) => setAnual({ ...anual, kpis_anuales: anual.kpis_anuales.map((x, idx) => (idx === i ? { ...x, nombre: e.target.value } : x)) })}
-                    className="mb-3 w-full bg-transparent text-sm font-bold text-slate-900 outline-none placeholder:text-slate-400" />
+                    className="mb-3 w-full bg-transparent text-sm font-bold text-white outline-none placeholder:text-white/30" />
                   {(['verde', 'ambar', 'rojo'] as const).map((lvl) => (
                     <div key={lvl} className="mb-2 grid grid-cols-[70px_1fr] items-center gap-2">
-                      <span className={`text-[11px] font-bold uppercase ${lvl === 'verde' ? 'text-emerald-600' : lvl === 'ambar' ? 'text-amber-500' : 'text-red-500'}`}>{lvl}</span>
+                      <span className={`text-[11px] font-bold uppercase ${lvl === 'verde' ? 'text-emerald-400' : lvl === 'ambar' ? 'text-amber-400' : 'text-red-400'}`}>{lvl}</span>
                       <input value={kpi[lvl]}
                         onChange={(e) => setAnual({ ...anual, kpis_anuales: anual.kpis_anuales.map((x, idx) => (idx === i ? { ...x, [lvl]: e.target.value } : x)) })}
-                        className="rounded-md border border-slate-200 bg-white px-2.5 py-1.5 text-sm font-bold text-slate-900 outline-none focus:border-[#1aab99]" />
+                        className="rounded-md border border-white/10 bg-[#1c1c1e] px-2.5 py-1.5 text-sm font-bold text-white outline-none focus:border-[#1aab99]" />
                     </div>
                   ))}
                 </div>
