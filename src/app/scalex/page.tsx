@@ -9,7 +9,7 @@ export const dynamic = 'force-dynamic';
 
 const TOOLS = [
   { href: '/scalex/opsp', icon: Map, nombre: 'OPSP', desc: 'One Page Strategic Plan', color: '#3533cd', ready: true },
-  { href: '/scalex/rituales', icon: Repeat, nombre: 'Rituales', desc: 'Ritmo de ejecución', color: '#14806a', ready: false },
+  { href: '/scalex/rituales', icon: Repeat, nombre: 'Rituales', desc: 'Contrato del Dueño y Consejo de Escalabilidad', color: '#14806a', ready: true },
   { href: '/scalex/reflejo', icon: Eye, nombre: 'Reflejo', desc: 'El espejo del líder', color: '#8b5cf6', ready: false },
   { href: '/scalex/vector', icon: Compass, nombre: 'Vector', desc: 'Estrategia aterrizada', color: '#3533cd', ready: false },
   { href: '/scalex/flujo', icon: Coins, nombre: 'Flujo', desc: 'Finanzas y capital', color: '#f59e0b', ready: false },

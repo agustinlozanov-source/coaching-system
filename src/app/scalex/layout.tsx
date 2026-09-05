@@ -14,7 +14,7 @@ type NavItem = { href: string; icon: any; label: string; ready: boolean; divider
 const NAV: NavItem[] = [
   { href: '/scalex', icon: LayoutDashboard, label: 'Dashboard', ready: true },
   { href: '/scalex/opsp', icon: Map, label: 'OPSP', ready: true },
-  { href: '/scalex/rituales', icon: Repeat, label: 'Rituales', ready: false },
+  { href: '/scalex/rituales', icon: Repeat, label: 'Rituales', ready: true },
   { href: '', icon: null, label: '', ready: false, divider: true },
   { href: '/scalex/reflejo', icon: Eye, label: 'Reflejo', ready: false },
   { href: '/scalex/vector', icon: Compass, label: 'Vector', ready: false },
