@@ -61,7 +61,7 @@ export function VectorHub({
   if (loading) {
     return (
       <div className="flex items-center justify-center py-20">
-        <Loader2 className="h-8 w-8 animate-spin text-white/40" />
+        <Loader2 className="h-8 w-8 animate-spin text-[var(--sx-text-dim)]" />
       </div>
     );
   }
@@ -81,7 +81,7 @@ export function VectorHub({
 
   return (
     <div>
-      <p className="-mt-3 mb-6 max-w-2xl text-white/50">
+      <p className="-mt-3 mb-6 max-w-2xl text-[var(--sx-text-muted)]">
         El Vector convierte tu meta a 3 años en 12 trimestres trazables. Una sola dirección, 12 oportunidades de
         aprender, ajustar y avanzar.
       </p>
@@ -112,7 +112,7 @@ export function VectorHub({
         </div>
       </div>
 
-      <p className="mb-3 text-xs font-bold uppercase tracking-wide text-white/40">Las herramientas del Vector</p>
+      <p className="mb-3 text-xs font-bold uppercase tracking-wide text-[var(--sx-text-dim)]">Las herramientas del Vector</p>
       <div className="grid gap-4 md:grid-cols-2">
         <HubCard
           icon={Target}
@@ -165,25 +165,25 @@ function HubCard({
   return (
     <div
       onClick={onClick}
-      className="group relative flex cursor-pointer flex-col gap-4 rounded-2xl border border-white/[0.08] bg-[#1c1c1e] p-6 transition hover:-translate-y-0.5 hover:border-white/20"
+      className="group relative flex cursor-pointer flex-col gap-4 rounded-2xl border border-[var(--sx-border)] bg-[var(--sx-card)] p-6 transition hover:-translate-y-0.5 hover:border-[var(--sx-border-strong)]"
     >
       <div className="flex items-start justify-between">
         <div className={`flex h-11 w-11 items-center justify-center rounded-xl ${iconCls}`}>
           <Icon className="h-5 w-5" />
         </div>
-        <span className="rounded-full bg-white/[0.06] px-2.5 py-1 text-[11px] font-bold text-white/50">{step}</span>
+        <span className="rounded-full bg-[var(--sx-card-hover)] px-2.5 py-1 text-[11px] font-bold text-[var(--sx-text-muted)]">{step}</span>
       </div>
       <div>
-        <div className="mb-1 text-lg font-extrabold text-white">{title}</div>
-        <div className="text-[13.5px] leading-relaxed text-white/50">{desc}</div>
+        <div className="mb-1 text-lg font-extrabold text-[var(--sx-text)]">{title}</div>
+        <div className="text-[13.5px] leading-relaxed text-[var(--sx-text-muted)]">{desc}</div>
       </div>
-      <div className="flex items-baseline justify-between gap-2 border-t border-white/10 pt-3">
+      <div className="flex items-baseline justify-between gap-2 border-t border-[var(--sx-border)] pt-3">
         <span className="max-w-[70%] truncate text-sm font-bold text-[#1aab99]" title={statValue}>
           {statValue}
         </span>
-        <span className="text-[11px] font-bold uppercase tracking-wide text-white/40">{statLabel}</span>
+        <span className="text-[11px] font-bold uppercase tracking-wide text-[var(--sx-text-dim)]">{statLabel}</span>
       </div>
-      <span className="absolute right-5 top-5 flex h-7 w-7 items-center justify-center rounded-lg bg-white/[0.06] text-white/40 transition group-hover:bg-[#1aab99]/15 group-hover:text-[#1aab99]">
+      <span className="absolute right-5 top-5 flex h-7 w-7 items-center justify-center rounded-lg bg-[var(--sx-card-hover)] text-[var(--sx-text-dim)] transition group-hover:bg-[#1aab99]/15 group-hover:text-[#1aab99]">
         <ArrowRight className="h-3.5 w-3.5" />
       </span>
     </div>

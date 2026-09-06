@@ -253,15 +253,15 @@ export function VectorTrimestre({
   if (loading) {
     return (
       <div className="flex items-center justify-center py-20">
-        <Loader2 className="h-8 w-8 animate-spin text-white/40" />
+        <Loader2 className="h-8 w-8 animate-spin text-[var(--sx-text-dim)]" />
       </div>
     );
   }
 
   if (!trimestre) {
     return (
-      <div className="rounded-2xl border border-white/[0.08] bg-[#1c1c1e] p-16 text-center">
-        <h2 className="text-xl font-bold text-white">Round no encontrado</h2>
+      <div className="rounded-2xl border border-[var(--sx-border)] bg-[var(--sx-card)] p-16 text-center">
+        <h2 className="text-xl font-bold text-[var(--sx-text)]">Round no encontrado</h2>
         <button onClick={onBackNorte} className="mt-3 text-sm font-semibold text-[#1aab99]">Volver al tablero</button>
       </div>
     );
@@ -319,42 +319,42 @@ export function VectorTrimestre({
       </div>
 
       {/* FACTOR X */}
-      <div className="mb-1 flex items-center gap-2 text-base font-extrabold text-white">
+      <div className="mb-1 flex items-center gap-2 text-base font-extrabold text-[var(--sx-text)]">
         <Zap className="h-4 w-4 text-[#1aab99]" /> Factor X · La métrica que define si ganamos
       </div>
-      <p className="mb-4 ml-6 text-sm text-white/50">
-        El Factor X siempre se formula igual: <strong className="text-white/70">utilidad por…</strong>. Conecta la meta del trimestre con la rentabilidad real.
+      <p className="mb-4 ml-6 text-sm text-[var(--sx-text-muted)]">
+        El Factor X siempre se formula igual: <strong className="text-[var(--sx-text-muted)]">utilidad por…</strong>. Conecta la meta del trimestre con la rentabilidad real.
       </p>
 
       <div className="mb-6 rounded-2xl border-[1.5px] border-[#1aab99] bg-gradient-to-br from-[#1aab99]/10 to-[#3533cd]/10 p-6">
         <div className="mb-3 text-[11px] font-extrabold uppercase tracking-wide text-[#1aab99]">FÓRMULA DEL FACTOR X</div>
         <div className="mb-4 flex flex-wrap items-baseline gap-3">
-          <span className="text-2xl font-extrabold tracking-tight text-white">Utilidad por</span>
+          <span className="text-2xl font-extrabold tracking-tight text-[var(--sx-text)]">Utilidad por</span>
           <input
             value={complemento}
             onChange={(e) => setComplemento(e.target.value)}
             maxLength={100}
             placeholder="ej: nuevo cliente, sesión, vendedor..."
-            className="min-w-[220px] flex-1 rounded-lg border-2 border-[#1aab99] bg-[#141416] px-4 py-2.5 text-xl font-extrabold text-white outline-none placeholder:text-white/25"
+            className="min-w-[220px] flex-1 rounded-lg border-2 border-[#1aab99] bg-[var(--sx-input)] px-4 py-2.5 text-xl font-extrabold text-[var(--sx-text)] outline-none placeholder:text-[var(--sx-text-faint)]"
           />
         </div>
         <div className="grid gap-3.5 md:grid-cols-2">
           <div>
-            <div className="mb-1.5 text-[11px] font-bold uppercase tracking-wide text-white/50">Meta del trimestre</div>
-            <input value={metaDesc} onChange={(e) => setMetaDesc(e.target.value)} placeholder="¿Qué quieres lograr concretamente?" className="w-full rounded-lg border border-white/10 bg-[#141416] px-3.5 py-2.5 text-sm font-semibold text-white outline-none focus:border-[#1aab99]" />
+            <div className="mb-1.5 text-[11px] font-bold uppercase tracking-wide text-[var(--sx-text-muted)]">Meta del trimestre</div>
+            <input value={metaDesc} onChange={(e) => setMetaDesc(e.target.value)} placeholder="¿Qué quieres lograr concretamente?" className="w-full rounded-lg border border-[var(--sx-border)] bg-[var(--sx-input)] px-3.5 py-2.5 text-sm font-semibold text-[var(--sx-text)] outline-none focus:border-[#1aab99]" />
           </div>
           <div>
-            <div className="mb-1.5 text-[11px] font-bold uppercase tracking-wide text-white/50">Resultado real (al cierre)</div>
-            <input value={resultado} onChange={(e) => setResultado(e.target.value)} placeholder="Se llena cuando termine el round" className="w-full rounded-lg border border-white/10 bg-[#141416] px-3.5 py-2.5 text-sm font-semibold text-white outline-none focus:border-[#1aab99]" />
+            <div className="mb-1.5 text-[11px] font-bold uppercase tracking-wide text-[var(--sx-text-muted)]">Resultado real (al cierre)</div>
+            <input value={resultado} onChange={(e) => setResultado(e.target.value)} placeholder="Se llena cuando termine el round" className="w-full rounded-lg border border-[var(--sx-border)] bg-[var(--sx-input)] px-3.5 py-2.5 text-sm font-semibold text-[var(--sx-text)] outline-none focus:border-[#1aab99]" />
           </div>
         </div>
       </div>
 
       {/* INDICADORES */}
-      <div className="mb-1 flex items-center gap-2 text-base font-extrabold text-white">
+      <div className="mb-1 flex items-center gap-2 text-base font-extrabold text-[var(--sx-text)]">
         <Activity className="h-4 w-4 text-[#1aab99]" /> Indicadores críticos · El semáforo diario
       </div>
-      <p className="mb-4 ml-6 text-sm text-white/50">
+      <p className="mb-4 ml-6 text-sm text-[var(--sx-text-muted)]">
         Los indicadores muestran si las acciones del día a día sostienen el Factor X. Cada uno tiene 4 umbrales:{' '}
         <strong className="text-emerald-400">verde alto</strong>, <strong className="text-lime-400">verde bajo</strong>,{' '}
         <strong className="text-amber-400">amarillo</strong>, <strong className="text-red-400">rojo</strong>.
@@ -362,10 +362,10 @@ export function VectorTrimestre({
 
       <div className="flex flex-col gap-3.5">
         {indicadores.length === 0 && (
-          <div className="rounded-2xl border border-dashed border-white/15 bg-[#1c1c1e] p-9 text-center">
-            <Activity className="mx-auto mb-2.5 h-8 w-8 text-white/20" />
-            <p className="text-sm text-white/60">Aún no has definido indicadores críticos para este round.</p>
-            <p className="mt-1 text-xs text-white/40">Los indicadores son las métricas semanales o mensuales que sostienen tu Factor X.</p>
+          <div className="rounded-2xl border border-dashed border-[var(--sx-border-strong)] bg-[var(--sx-card)] p-9 text-center">
+            <Activity className="mx-auto mb-2.5 h-8 w-8 text-[var(--sx-text-faint)]" />
+            <p className="text-sm text-[var(--sx-text-muted)]">Aún no has definido indicadores críticos para este round.</p>
+            <p className="mt-1 text-xs text-[var(--sx-text-dim)]">Los indicadores son las métricas semanales o mensuales que sostienen tu Factor X.</p>
           </div>
         )}
 
@@ -385,7 +385,7 @@ export function VectorTrimestre({
 
         <button
           onClick={() => { setEditingIndicador(null); setModalOpen(true); }}
-          className="flex w-full items-center justify-center gap-2 rounded-2xl border-[1.5px] border-dashed border-white/15 py-4 text-sm font-bold text-white/50 transition hover:border-[#1aab99] hover:bg-[#1aab99]/10 hover:text-[#1aab99]"
+          className="flex w-full items-center justify-center gap-2 rounded-2xl border-[1.5px] border-dashed border-[var(--sx-border-strong)] py-4 text-sm font-bold text-[var(--sx-text-muted)] transition hover:border-[#1aab99] hover:bg-[#1aab99]/10 hover:text-[#1aab99]"
         >
           <Plus className="h-4 w-4" /> Agregar indicador crítico
         </button>
@@ -401,7 +401,7 @@ export function VectorTrimestre({
 
       {toast && (
         <div className={`fixed bottom-6 left-1/2 z-50 -translate-x-1/2 rounded-full border px-5 py-2.5 text-sm font-semibold shadow-lg ${
-          toast.type === 'success' ? 'border-emerald-500 bg-[#1c1c1e] text-emerald-400' : 'border-red-500 bg-[#1c1c1e] text-red-400'
+          toast.type === 'success' ? 'border-emerald-500 bg-[var(--sx-card)] text-emerald-400' : 'border-red-500 bg-[var(--sx-card)] text-red-400'
         }`}>
           {toast.msg}
         </div>
@@ -438,103 +438,103 @@ function IndicadorCard({
   }
 
   return (
-    <div className={`overflow-hidden rounded-2xl border bg-[#1c1c1e] transition ${SEMAFORO_BORDER[semaforo]} border-l-4 ${expanded ? 'border-white/20' : 'border-white/[0.08]'}`}>
-      <div onClick={onToggle} className="grid cursor-pointer grid-cols-[auto_1fr_auto_auto] items-center gap-4 p-5 transition hover:bg-white/[0.03]">
-        <div className={`flex h-14 w-14 flex-shrink-0 items-center justify-center rounded-xl ${SEMAFORO_DOT[semaforo]} ${semaforo === 'sin_medir' ? 'border border-white/10' : ''}`}>
-          <span className={`max-w-[50px] truncate text-lg font-extrabold ${semaforo === 'sin_medir' ? 'text-white/30' : 'text-white'}`}>
+    <div className={`overflow-hidden rounded-2xl border bg-[var(--sx-card)] transition ${SEMAFORO_BORDER[semaforo]} border-l-4 ${expanded ? 'border-[var(--sx-border-strong)]' : 'border-[var(--sx-border)]'}`}>
+      <div onClick={onToggle} className="grid cursor-pointer grid-cols-[auto_1fr_auto_auto] items-center gap-4 p-5 transition hover:bg-[var(--sx-card-hover)]">
+        <div className={`flex h-14 w-14 flex-shrink-0 items-center justify-center rounded-xl ${SEMAFORO_DOT[semaforo]} ${semaforo === 'sin_medir' ? 'border border-[var(--sx-border)]' : ''}`}>
+          <span className={`max-w-[50px] truncate text-lg font-extrabold ${semaforo === 'sin_medir' ? 'text-[var(--sx-text-faint)]' : 'text-[var(--sx-text)]'}`}>
             {valorActual ? valorActual.valor : '—'}
           </span>
         </div>
         <div className="min-w-0">
-          <div className="mb-1 text-base font-extrabold leading-tight text-white">{ind.nombre}</div>
-          <div className="flex flex-wrap gap-1.5 text-xs text-white/50">
+          <div className="mb-1 text-base font-extrabold leading-tight text-[var(--sx-text)]">{ind.nombre}</div>
+          <div className="flex flex-wrap gap-1.5 text-xs text-[var(--sx-text-muted)]">
             {ind.responsable_nombre && (
-              <span className="inline-flex items-center gap-1 rounded-full border border-white/10 bg-white/[0.04] px-2 py-0.5 font-semibold"><User className="h-2.5 w-2.5" />{ind.responsable_nombre}</span>
+              <span className="inline-flex items-center gap-1 rounded-full border border-[var(--sx-border)] bg-[var(--sx-card-hover)] px-2 py-0.5 font-semibold"><User className="h-2.5 w-2.5" />{ind.responsable_nombre}</span>
             )}
-            <span className="inline-flex items-center gap-1 rounded-full border border-white/10 bg-white/[0.04] px-2 py-0.5 font-semibold"><Repeat className="h-2.5 w-2.5" />{ind.frecuencia === 'diaria' ? 'Diaria' : ind.frecuencia === 'mensual' ? 'Mensual' : 'Semanal'}</span>
-            <span className="inline-flex items-center gap-1 rounded-full border border-white/10 bg-white/[0.04] px-2 py-0.5 font-semibold">
+            <span className="inline-flex items-center gap-1 rounded-full border border-[var(--sx-border)] bg-[var(--sx-card-hover)] px-2 py-0.5 font-semibold"><Repeat className="h-2.5 w-2.5" />{ind.frecuencia === 'diaria' ? 'Diaria' : ind.frecuencia === 'mensual' ? 'Mensual' : 'Semanal'}</span>
+            <span className="inline-flex items-center gap-1 rounded-full border border-[var(--sx-border)] bg-[var(--sx-card-hover)] px-2 py-0.5 font-semibold">
               {ind.direccion === 'mayor_es_mejor' ? <TrendingUp className="h-2.5 w-2.5" /> : <TrendingDown className="h-2.5 w-2.5" />}
               {ind.direccion === 'mayor_es_mejor' ? 'Mayor es mejor' : 'Menor es mejor'}
             </span>
-            {ind.unidad && <span className="inline-flex items-center gap-1 rounded-full border border-white/10 bg-white/[0.04] px-2 py-0.5 font-semibold"><Hash className="h-2.5 w-2.5" />{ind.unidad}</span>}
+            {ind.unidad && <span className="inline-flex items-center gap-1 rounded-full border border-[var(--sx-border)] bg-[var(--sx-card-hover)] px-2 py-0.5 font-semibold"><Hash className="h-2.5 w-2.5" />{ind.unidad}</span>}
           </div>
         </div>
         <div className="flex flex-shrink-0 flex-col items-end">
           <span className={`rounded-full px-2.5 py-1 text-[11px] font-extrabold tracking-wide ${SEMAFORO_BADGE[semaforo]}`}>{SEMAFORO_LABELS[semaforo]}</span>
-          <span className="mt-1 text-[11px] text-white/40">{valorActual ? `Última: ${valorActual.valor} (${formatFechaMini(valorActual.fecha)})` : 'Primera medición pendiente'}</span>
+          <span className="mt-1 text-[11px] text-[var(--sx-text-dim)]">{valorActual ? `Última: ${valorActual.valor} (${formatFechaMini(valorActual.fecha)})` : 'Primera medición pendiente'}</span>
         </div>
-        <button className={`flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg border border-white/10 bg-white/[0.04] text-white/50 transition ${expanded ? 'rotate-180 text-[#1aab99]' : ''}`}>
+        <button className={`flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg border border-[var(--sx-border)] bg-[var(--sx-card-hover)] text-[var(--sx-text-muted)] transition ${expanded ? 'rotate-180 text-[#1aab99]' : ''}`}>
           <ChevronDown className="h-4 w-4" />
         </button>
       </div>
 
       {expanded && (
-        <div className="border-t border-white/10">
+        <div className="border-t border-[var(--sx-border)]">
           <div className="grid gap-6 p-5 md:grid-cols-2">
             {/* Umbrales */}
             <div>
-              <div className="mb-2.5 text-[11px] font-extrabold uppercase tracking-wide text-white/40">Umbrales</div>
+              <div className="mb-2.5 text-[11px] font-extrabold uppercase tracking-wide text-[var(--sx-text-dim)]">Umbrales</div>
               <div className="flex flex-col gap-1.5">
                 {([
                   ['verde_alto' as const, 'Verde alto', 'bg-emerald-500', 'text-emerald-400', ind.umbrales.verde_alto],
                   ['verde_bajo' as const, 'Verde bajo', 'bg-lime-500', 'text-lime-400', ind.umbrales.verde_bajo],
                   ['amarillo' as const, 'Amarillo', 'bg-amber-500', 'text-amber-400', ind.umbrales.amarillo],
                 ]).map(([key, label, dot, text, val]) => (
-                  <div key={key} className="flex items-center justify-between rounded-lg border border-white/10 bg-[#141416] px-3.5 py-2.5">
+                  <div key={key} className="flex items-center justify-between rounded-lg border border-[var(--sx-border)] bg-[var(--sx-input)] px-3.5 py-2.5">
                     <span className={`flex items-center gap-2 text-xs font-bold ${text}`}><span className={`h-2.5 w-2.5 rounded-full ${dot}`} />{label}</span>
-                    <span className="text-sm font-extrabold text-white">{dirSimbolo} {val}{unidad}</span>
+                    <span className="text-sm font-extrabold text-[var(--sx-text)]">{dirSimbolo} {val}{unidad}</span>
                   </div>
                 ))}
-                <div className="flex items-center justify-between rounded-lg border border-white/10 bg-[#141416] px-3.5 py-2.5">
+                <div className="flex items-center justify-between rounded-lg border border-[var(--sx-border)] bg-[var(--sx-input)] px-3.5 py-2.5">
                   <span className="flex items-center gap-2 text-xs font-bold text-red-400"><span className="h-2.5 w-2.5 rounded-full bg-red-500" />Rojo</span>
-                  <span className="text-sm font-extrabold text-white">{ind.direccion === 'mayor_es_mejor' ? '<' : '>'} {ind.umbrales.amarillo}{unidad}</span>
+                  <span className="text-sm font-extrabold text-[var(--sx-text)]">{ind.direccion === 'mayor_es_mejor' ? '<' : '>'} {ind.umbrales.amarillo}{unidad}</span>
                 </div>
               </div>
             </div>
 
             {/* Mediciones */}
             <div>
-              <div className="mb-2.5 text-[11px] font-extrabold uppercase tracking-wide text-white/40">Mediciones recientes</div>
+              <div className="mb-2.5 text-[11px] font-extrabold uppercase tracking-wide text-[var(--sx-text-dim)]">Mediciones recientes</div>
               <div className="mb-3 grid grid-cols-[1fr_auto_auto] gap-1.5" onClick={(e) => e.stopPropagation()}>
                 <input
                   type="number" step="any" value={valor} onChange={(e) => setValor(e.target.value)}
                   onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); submitMedicion(); } }}
                   placeholder="Nuevo valor"
-                  className="rounded-lg border border-white/10 bg-[#141416] px-3 py-2 text-sm font-bold text-white outline-none focus:border-[#1aab99]"
+                  className="rounded-lg border border-[var(--sx-border)] bg-[var(--sx-input)] px-3 py-2 text-sm font-bold text-[var(--sx-text)] outline-none focus:border-[#1aab99]"
                 />
-                <input type="date" value={fecha} onChange={(e) => setFecha(e.target.value)} className="w-[140px] rounded-lg border border-white/10 bg-[#141416] px-2.5 py-2 text-sm font-bold text-white outline-none focus:border-[#1aab99]" />
+                <input type="date" value={fecha} onChange={(e) => setFecha(e.target.value)} className="w-[140px] rounded-lg border border-[var(--sx-border)] bg-[var(--sx-input)] px-2.5 py-2 text-sm font-bold text-[var(--sx-text)] outline-none focus:border-[#1aab99]" />
                 <button onClick={submitMedicion} className="flex items-center gap-1.5 rounded-lg bg-gradient-to-br from-[#1aab99] to-[#3533cd] px-3.5 py-2 text-xs font-bold text-white">
                   <Plus className="h-3.5 w-3.5" /> Registrar
                 </button>
               </div>
 
               {mediciones.length === 0 ? (
-                <div className="rounded-lg bg-white/[0.03] p-3.5 text-center text-xs italic text-white/40">Sin mediciones aún</div>
+                <div className="rounded-lg bg-[var(--sx-card-hover)] p-3.5 text-center text-xs italic text-[var(--sx-text-dim)]">Sin mediciones aún</div>
               ) : (
                 <div className="flex max-h-[280px] flex-col gap-1 overflow-y-auto">
                   {mediciones.slice(0, 10).map((m) => (
-                    <div key={m.id} className="grid grid-cols-[auto_1fr_auto_auto] items-center gap-2.5 rounded-lg border border-white/10 bg-[#141416] px-3 py-2 text-sm">
+                    <div key={m.id} className="grid grid-cols-[auto_1fr_auto_auto] items-center gap-2.5 rounded-lg border border-[var(--sx-border)] bg-[var(--sx-input)] px-3 py-2 text-sm">
                       <span className={`h-2.5 w-2.5 rounded-full ${SEMAFORO_DOT[m.semaforo]}`} />
-                      <span className="text-white/70">{formatFechaMini(m.fecha)} <span className="text-[11px] text-white/30">({calcularSemanaDelAnio(m.fecha)})</span></span>
-                      <span className="font-extrabold text-white">{m.valor}</span>
-                      <button onClick={(e) => { e.stopPropagation(); onDeleteMedicion(m.id); }} className="text-white/30 transition hover:text-red-400">
+                      <span className="text-[var(--sx-text-muted)]">{formatFechaMini(m.fecha)} <span className="text-[11px] text-[var(--sx-text-faint)]">({calcularSemanaDelAnio(m.fecha)})</span></span>
+                      <span className="font-extrabold text-[var(--sx-text)]">{m.valor}</span>
+                      <button onClick={(e) => { e.stopPropagation(); onDeleteMedicion(m.id); }} className="text-[var(--sx-text-faint)] transition hover:text-red-400">
                         <Trash2 className="h-3.5 w-3.5" />
                       </button>
                     </div>
                   ))}
                   {mediciones.length > 10 && (
-                    <div className="py-1.5 text-center text-[11px] italic text-white/30">+ {mediciones.length - 10} mediciones anteriores</div>
+                    <div className="py-1.5 text-center text-[11px] italic text-[var(--sx-text-faint)]">+ {mediciones.length - 10} mediciones anteriores</div>
                   )}
                 </div>
               )}
             </div>
           </div>
 
-          <div className="flex justify-end gap-2 border-t border-white/10 px-5 py-3.5">
-            <button onClick={(e) => { e.stopPropagation(); onEdit(); }} className="flex items-center gap-1.5 rounded-full border border-white/10 bg-white/[0.04] px-3.5 py-1.5 text-xs font-bold text-white/70 transition hover:bg-white/[0.08]">
+          <div className="flex justify-end gap-2 border-t border-[var(--sx-border)] px-5 py-3.5">
+            <button onClick={(e) => { e.stopPropagation(); onEdit(); }} className="flex items-center gap-1.5 rounded-full border border-[var(--sx-border)] bg-[var(--sx-card-hover)] px-3.5 py-1.5 text-xs font-bold text-[var(--sx-text-muted)] transition hover:bg-[var(--sx-card-hover)]">
               <Edit2 className="h-3 w-3" /> Editar
             </button>
-            <button onClick={(e) => { e.stopPropagation(); onDelete(); }} className="flex items-center gap-1.5 rounded-full border border-white/10 bg-white/[0.04] px-3.5 py-1.5 text-xs font-bold text-white/70 transition hover:border-red-500/40 hover:bg-red-500/10 hover:text-red-400">
+            <button onClick={(e) => { e.stopPropagation(); onDelete(); }} className="flex items-center gap-1.5 rounded-full border border-[var(--sx-border)] bg-[var(--sx-card-hover)] px-3.5 py-1.5 text-xs font-bold text-[var(--sx-text-muted)] transition hover:border-red-500/40 hover:bg-red-500/10 hover:text-red-400">
               <Trash2 className="h-3 w-3" /> Eliminar
             </button>
           </div>

@@ -161,17 +161,17 @@ const bannerStyles: Record<Cls, { border: string; bg: string; text: string }> = 
   verde: { border: 'border-emerald-500/30', bg: 'bg-emerald-500/10', text: 'text-emerald-400' },
   amber: { border: 'border-amber-500/30', bg: 'bg-amber-500/10', text: 'text-amber-400' },
   rojo: { border: 'border-red-500/30', bg: 'bg-red-500/10', text: 'text-red-400' },
-  neutro: { border: 'border-white/10', bg: 'bg-white/[0.03]', text: 'text-white/40' },
+  neutro: { border: 'border-[var(--sx-border)]', bg: 'bg-[var(--sx-card-hover)]', text: 'text-[var(--sx-text-dim)]' },
 };
 const margenTextColor: Record<Cls, string> = {
   verde: 'text-emerald-400',
   amber: 'text-amber-400',
   rojo: 'text-red-400',
-  neutro: 'text-white/40',
+  neutro: 'text-[var(--sx-text-dim)]',
 };
 
 const inputCls =
-  'w-full rounded-lg border border-white/10 bg-[#141416] px-3 py-2 text-sm text-white outline-none transition placeholder:text-white/25 focus:border-[#1aab99] focus:ring-2 focus:ring-[#1aab99]/25';
+  'w-full rounded-lg border border-[var(--sx-border)] bg-[var(--sx-input)] px-3 py-2 text-sm text-[var(--sx-text)] outline-none transition placeholder:text-[var(--sx-text-faint)] focus:border-[#1aab99] focus:ring-2 focus:ring-[#1aab99]/25';
 
 const AUTOSAVE_MS = 1100;
 
@@ -399,7 +399,7 @@ export function EstadoResultadosView({ onBack }: { onBack: () => void }) {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-20">
-        <Loader2 className="h-8 w-8 animate-spin text-white/40" />
+        <Loader2 className="h-8 w-8 animate-spin text-[var(--sx-text-dim)]" />
       </div>
     );
   }
@@ -443,26 +443,26 @@ export function EstadoResultadosView({ onBack }: { onBack: () => void }) {
       <div className="mb-6 flex items-center gap-3">
         <button
           onClick={onBack}
-          className="flex h-9 w-9 items-center justify-center rounded-lg border border-white/10 text-white/60 transition hover:bg-white/[0.06] hover:text-white"
+          className="flex h-9 w-9 items-center justify-center rounded-lg border border-[var(--sx-border)] text-[var(--sx-text-muted)] transition hover:bg-[var(--sx-card-hover)] hover:text-[var(--sx-text)]"
         >
           <ArrowLeft className="h-4 w-4" />
         </button>
         <div>
           <p className="text-xs font-semibold uppercase tracking-wide text-[#1aab99]">Pilar 5 · Flujo</p>
-          <h1 className="text-2xl font-bold text-white">Estado de Resultados Mensual</h1>
+          <h1 className="text-2xl font-bold text-[var(--sx-text)]">Estado de Resultados Mensual</h1>
         </div>
       </div>
 
       {vista === 'lista' ? (
         /* ══════════════════════════ PANTALLA A — LISTA ══════════════════════════ */
         lista.length === 0 ? (
-          <div className="flex flex-col items-center gap-5 rounded-2xl border border-white/[0.08] bg-[#1c1c1e] px-8 py-16 text-center">
+          <div className="flex flex-col items-center gap-5 rounded-2xl border border-[var(--sx-border)] bg-[var(--sx-card)] px-8 py-16 text-center">
             <div className="mb-2 flex h-20 w-20 items-center justify-center rounded-3xl bg-gradient-to-br from-amber-500 to-red-500">
               <FileBarChart className="h-9 w-9 text-white" />
             </div>
-            <h2 className="text-2xl font-extrabold text-white">Estado de Resultados Mensual</h2>
-            <h3 className="text-base font-semibold text-white/60">La radiografía de tu rentabilidad, mes a mes</h3>
-            <p className="max-w-xl text-sm leading-relaxed text-white/40">
+            <h2 className="text-2xl font-extrabold text-[var(--sx-text)]">Estado de Resultados Mensual</h2>
+            <h3 className="text-base font-semibold text-[var(--sx-text-muted)]">La radiografía de tu rentabilidad, mes a mes</h3>
+            <p className="max-w-xl text-sm leading-relaxed text-[var(--sx-text-dim)]">
               El Estado de Resultados es una herramienta clásica de finanzas que te dice si tu empresa REALMENTE está
               ganando dinero. No es un reporte automático — es un ejercicio que haces a fin de cada mes para entender
               tus números. Vamos a aprender a construirlo paso a paso.
@@ -478,7 +478,7 @@ export function EstadoResultadosView({ onBack }: { onBack: () => void }) {
         ) : (
           <div>
             <div className="mb-4 flex items-center justify-between">
-              <h2 className="text-sm font-bold text-white">Mis Estados de Resultados</h2>
+              <h2 className="text-sm font-bold text-[var(--sx-text)]">Mis Estados de Resultados</h2>
               <button
                 onClick={abrirEditorNuevo}
                 className="flex items-center gap-1.5 rounded-lg bg-gradient-to-br from-[#1aab99] to-[#3533cd] px-3.5 py-2 text-xs font-bold text-white transition hover:opacity-90"
@@ -493,10 +493,10 @@ export function EstadoResultadosView({ onBack }: { onBack: () => void }) {
       ) : (
         /* ══════════════════════════ PANTALLA B — EDITOR ══════════════════════════ */
         <div>
-          <div className="mb-5 flex flex-wrap items-center gap-3 border-b border-white/10 pb-5">
+          <div className="mb-5 flex flex-wrap items-center gap-3 border-b border-[var(--sx-border)] pb-5">
             <button
               onClick={volverALista}
-              className="flex items-center gap-1.5 rounded-lg border border-white/10 bg-white/[0.03] px-3.5 py-2 text-xs font-semibold text-white/60 transition hover:bg-white/[0.06] hover:text-white"
+              className="flex items-center gap-1.5 rounded-lg border border-[var(--sx-border)] bg-[var(--sx-card-hover)] px-3.5 py-2 text-xs font-semibold text-[var(--sx-text-muted)] transition hover:bg-[var(--sx-card-hover)] hover:text-[var(--sx-text)]"
             >
               <ArrowLeft className="h-3.5 w-3.5" />
               Volver a la lista
@@ -504,10 +504,10 @@ export function EstadoResultadosView({ onBack }: { onBack: () => void }) {
             <select
               value={mesActual}
               onChange={(e) => abrirEditorConMes(e.target.value)}
-              className="rounded-lg border border-white/10 bg-white/[0.03] px-3.5 py-2 text-sm font-bold text-white outline-none focus:border-[#1aab99]"
+              className="rounded-lg border border-[var(--sx-border)] bg-[var(--sx-card-hover)] px-3.5 py-2 text-sm font-bold text-[var(--sx-text)] outline-none focus:border-[#1aab99]"
             >
               {meses24.map(({ val, label }) => (
-                <option key={val} value={val} className="bg-[#1c1c1e]">
+                <option key={val} value={val} className="bg-[var(--sx-card)]">
                   {label}
                 </option>
               ))}
@@ -586,8 +586,8 @@ export function EstadoResultadosView({ onBack }: { onBack: () => void }) {
             cls={claseColorBruta(margenBruta)}
             ayuda={
               <>
-                ↪ De cada $100 vendidos, te quedan <strong className="font-semibold text-white/70">{ayudaBrutaMonto}</strong> después
-                de pagar lo que cuesta producir el producto. Este margen <strong className="font-semibold text-white/70">NO incluye</strong> renta,
+                ↪ De cada $100 vendidos, te quedan <strong className="font-semibold text-[var(--sx-text-muted)]">{ayudaBrutaMonto}</strong> después
+                de pagar lo que cuesta producir el producto. Este margen <strong className="font-semibold text-[var(--sx-text-muted)]">NO incluye</strong> renta,
                 sueldos ni gastos fijos — solo lo directamente atribuible a cada venta.
               </>
             }
@@ -636,7 +636,7 @@ export function EstadoResultadosView({ onBack }: { onBack: () => void }) {
             cls={claseColorOperativa(margenOperativa)}
             ayuda={
               <>
-                ↪ Lo que ganaste <strong className="font-semibold text-white/70">ANTES de impuestos</strong>. Este es el
+                ↪ Lo que ganaste <strong className="font-semibold text-[var(--sx-text-muted)]">ANTES de impuestos</strong>. Este es el
                 verdadero indicador de qué tan bien opera tu empresa — ya descuenta TODO lo operativo: ventas, costos,
                 sueldos, renta, servicios.
               </>
@@ -675,7 +675,7 @@ export function EstadoResultadosView({ onBack }: { onBack: () => void }) {
             final
             ayuda={
               <>
-                ↪ Lo que <strong className="font-semibold text-white/70">REALMENTE quedó</strong>. Esto es lo que tu
+                ↪ Lo que <strong className="font-semibold text-[var(--sx-text-muted)]">REALMENTE quedó</strong>. Esto es lo que tu
                 empresa generó de riqueza este mes. Si este número es bajo o negativo, algo del proceso de arriba está
                 mal — revisa sección por sección para encontrar dónde se va el dinero.
               </>
@@ -683,8 +683,8 @@ export function EstadoResultadosView({ onBack }: { onBack: () => void }) {
           />
 
           {/* NOTAS */}
-          <div className="mb-3.5 rounded-2xl border border-white/[0.08] bg-[#1c1c1e] p-5 sm:p-6">
-            <div className="mb-3 flex items-center gap-2 text-sm font-extrabold text-white">
+          <div className="mb-3.5 rounded-2xl border border-[var(--sx-border)] bg-[var(--sx-card)] p-5 sm:p-6">
+            <div className="mb-3 flex items-center gap-2 text-sm font-extrabold text-[var(--sx-text)]">
               <NotebookPen className="h-4 w-4 text-[#1aab99]" />
               Notas del mes
             </div>
@@ -706,7 +706,7 @@ export function EstadoResultadosView({ onBack }: { onBack: () => void }) {
               Guardar Estado de Resultados
             </button>
             {feedback && (
-              <span className={`text-xs ${saveState === 'error' ? 'text-red-400' : 'text-white/50'}`}>{feedback}</span>
+              <span className={`text-xs ${saveState === 'error' ? 'text-red-400' : 'text-[var(--sx-text-muted)]'}`}>{feedback}</span>
             )}
           </div>
         </div>
@@ -735,16 +735,16 @@ function EorSeccion({
   totalValue: number;
 }) {
   return (
-    <div className="mb-3.5 rounded-2xl border border-white/[0.08] bg-[#1c1c1e] p-5 sm:p-6">
-      <div className="mb-1 flex items-center gap-2 text-sm font-extrabold text-white">
+    <div className="mb-3.5 rounded-2xl border border-[var(--sx-border)] bg-[var(--sx-card)] p-5 sm:p-6">
+      <div className="mb-1 flex items-center gap-2 text-sm font-extrabold text-[var(--sx-text)]">
         {icon}
         {title}
       </div>
-      <div className="mb-4 text-xs text-white/35">{subtitle}</div>
+      <div className="mb-4 text-xs text-[var(--sx-text-dim)]">{subtitle}</div>
       <div>{children}</div>
-      <div className="mt-3.5 flex items-center justify-between border-t-2 border-white/10 pt-3.5">
-        <span className="text-xs font-bold uppercase tracking-wide text-white/40">{totalLabel}</span>
-        <span className="text-lg font-extrabold text-white">{fmtMoney(totalValue)}</span>
+      <div className="mt-3.5 flex items-center justify-between border-t-2 border-[var(--sx-border)] pt-3.5">
+        <span className="text-xs font-bold uppercase tracking-wide text-[var(--sx-text-dim)]">{totalLabel}</span>
+        <span className="text-lg font-extrabold text-[var(--sx-text)]">{fmtMoney(totalValue)}</span>
       </div>
     </div>
   );
@@ -762,13 +762,13 @@ function LineaInput({
   onChange: (v: string) => void;
 }) {
   return (
-    <div className="flex flex-col gap-2 border-b border-white/[0.06] py-3 last:border-0 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
+    <div className="flex flex-col gap-2 border-b border-[var(--sx-border)] py-3 last:border-0 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
       <div className="flex-1">
-        <div className="text-sm font-semibold text-white/80">{label}</div>
-        <div className="mt-0.5 text-xs leading-relaxed text-white/35">{ayuda}</div>
+        <div className="text-sm font-semibold text-[var(--sx-text-muted)]">{label}</div>
+        <div className="mt-0.5 text-xs leading-relaxed text-[var(--sx-text-dim)]">{ayuda}</div>
       </div>
       <div className="flex items-center gap-1.5 sm:min-w-[160px] sm:justify-end">
-        <span className="text-sm font-semibold text-white/40">$</span>
+        <span className="text-sm font-semibold text-[var(--sx-text-dim)]">$</span>
         <input
           type="number"
           min={0}
@@ -805,19 +805,19 @@ function ResultadoBanner({
     <div className={`mb-3.5 rounded-2xl border-2 p-5 transition sm:p-6 ${s.border} ${s.bg}`}>
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
-          <div className="mb-1.5 text-[11px] font-bold uppercase tracking-wide text-white/40">{titulo}</div>
+          <div className="mb-1.5 text-[11px] font-bold uppercase tracking-wide text-[var(--sx-text-dim)]">{titulo}</div>
           <div className={`font-extrabold leading-none tracking-tight ${s.text} ${final ? 'text-4xl' : 'text-[32px]'}`}>
             {utilidad != null ? fmtMoney(utilidad) : '$—'}
           </div>
         </div>
         <div className="text-right">
-          <div className="mb-1 text-[11px] font-semibold text-white/40">{margenLabel}</div>
+          <div className="mb-1 text-[11px] font-semibold text-[var(--sx-text-dim)]">{margenLabel}</div>
           <div className={`font-extrabold leading-none ${s.text} ${final ? 'text-[34px]' : 'text-[26px]'}`}>
             {margenPct != null ? fmt(margenPct, 1) + '%' : '—%'}
           </div>
         </div>
       </div>
-      <div className="mt-3.5 border-t border-white/10 pt-3 text-xs leading-relaxed text-white/50">{ayuda}</div>
+      <div className="mt-3.5 border-t border-[var(--sx-border)] pt-3 text-xs leading-relaxed text-[var(--sx-text-muted)]">{ayuda}</div>
     </div>
   );
 }
@@ -842,22 +842,22 @@ function TablaComparativa({
   const cols = mc.length + 1;
 
   return (
-    <div className="overflow-x-auto rounded-2xl border border-white/[0.08]">
+    <div className="overflow-x-auto rounded-2xl border border-[var(--sx-border)]">
       <table className="w-full min-w-[600px] text-sm">
         <thead>
-          <tr className="bg-white/[0.03]">
-            <th className="whitespace-nowrap px-4 py-3 text-left text-[11px] font-bold uppercase tracking-wide text-white/40">
+          <tr className="bg-[var(--sx-card-hover)]">
+            <th className="whitespace-nowrap px-4 py-3 text-left text-[11px] font-bold uppercase tracking-wide text-[var(--sx-text-dim)]">
               Concepto
             </th>
             {mc.map((m) => (
               <th
                 key={m.id}
-                className="whitespace-nowrap px-4 py-3 text-right text-[11px] font-bold uppercase tracking-wide text-white/40"
+                className="whitespace-nowrap px-4 py-3 text-right text-[11px] font-bold uppercase tracking-wide text-[var(--sx-text-dim)]"
               >
                 <button
                   onClick={() => onEditar(mesNorm(m))}
                   title={`Editar ${mesLabelLargo(mesNorm(m))}`}
-                  className="text-[#1aab99] transition hover:text-white"
+                  className="text-[#1aab99] transition hover:text-[var(--sx-text)]"
                 >
                   {mesLabel(mesNorm(m))}
                 </button>
@@ -867,7 +867,7 @@ function TablaComparativa({
                     onEliminar(m.id);
                   }}
                   title="Eliminar"
-                  className="ml-1.5 align-middle text-white/20 transition hover:text-red-400"
+                  className="ml-1.5 align-middle text-[var(--sx-text-faint)] transition hover:text-red-400"
                 >
                   <X className="inline h-3 w-3" />
                 </button>
@@ -899,10 +899,10 @@ function TablaComparativa({
 
 function FilaValores({ label, vals, bold }: { label: string; vals: string[]; bold?: boolean }) {
   return (
-    <tr className="border-b border-white/[0.06] last:border-0">
-      <td className={`px-4 py-2.5 text-xs ${bold ? 'font-bold text-white' : 'text-white/40'}`}>{label}</td>
+    <tr className="border-b border-[var(--sx-border)] last:border-0">
+      <td className={`px-4 py-2.5 text-xs ${bold ? 'font-bold text-[var(--sx-text)]' : 'text-[var(--sx-text-dim)]'}`}>{label}</td>
       {vals.map((v, i) => (
-        <td key={i} className={`whitespace-nowrap px-4 py-2.5 text-right ${bold ? 'font-bold text-white' : 'text-white/60'}`}>
+        <td key={i} className={`whitespace-nowrap px-4 py-2.5 text-right ${bold ? 'font-bold text-[var(--sx-text)]' : 'text-[var(--sx-text-muted)]'}`}>
           {v}
         </td>
       ))}
@@ -920,8 +920,8 @@ function FilaMargen({
   clsFn: (v: number | null) => Cls;
 }) {
   return (
-    <tr className="border-b border-white/[0.06] last:border-0">
-      <td className="px-4 py-2.5 text-xs text-white/40">{label}</td>
+    <tr className="border-b border-[var(--sx-border)] last:border-0">
+      <td className="px-4 py-2.5 text-xs text-[var(--sx-text-dim)]">{label}</td>
       {vals.map((v, i) => (
         <td key={i} className={`whitespace-nowrap px-4 py-2.5 text-right text-xs font-bold ${margenTextColor[clsFn(v)]}`}>
           {v != null && !isNaN(v) ? fmt(v, 1) + '%' : '—'}
@@ -934,7 +934,7 @@ function FilaMargen({
 function FilaSeparador({ cols }: { cols: number }) {
   return (
     <tr>
-      <td colSpan={cols} className="border-b border-white/10 py-1" />
+      <td colSpan={cols} className="border-b border-[var(--sx-border)] py-1" />
     </tr>
   );
 }

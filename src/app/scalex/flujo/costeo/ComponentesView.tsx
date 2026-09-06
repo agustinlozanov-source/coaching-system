@@ -208,18 +208,18 @@ export function ComponentesView({ orgId, profile, onBack }: { orgId: string; pro
     }
   }
 
-  if (loading) return <div className="flex items-center justify-center py-20"><Loader2 className="h-8 w-8 animate-spin text-white/40" /></div>;
+  if (loading) return <div className="flex items-center justify-center py-20"><Loader2 className="h-8 w-8 animate-spin text-[var(--sx-text-dim)]" /></div>;
 
   return (
     <div>
       <div className="mb-6 flex items-center justify-between gap-3">
         <div className="flex items-center gap-3">
-          <button onClick={onBack} className="flex h-9 w-9 items-center justify-center rounded-lg border border-white/10 text-white/60 transition hover:bg-white/[0.06] hover:text-white">
+          <button onClick={onBack} className="flex h-9 w-9 items-center justify-center rounded-lg border border-[var(--sx-border)] text-[var(--sx-text-muted)] transition hover:bg-[var(--sx-card-hover)] hover:text-[var(--sx-text)]">
             <ArrowLeft className="h-4 w-4" />
           </button>
           <div>
             <p className="text-xs font-semibold uppercase tracking-wide text-[#1aab99]">Costeo · Paso 3</p>
-            <h1 className="text-2xl font-bold text-white">Componentes</h1>
+            <h1 className="text-2xl font-bold text-[var(--sx-text)]">Componentes</h1>
           </div>
         </div>
         <button onClick={openCreate} className="flex items-center gap-2 rounded-xl bg-gradient-to-br from-[#1aab99] to-[#3533cd] px-4 py-2.5 text-sm font-bold text-white transition hover:opacity-90">
@@ -234,7 +234,7 @@ export function ComponentesView({ orgId, profile, onBack }: { orgId: string; pro
       )}
 
       <div className="mb-5 relative">
-        <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-white/30" />
+        <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--sx-text-faint)]" />
         <TextInput value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Buscar componente..." className="pl-9 max-w-sm" />
       </div>
 
@@ -249,20 +249,20 @@ export function ComponentesView({ orgId, profile, onBack }: { orgId: string; pro
             const costo = costos[c.id] || 0;
             const costoUnit = c.rendimiento_cantidad > 0 ? costo / c.rendimiento_cantidad : 0;
             return (
-              <div key={c.id} className="flex flex-col gap-3 rounded-2xl border border-white/[0.08] bg-[#1c1c1e] p-4">
+              <div key={c.id} className="flex flex-col gap-3 rounded-2xl border border-[var(--sx-border)] bg-[var(--sx-card)] p-4">
                 <div className="flex items-start gap-3">
                   <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-[#1aab99]/20 to-[#3533cd]/20 text-[#1aab99]">
                     <Layers className="h-4.5 w-4.5" />
                   </div>
                   <div className="min-w-0 flex-1">
-                    <div className="truncate font-bold text-white">{c.nombre}</div>
-                    <div className="text-xs text-white/40">{c.categoria || 'Sin categoría'} · Rinde {fmtNum(c.rendimiento_cantidad)} {c.rendimiento_unidad}</div>
+                    <div className="truncate font-bold text-[var(--sx-text)]">{c.nombre}</div>
+                    <div className="text-xs text-[var(--sx-text-dim)]">{c.categoria || 'Sin categoría'} · Rinde {fmtNum(c.rendimiento_cantidad)} {c.rendimiento_unidad}</div>
                   </div>
                 </div>
-                <div className="flex items-end justify-between border-t border-white/[0.06] pt-3">
+                <div className="flex items-end justify-between border-t border-[var(--sx-border)] pt-3">
                   <div>
-                    <div className="text-lg font-extrabold text-white">{fmtMoney(costo)}</div>
-                    <div className="text-xs text-white/40">{fmtMoney(costoUnit)} / {c.rendimiento_unidad}</div>
+                    <div className="text-lg font-extrabold text-[var(--sx-text)]">{fmtMoney(costo)}</div>
+                    <div className="text-xs text-[var(--sx-text-dim)]">{fmtMoney(costoUnit)} / {c.rendimiento_unidad}</div>
                   </div>
                   <div className="flex gap-1.5">
                     <IconBtn title="Editar" onClick={() => openEdit(c)}><Edit2 className="h-3.5 w-3.5" /></IconBtn>
@@ -301,7 +301,7 @@ export function ComponentesView({ orgId, profile, onBack }: { orgId: string; pro
           <div>
             <Label>Recursos directos</Label>
             <div className="flex flex-col gap-2">
-              {builderRecursos.length === 0 && <div className="rounded-lg border border-dashed border-white/10 p-3 text-xs text-white/40">Aún no agregaste recursos directos.</div>}
+              {builderRecursos.length === 0 && <div className="rounded-lg border border-dashed border-[var(--sx-border)] p-3 text-xs text-[var(--sx-text-dim)]">Aún no agregaste recursos directos.</div>}
               {builderRecursos.map((r, idx) => {
                 const hint = hintTiempo(r.cantidad, r.unidad);
                 const costoTotal = costoUnitRecurso(r.recurso_id) * (r.cantidad || 0);
@@ -329,15 +329,15 @@ export function ComponentesView({ orgId, profile, onBack }: { orgId: string; pro
                       className="w-28 flex-shrink-0" value={r.unidad}
                       onChange={(e) => setBuilderRecursos((prev) => prev.map((x, i) => (i === idx ? { ...x, unidad: e.target.value } : x)))}
                     ><UnidadOptions /></Select>
-                    <div className="w-20 flex-shrink-0 text-right text-xs font-semibold text-white/70">{fmtMoney(costoTotal)}</div>
-                    <button onClick={() => setBuilderRecursos((prev) => prev.filter((_, i) => i !== idx))} className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg text-white/30 hover:bg-white/[0.06] hover:text-red-400">
+                    <div className="w-20 flex-shrink-0 text-right text-xs font-semibold text-[var(--sx-text-muted)]">{fmtMoney(costoTotal)}</div>
+                    <button onClick={() => setBuilderRecursos((prev) => prev.filter((_, i) => i !== idx))} className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg text-[var(--sx-text-faint)] hover:bg-[var(--sx-card-hover)] hover:text-red-400">
                       <X className="h-3.5 w-3.5" />
                     </button>
-                    {hint && <div className="w-full text-xs text-white/30">{hint}</div>}
+                    {hint && <div className="w-full text-xs text-[var(--sx-text-faint)]">{hint}</div>}
                   </div>
                 );
               })}
-              <button onClick={() => setBuilderRecursos((prev) => [...prev, { recurso_id: '', cantidad: 0, unidad: 'gr' }])} className="flex items-center justify-center gap-1.5 rounded-lg border border-dashed border-white/15 py-2 text-xs font-semibold text-white/50 hover:border-white/30 hover:text-white">
+              <button onClick={() => setBuilderRecursos((prev) => [...prev, { recurso_id: '', cantidad: 0, unidad: 'gr' }])} className="flex items-center justify-center gap-1.5 rounded-lg border border-dashed border-[var(--sx-border-strong)] py-2 text-xs font-semibold text-[var(--sx-text-muted)] hover:border-[var(--sx-border-strong)] hover:text-[var(--sx-text)]">
                 <Plus className="h-3.5 w-3.5" /> Agregar recurso
               </button>
             </div>
@@ -346,7 +346,7 @@ export function ComponentesView({ orgId, profile, onBack }: { orgId: string; pro
           <div>
             <Label>Sub-componentes (opcional)</Label>
             <div className="flex flex-col gap-2">
-              {builderComps.length === 0 && <div className="rounded-lg border border-dashed border-white/10 p-3 text-xs text-white/40">Útil si tu componente usa otros bloques ya creados (ej. una salsa que usa un sofrito).</div>}
+              {builderComps.length === 0 && <div className="rounded-lg border border-dashed border-[var(--sx-border)] p-3 text-xs text-[var(--sx-text-dim)]">Útil si tu componente usa otros bloques ya creados (ej. una salsa que usa un sofrito).</div>}
               {builderComps.map((s, idx) => {
                 const hint = hintTiempo(s.cantidad, s.unidad);
                 const costoTotal = costoUnitComponenteHijo(s.componente_hijo_id) * (s.cantidad || 0);
@@ -375,15 +375,15 @@ export function ComponentesView({ orgId, profile, onBack }: { orgId: string; pro
                       className="w-28 flex-shrink-0" value={s.unidad}
                       onChange={(e) => setBuilderComps((prev) => prev.map((x, i) => (i === idx ? { ...x, unidad: e.target.value } : x)))}
                     ><UnidadOptions /></Select>
-                    <div className="w-20 flex-shrink-0 text-right text-xs font-semibold text-white/70">{fmtMoney(costoTotal)}</div>
-                    <button onClick={() => setBuilderComps((prev) => prev.filter((_, i) => i !== idx))} className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg text-white/30 hover:bg-white/[0.06] hover:text-red-400">
+                    <div className="w-20 flex-shrink-0 text-right text-xs font-semibold text-[var(--sx-text-muted)]">{fmtMoney(costoTotal)}</div>
+                    <button onClick={() => setBuilderComps((prev) => prev.filter((_, i) => i !== idx))} className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg text-[var(--sx-text-faint)] hover:bg-[var(--sx-card-hover)] hover:text-red-400">
                       <X className="h-3.5 w-3.5" />
                     </button>
-                    {hint && <div className="w-full text-xs text-white/30">{hint}</div>}
+                    {hint && <div className="w-full text-xs text-[var(--sx-text-faint)]">{hint}</div>}
                   </div>
                 );
               })}
-              <button onClick={() => setBuilderComps((prev) => [...prev, { componente_hijo_id: '', cantidad: 0, unidad: 'unidad' }])} className="flex items-center justify-center gap-1.5 rounded-lg border border-dashed border-white/15 py-2 text-xs font-semibold text-white/50 hover:border-white/30 hover:text-white">
+              <button onClick={() => setBuilderComps((prev) => [...prev, { componente_hijo_id: '', cantidad: 0, unidad: 'unidad' }])} className="flex items-center justify-center gap-1.5 rounded-lg border border-dashed border-[var(--sx-border-strong)] py-2 text-xs font-semibold text-[var(--sx-text-muted)] hover:border-[var(--sx-border-strong)] hover:text-[var(--sx-text)]">
                 <Plus className="h-3.5 w-3.5" /> Agregar sub-componente
               </button>
             </div>
@@ -394,11 +394,11 @@ export function ComponentesView({ orgId, profile, onBack }: { orgId: string; pro
             <TextInput value={form.notas} onChange={(e) => setForm({ ...form, notas: e.target.value })} />
           </div>
 
-          <div className="flex items-center justify-between rounded-xl border border-white/10 bg-[#141416] px-4 py-3">
-            <div className="text-sm text-white/60">Costo total del lote</div>
+          <div className="flex items-center justify-between rounded-xl border border-[var(--sx-border)] bg-[var(--sx-input)] px-4 py-3">
+            <div className="text-sm text-[var(--sx-text-muted)]">Costo total del lote</div>
             <div className="text-right">
-              <div className="text-lg font-extrabold text-white">{fmtMoney(builderTotal)}</div>
-              <div className="text-xs text-white/40">{fmtMoney(builderPorUnidad)} / {form.rendUnidad || 'unidad'}</div>
+              <div className="text-lg font-extrabold text-[var(--sx-text)]">{fmtMoney(builderTotal)}</div>
+              <div className="text-xs text-[var(--sx-text-dim)]">{fmtMoney(builderPorUnidad)} / {form.rendUnidad || 'unidad'}</div>
             </div>
           </div>
 

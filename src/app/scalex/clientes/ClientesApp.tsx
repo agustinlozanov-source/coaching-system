@@ -130,7 +130,7 @@ export function ClientesApp() {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-20">
-        <Loader2 className="h-8 w-8 animate-spin text-white/40" />
+        <Loader2 className="h-8 w-8 animate-spin text-[var(--sx-text-dim)]" />
       </div>
     );
   }
@@ -141,17 +141,17 @@ export function ClientesApp() {
       <div className="mb-5 flex flex-wrap items-start justify-between gap-4">
         <div>
           <p className="text-xs font-semibold uppercase tracking-wide text-[#1aab99]">Consultor</p>
-          <h1 className="text-2xl font-bold text-white">Mis Clientes</h1>
-          <p className="mt-1 text-sm text-white/50">Gestión de prospectos y cuentas activas.</p>
+          <h1 className="text-2xl font-bold text-[var(--sx-text)]">Mis Clientes</h1>
+          <p className="mt-1 text-sm text-[var(--sx-text-muted)]">Gestión de prospectos y cuentas activas.</p>
         </div>
         <div className="flex flex-wrap items-center gap-2.5">
           <div className="relative">
-            <Search className="pointer-events-none absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-white/30" />
+            <Search className="pointer-events-none absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-[var(--sx-text-faint)]" />
             <input
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Buscar empresa o contacto…"
-              className="w-56 rounded-lg border border-white/10 bg-[#141416] py-2 pl-8 pr-3 text-sm text-white outline-none transition placeholder:text-white/25 focus:border-[#1aab99] focus:ring-2 focus:ring-[#1aab99]/25"
+              className="w-56 rounded-lg border border-[var(--sx-border)] bg-[var(--sx-input)] py-2 pl-8 pr-3 text-sm text-[var(--sx-text)] outline-none transition placeholder:text-[var(--sx-text-faint)] focus:border-[#1aab99] focus:ring-2 focus:ring-[#1aab99]/25"
             />
           </div>
           <button
@@ -159,7 +159,7 @@ export function ClientesApp() {
             className={`flex items-center gap-1.5 rounded-lg border px-3 py-2 text-xs font-semibold transition ${
               filtroVencidas
                 ? 'border-amber-400/50 bg-amber-500/15 text-amber-400'
-                : 'border-white/10 bg-white/[0.03] text-white/50 hover:bg-white/[0.06] hover:text-white'
+                : 'border-[var(--sx-border)] bg-[var(--sx-card-hover)] text-[var(--sx-text-muted)] hover:bg-[var(--sx-card-hover)] hover:text-[var(--sx-text)]'
             }`}
           >
             <Clock className="h-3.5 w-3.5" /> Vencidas
@@ -176,10 +176,10 @@ export function ClientesApp() {
       {/* Stats */}
       <div className="mb-5 flex flex-wrap gap-2.5">
         {stats.map((s) => (
-          <div key={s.id} className="flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.03] px-3 py-1.5 text-xs font-semibold">
+          <div key={s.id} className="flex items-center gap-2 rounded-full border border-[var(--sx-border)] bg-[var(--sx-card-hover)] px-3 py-1.5 text-xs font-semibold">
             <span className="h-2 w-2 flex-shrink-0 rounded-full" style={{ background: s.color }} />
-            <span className="text-sm font-extrabold text-white">{s.count}</span>
-            <span className="text-white/40">{s.label.toLowerCase()}</span>
+            <span className="text-sm font-extrabold text-[var(--sx-text)]">{s.count}</span>
+            <span className="text-[var(--sx-text-dim)]">{s.label.toLowerCase()}</span>
           </div>
         ))}
       </div>
@@ -202,18 +202,18 @@ export function ClientesApp() {
                   dragId.current = null;
                   if (id) moverEtapa(id, etapa.id);
                 }}
-                className={`flex w-[280px] flex-shrink-0 flex-col rounded-2xl border bg-white/[0.03] transition ${
-                  isOver ? 'border-[#1aab99] bg-[#1aab99]/[0.06]' : 'border-white/[0.08]'
+                className={`flex w-[280px] flex-shrink-0 flex-col rounded-2xl border bg-[var(--sx-card-hover)] transition ${
+                  isOver ? 'border-[#1aab99] bg-[#1aab99]/[0.06]' : 'border-[var(--sx-border)]'
                 }`}
               >
-                <div className="flex flex-shrink-0 items-center gap-2.5 border-b border-white/[0.08] px-4 py-3.5">
+                <div className="flex flex-shrink-0 items-center gap-2.5 border-b border-[var(--sx-border)] px-4 py-3.5">
                   <span className="h-2.5 w-2.5 flex-shrink-0 rounded-full" style={{ background: etapa.color }} />
-                  <span className="flex-1 text-[13px] font-bold text-white">{etapa.label}</span>
-                  <span className="rounded-full bg-white/[0.07] px-2 py-0.5 text-[11px] font-bold text-white/50">{lista.length}</span>
+                  <span className="flex-1 text-[13px] font-bold text-[var(--sx-text)]">{etapa.label}</span>
+                  <span className="rounded-full bg-[var(--sx-card-hover)] px-2 py-0.5 text-[11px] font-bold text-[var(--sx-text-muted)]">{lista.length}</span>
                 </div>
                 <div className="flex-1 space-y-2 overflow-y-auto p-2.5">
                   {lista.length === 0 && (
-                    <div className="flex h-20 items-center justify-center text-xs text-white/25">Sin prospectos</div>
+                    <div className="flex h-20 items-center justify-center text-xs text-[var(--sx-text-faint)]">Sin prospectos</div>
                   )}
                   {lista.map((p) => (
                     <ProspectoCard
@@ -250,7 +250,7 @@ export function ClientesApp() {
         {toasts.map((t) => (
           <div
             key={t.id}
-            className={`flex items-center gap-2.5 rounded-xl border bg-[#242426] px-4 py-3 text-sm font-medium text-white shadow-2xl ${
+            className={`flex items-center gap-2.5 rounded-xl border bg-[var(--sx-card-hover)] px-4 py-3 text-sm font-medium text-[var(--sx-text)] shadow-2xl ${
               t.type === 'error' ? 'border-red-500/50' : 'border-[#1aab99]/50'
             }`}
           >

@@ -16,15 +16,15 @@ export function SaveIndicator({ state }: { state: SaveState }) {
     state === 'saving' ? 'bg-amber-400 animate-pulse'
       : state === 'saved' ? 'bg-emerald-400'
       : state === 'error' ? 'bg-red-400'
-      : 'bg-white/25';
+      : 'bg-[var(--sx-text-faint)]';
   const textCls =
     state === 'saving' ? 'text-amber-400'
       : state === 'saved' ? 'text-emerald-400'
       : state === 'error' ? 'text-red-400'
-      : 'text-white/30';
+      : 'text-[var(--sx-text-faint)]';
 
   return (
-    <div className={`flex items-center gap-2 whitespace-nowrap rounded-full bg-white/[0.04] px-3 py-1.5 text-xs ${textCls}`}>
+    <div className={`flex items-center gap-2 whitespace-nowrap rounded-full bg-[var(--sx-card-hover)] px-3 py-1.5 text-xs ${textCls}`}>
       <span className={`h-1.5 w-1.5 rounded-full ${dotCls}`} />
       {LABELS[state]}
     </div>

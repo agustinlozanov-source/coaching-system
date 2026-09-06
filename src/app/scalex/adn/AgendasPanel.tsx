@@ -122,21 +122,21 @@ function AgendaCard({ agenda, onChange }: { agenda: AgendaRow; onChange: (next: 
   }
 
   return (
-    <div className={`overflow-hidden rounded-xl border bg-[#1c1c1e] transition ${isDone ? 'border-emerald-500/40 opacity-60' : 'border-white/[0.08]'}`}>
-      <div className="flex items-center justify-between border-b border-white/[0.06] px-3 py-2">
+    <div className={`overflow-hidden rounded-xl border bg-[var(--sx-card)] transition ${isDone ? 'border-emerald-500/40 opacity-60' : 'border-[var(--sx-border)]'}`}>
+      <div className="flex items-center justify-between border-b border-[var(--sx-border)] px-3 py-2">
         <span className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[10.5px] font-bold" style={{ background: `${h.color}22`, color: h.color }}>
           <Icon className="h-3 w-3" /> {h.label}
         </span>
         <label className="flex cursor-pointer items-center" title={isDone ? 'Marcar pendiente' : 'Marcar completada'}>
           <input type="checkbox" checked={isDone} onChange={toggle} className="hidden" />
-          <span className={`flex h-[17px] w-[17px] items-center justify-center rounded-[5px] border transition ${isDone ? 'border-emerald-500 bg-emerald-500' : 'border-white/25 bg-white/[0.04]'}`}>
+          <span className={`flex h-[17px] w-[17px] items-center justify-center rounded-[5px] border transition ${isDone ? 'border-emerald-500 bg-emerald-500' : 'border-[var(--sx-border-strong)] bg-[var(--sx-card-hover)]'}`}>
             {isDone && <Check className="h-3 w-3 text-white" />}
           </span>
         </label>
       </div>
       <div className="p-3.5">
-        <div className={`text-[12.5px] leading-relaxed transition ${isDone ? 'text-white/30 line-through' : 'text-white/70'}`}>{agenda.contenido}</div>
-        <button type="button" onClick={() => setShowNotes((s) => !s)} className="mt-2 flex items-center gap-1 text-[11px] text-white/30 transition hover:text-white/60">
+        <div className={`text-[12.5px] leading-relaxed transition ${isDone ? 'text-[var(--sx-text-faint)] line-through' : 'text-[var(--sx-text-muted)]'}`}>{agenda.contenido}</div>
+        <button type="button" onClick={() => setShowNotes((s) => !s)} className="mt-2 flex items-center gap-1 text-[11px] text-[var(--sx-text-faint)] transition hover:text-[var(--sx-text-muted)]">
           <PencilLine className="h-3 w-3" /> {notes.trim() ? 'Ver nota' : 'Agregar nota'}
         </button>
         {showNotes && (
@@ -145,7 +145,7 @@ function AgendaCard({ agenda, onChange }: { agenda: AgendaRow; onChange: (next: 
               value={notes}
               onChange={(e) => handleNotes(e.target.value)}
               placeholder="Notas del consultor…"
-              className="mt-1.5 min-h-[60px] w-full resize-none rounded-md border border-white/10 bg-[#141416] p-2 text-xs text-white/70 outline-none transition focus:border-[#1aab99]"
+              className="mt-1.5 min-h-[60px] w-full resize-none rounded-md border border-[var(--sx-border)] bg-[var(--sx-input)] p-2 text-xs text-[var(--sx-text-muted)] outline-none transition focus:border-[#1aab99]"
             />
             <div className={`mt-1 text-[10px] text-emerald-400 transition-opacity ${saved ? 'opacity-100' : 'opacity-0'}`}>Guardado ✓</div>
           </>
@@ -173,10 +173,10 @@ export function AgendasForStep({ sesionId, paso }: { sesionId: string; paso: str
   }, [sesionId, paso]);
 
   if (agendas === null) {
-    return <div className="py-6 text-center text-xs text-white/30">Cargando…</div>;
+    return <div className="py-6 text-center text-xs text-[var(--sx-text-faint)]">Cargando…</div>;
   }
   if (agendas.length === 0) {
-    return <div className="py-6 text-center text-xs text-white/30">No hay agendas generadas para este paso.</div>;
+    return <div className="py-6 text-center text-xs text-[var(--sx-text-faint)]">No hay agendas generadas para este paso.</div>;
   }
 
   return (
@@ -222,27 +222,27 @@ export function AgendasHub({ sesionId, sesion }: { sesionId: string; sesion: any
 
   if (agendas === null) {
     return (
-      <div className="flex items-center justify-center rounded-2xl border border-white/[0.08] bg-[#1c1c1e] p-10">
-        <Loader2 className="h-5 w-5 animate-spin text-white/30" />
+      <div className="flex items-center justify-center rounded-2xl border border-[var(--sx-border)] bg-[var(--sx-card)] p-10">
+        <Loader2 className="h-5 w-5 animate-spin text-[var(--sx-text-faint)]" />
       </div>
     );
   }
 
   if (agendas.length === 0) {
     return (
-      <div className="overflow-hidden rounded-2xl border border-white/[0.08] bg-[#1c1c1e]">
-        <div className="flex items-center gap-3 border-b border-white/[0.08] p-4">
+      <div className="overflow-hidden rounded-2xl border border-[var(--sx-border)] bg-[var(--sx-card)]">
+        <div className="flex items-center gap-3 border-b border-[var(--sx-border)] p-4">
           <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-pink-500/10">
             <CalendarCheck className="h-4 w-4 text-pink-400" />
           </div>
           <div>
-            <h3 className="text-sm font-bold text-white">Agenda ADN · 7 / 30 / 90 días</h3>
-            <p className="text-[11.5px] text-white/40">
+            <h3 className="text-sm font-bold text-[var(--sx-text)]">Agenda ADN · 7 / 30 / 90 días</h3>
+            <p className="text-[11.5px] text-[var(--sx-text-dim)]">
               {canRegen ? 'Sesión completada pero sin agendas. Pulsa para generarlas.' : 'Las acciones se generan automáticamente al completar cada paso.'}
             </p>
           </div>
         </div>
-        <div className="p-6 text-center text-xs text-white/30">
+        <div className="p-6 text-center text-xs text-[var(--sx-text-faint)]">
           {canRegen ? (
             <>
               Los pasos están completados pero las agendas aún no fueron generadas.
@@ -251,7 +251,7 @@ export function AgendasHub({ sesionId, sesion }: { sesionId: string; sesion: any
                   type="button"
                   onClick={regenerar}
                   disabled={regenerating}
-                  className="inline-flex items-center gap-2 rounded-lg border border-white/10 bg-white/[0.04] px-4 py-2 text-xs font-semibold text-white/70 transition hover:border-[#1aab99] hover:text-[#1aab99] disabled:cursor-not-allowed disabled:opacity-50"
+                  className="inline-flex items-center gap-2 rounded-lg border border-[var(--sx-border)] bg-[var(--sx-card-hover)] px-4 py-2 text-xs font-semibold text-[var(--sx-text-muted)] transition hover:border-[#1aab99] hover:text-[#1aab99] disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   {regenerating ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <RefreshCw className="h-3.5 w-3.5" />}
                   Regenerar agendas
@@ -271,14 +271,14 @@ export function AgendasHub({ sesionId, sesion }: { sesionId: string; sesion: any
   const pendienteTotal = agendas.filter((a) => a.estado !== 'completada').length;
 
   return (
-    <div className="overflow-hidden rounded-2xl border border-white/[0.08] bg-[#1c1c1e]">
-      <div className="flex items-center gap-3 border-b border-white/[0.08] p-4">
+    <div className="overflow-hidden rounded-2xl border border-[var(--sx-border)] bg-[var(--sx-card)]">
+      <div className="flex items-center gap-3 border-b border-[var(--sx-border)] p-4">
         <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-pink-500/10">
           <CalendarCheck className="h-4 w-4 text-pink-400" />
         </div>
         <div className="flex-1">
-          <h3 className="text-sm font-bold text-white">Agenda ADN · 7 / 30 / 90 días</h3>
-          <p className="text-[11.5px] text-white/40">Acciones concretas por horizonte para implementar el diagnóstico.</p>
+          <h3 className="text-sm font-bold text-[var(--sx-text)]">Agenda ADN · 7 / 30 / 90 días</h3>
+          <p className="text-[11.5px] text-[var(--sx-text-dim)]">Acciones concretas por horizonte para implementar el diagnóstico.</p>
         </div>
         {pendienteTotal > 0 ? (
           <span className="rounded-full bg-pink-500/10 px-2.5 py-1 text-[11px] font-bold text-pink-400">{pendienteTotal} pendiente{pendienteTotal > 1 ? 's' : ''}</span>
@@ -297,18 +297,18 @@ export function AgendasHub({ sesionId, sesion }: { sesionId: string; sesion: any
                 <Icon className="h-3.5 w-3.5" /> {h.label}
               </div>
               {items.length === 0 ? (
-                <div className="py-4 text-center text-[11px] text-white/25">Sin acciones todavía.</div>
+                <div className="py-4 text-center text-[11px] text-[var(--sx-text-faint)]">Sin acciones todavía.</div>
               ) : (
                 items.map((a) => {
                   const paso = PASO_CONFIG[a.paso] || { label: a.paso, color: '#888' };
                   const isDone = a.estado === 'completada';
                   return (
-                    <div key={a.id} className={`rounded-xl border bg-[#141416] p-3 transition ${isDone ? 'border-emerald-500/30 opacity-60' : 'border-white/[0.08]'}`}>
+                    <div key={a.id} className={`rounded-xl border bg-[var(--sx-input)] p-3 transition ${isDone ? 'border-emerald-500/30 opacity-60' : 'border-[var(--sx-border)]'}`}>
                       <div className="mb-1.5 flex items-center justify-between">
                         <span className="rounded px-1.5 py-0.5 text-[10px] font-bold" style={{ background: `${paso.color}22`, color: paso.color }}>{paso.label}</span>
                         <input type="checkbox" checked={isDone} onChange={() => toggleAgenda(a)} className="h-3.5 w-3.5 accent-emerald-500" />
                       </div>
-                      <div className={`text-[12px] leading-relaxed ${isDone ? 'text-white/30 line-through' : 'text-white/65'}`}>{a.contenido}</div>
+                      <div className={`text-[12px] leading-relaxed ${isDone ? 'text-[var(--sx-text-faint)] line-through' : 'text-[var(--sx-text-muted)]'}`}>{a.contenido}</div>
                     </div>
                   );
                 })

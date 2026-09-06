@@ -56,25 +56,25 @@ function fmtFecha(iso?: string | null) {
 /* ── UI helpers (dark-glow) ─────────────────────────────────────────────── */
 function Card({ icon: Icon, title, children }: { icon: any; title: string; children: React.ReactNode }) {
   return (
-    <div className="rounded-2xl border border-white/[0.08] bg-[#1c1c1e] p-5">
+    <div className="rounded-2xl border border-[var(--sx-border)] bg-[var(--sx-card)] p-5">
       <div className="mb-5 flex items-center gap-2">
         <Icon className="h-4 w-4 text-[#1aab99]" />
-        <h3 className="text-sm font-bold text-white">{title}</h3>
+        <h3 className="text-sm font-bold text-[var(--sx-text)]">{title}</h3>
       </div>
       {children}
     </div>
   );
 }
 function Label({ children }: { children: React.ReactNode }) {
-  return <div className="mb-1.5 text-xs font-semibold uppercase tracking-wide text-white/40">{children}</div>;
+  return <div className="mb-1.5 text-xs font-semibold uppercase tracking-wide text-[var(--sx-text-dim)]">{children}</div>;
 }
 const inputCls =
-  'w-full rounded-lg border border-white/10 bg-[#141416] px-3 py-2 text-sm text-white outline-none transition placeholder:text-white/25 focus:border-[#1aab99] focus:ring-2 focus:ring-[#1aab99]/25 disabled:cursor-not-allowed disabled:opacity-50';
+  'w-full rounded-lg border border-[var(--sx-border)] bg-[var(--sx-input)] px-3 py-2 text-sm text-[var(--sx-text)] outline-none transition placeholder:text-[var(--sx-text-faint)] focus:border-[#1aab99] focus:ring-2 focus:ring-[#1aab99]/25 disabled:cursor-not-allowed disabled:opacity-50';
 
 function StatusHint({ status }: { status: FieldStatus }) {
   if (status === 'idle') return <div className="mt-1 h-4" />;
   const map: Record<Exclude<FieldStatus, 'idle'>, { text: string; cls: string }> = {
-    saving: { text: 'Guardando…', cls: 'text-white/40' },
+    saving: { text: 'Guardando…', cls: 'text-[var(--sx-text-dim)]' },
     saved: { text: '✓ Guardado', cls: 'text-emerald-400' },
     error: { text: '✗ Error al guardar', cls: 'text-red-400' },
   };
@@ -180,16 +180,16 @@ export function PerfilApp() {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-20">
-        <Loader2 className="h-8 w-8 animate-spin text-white/40" />
+        <Loader2 className="h-8 w-8 animate-spin text-[var(--sx-text-dim)]" />
       </div>
     );
   }
 
   if (!perfil) {
     return (
-      <div className="rounded-2xl border border-white/[0.08] bg-[#1c1c1e] p-16 text-center">
-        <h2 className="text-xl font-bold text-white">No se pudo cargar tu perfil</h2>
-        <p className="mt-2 text-white/50">Intenta recargar la página.</p>
+      <div className="rounded-2xl border border-[var(--sx-border)] bg-[var(--sx-card)] p-16 text-center">
+        <h2 className="text-xl font-bold text-[var(--sx-text)]">No se pudo cargar tu perfil</h2>
+        <p className="mt-2 text-[var(--sx-text-muted)]">Intenta recargar la página.</p>
       </div>
     );
   }
@@ -200,7 +200,7 @@ export function PerfilApp() {
     <div>
       <div className="mb-6">
         <p className="text-xs font-semibold uppercase tracking-wide text-[#1aab99]">Cuenta</p>
-        <h1 className="text-2xl font-bold text-white">Mi Perfil</h1>
+        <h1 className="text-2xl font-bold text-[var(--sx-text)]">Mi Perfil</h1>
       </div>
 
       <div className="grid gap-6 lg:grid-cols-[340px_1fr]">
@@ -231,17 +231,17 @@ export function PerfilApp() {
               />
               <button
                 onClick={() => fileInputRef.current?.click()}
-                className="flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.04] px-4 py-2 text-xs font-semibold text-white/70 transition hover:bg-white/[0.08] hover:text-white"
+                className="flex items-center gap-2 rounded-full border border-[var(--sx-border)] bg-[var(--sx-card-hover)] px-4 py-2 text-xs font-semibold text-[var(--sx-text-muted)] transition hover:bg-[var(--sx-card-hover)] hover:text-[var(--sx-text)]"
               >
                 <Upload className="h-3.5 w-3.5" /> Subir foto
               </button>
-              <p className="text-center text-[11px] leading-relaxed text-white/40">
+              <p className="text-center text-[11px] leading-relaxed text-[var(--sx-text-dim)]">
                 JPG o PNG · Máx 2 MB
                 <br />
                 Se guarda automáticamente
               </p>
               <div className="h-4 text-[11px] font-semibold">
-                {avatarStatus === 'saving' && <span className="text-white/40">Subiendo foto…</span>}
+                {avatarStatus === 'saving' && <span className="text-[var(--sx-text-dim)]">Subiendo foto…</span>}
                 {avatarStatus === 'saved' && <span className="text-emerald-400">✓ Foto actualizada</span>}
                 {avatarStatus === 'error' && <span className="text-red-400">✗ {avatarError || 'Error al subir'}</span>}
               </div>
@@ -250,29 +250,29 @@ export function PerfilApp() {
 
           <Card icon={BadgeCheck} title="Certificación">
             {!perfil.nivel_consultor ? (
-              <div className="rounded-lg border border-white/10 bg-white/[0.03] p-3.5 text-sm italic leading-relaxed text-white/40">
+              <div className="rounded-lg border border-[var(--sx-border)] bg-[var(--sx-card-hover)] p-3.5 text-sm italic leading-relaxed text-[var(--sx-text-dim)]">
                 Aún no tienes asignación de certificación.
                 <br />
                 Contacta al Owner para que te asigne nivel y número.
               </div>
             ) : (
               <div className="space-y-3">
-                <span className={`inline-flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-xs font-extrabold ${NIVEL_BADGE_CLS[perfil.nivel_consultor] ?? 'bg-white/[0.06] text-white/60'}`}>
+                <span className={`inline-flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-xs font-extrabold ${NIVEL_BADGE_CLS[perfil.nivel_consultor] ?? 'bg-[var(--sx-card-hover)] text-[var(--sx-text-muted)]'}`}>
                   <BadgeCheck className="h-3.5 w-3.5" />
                   {NIVEL_LABEL[perfil.nivel_consultor] ?? perfil.nivel_consultor}
                 </span>
                 <div className="flex flex-col gap-2 text-xs">
                   <div className="flex justify-between">
-                    <span className="text-white/40">Número</span>
-                    <span className="font-semibold text-white">#{perfil.cert_numero || '—'}</span>
+                    <span className="text-[var(--sx-text-dim)]">Número</span>
+                    <span className="font-semibold text-[var(--sx-text)]">#{perfil.cert_numero || '—'}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-white/40">Emitida</span>
-                    <span className="font-semibold text-white">{fmtFecha(perfil.cert_emitida_en)}</span>
+                    <span className="text-[var(--sx-text-dim)]">Emitida</span>
+                    <span className="font-semibold text-[var(--sx-text)]">{fmtFecha(perfil.cert_emitida_en)}</span>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-white/40">Estado</span>
-                    <span className={`rounded-full px-2 py-0.5 text-[11px] font-bold ${perfil.cert_vigente ? 'bg-emerald-500/15 text-emerald-400' : 'bg-white/[0.06] text-white/40'}`}>
+                    <span className="text-[var(--sx-text-dim)]">Estado</span>
+                    <span className={`rounded-full px-2 py-0.5 text-[11px] font-bold ${perfil.cert_vigente ? 'bg-emerald-500/15 text-emerald-400' : 'bg-[var(--sx-card-hover)] text-[var(--sx-text-dim)]'}`}>
                       {perfil.cert_vigente ? '● Vigente' : '● No vigente'}
                     </span>
                   </div>
@@ -282,10 +282,10 @@ export function PerfilApp() {
           </Card>
 
           <Card icon={KeyRound} title="Contraseña">
-            <p className="mb-3 text-sm leading-relaxed text-white/50">
+            <p className="mb-3 text-sm leading-relaxed text-[var(--sx-text-muted)]">
               Gestiona tu contraseña desde el enlace de recuperación en la pantalla de inicio de sesión.
             </p>
-            <button disabled className="flex w-full cursor-not-allowed items-center justify-center gap-2 rounded-lg bg-white/[0.06] px-4 py-2.5 text-sm font-semibold text-white/40">
+            <button disabled className="flex w-full cursor-not-allowed items-center justify-center gap-2 rounded-lg bg-[var(--sx-card-hover)] px-4 py-2.5 text-sm font-semibold text-[var(--sx-text-dim)]">
               <KeyRound className="h-4 w-4" /> Cambiar contraseña
             </button>
           </Card>

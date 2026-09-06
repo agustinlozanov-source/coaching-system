@@ -610,7 +610,7 @@ function fmtPct(num: number | null | undefined): string {
 }
 
 const inputCls =
-  'w-full rounded-lg border border-white/10 bg-[#141416] px-3 py-2 text-sm text-white outline-none transition placeholder:text-white/25 focus:border-[#1aab99] focus:ring-2 focus:ring-[#1aab99]/25';
+  'w-full rounded-lg border border-[var(--sx-border)] bg-[var(--sx-input)] px-3 py-2 text-sm text-[var(--sx-text)] outline-none transition placeholder:text-[var(--sx-text-faint)] focus:border-[#1aab99] focus:ring-2 focus:ring-[#1aab99]/25';
 
 /* ══════════════════════════════════════════════════════════════════════════
    COMPONENTE PRINCIPAL
@@ -816,7 +816,7 @@ export function DiagnosticoView({ onBack }: { onBack: () => void }) {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-20">
-        <Loader2 className="h-8 w-8 animate-spin text-white/40" />
+        <Loader2 className="h-8 w-8 animate-spin text-[var(--sx-text-dim)]" />
       </div>
     );
   }
@@ -824,12 +824,12 @@ export function DiagnosticoView({ onBack }: { onBack: () => void }) {
   return (
     <div>
       <div className="mb-6 flex items-center gap-3">
-        <button onClick={onBack} className="flex h-9 w-9 items-center justify-center rounded-lg border border-white/10 text-white/60 transition hover:bg-white/[0.06] hover:text-white">
+        <button onClick={onBack} className="flex h-9 w-9 items-center justify-center rounded-lg border border-[var(--sx-border)] text-[var(--sx-text-muted)] transition hover:bg-[var(--sx-card-hover)] hover:text-[var(--sx-text)]">
           <ArrowLeft className="h-4 w-4" />
         </button>
         <div className="flex-1">
           <p className="text-xs font-semibold uppercase tracking-wide text-[#1aab99]">Pilar 5 · Flujo</p>
-          <h1 className="text-2xl font-bold text-white">La PRISMA del Flujo</h1>
+          <h1 className="text-2xl font-bold text-[var(--sx-text)]">La PRISMA del Flujo</h1>
         </div>
         {screen === 'captura' && saveState !== 'idle' && (
           <span className={`flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold ${
@@ -845,7 +845,7 @@ export function DiagnosticoView({ onBack }: { onBack: () => void }) {
       {orgError ? (
         <div className="flex items-start gap-3 rounded-2xl border border-amber-500/25 bg-amber-500/10 p-5">
           <AlertTriangle className="mt-0.5 h-4 w-4 flex-shrink-0 text-amber-400" />
-          <p className="text-sm leading-relaxed text-white/60">{orgError}</p>
+          <p className="text-sm leading-relaxed text-[var(--sx-text-muted)]">{orgError}</p>
         </div>
       ) : screen === 'bienvenida' ? (
         <BienvenidaScreen
@@ -885,8 +885,8 @@ function HeroBlock({ subtitulo }: { subtitulo: ReactNode }) {
         <BarChart3 className="h-8 w-8 text-white" />
       </div>
       <div>
-        <h2 className="mb-2 text-[26px] font-extrabold tracking-tight text-white">La PRISMA del Flujo</h2>
-        <p className="max-w-xl text-sm leading-relaxed text-white/50">{subtitulo}</p>
+        <h2 className="mb-2 text-[26px] font-extrabold tracking-tight text-[var(--sx-text)]">La PRISMA del Flujo</h2>
+        <p className="max-w-xl text-sm leading-relaxed text-[var(--sx-text-muted)]">{subtitulo}</p>
       </div>
     </div>
   );
@@ -911,22 +911,22 @@ function BienvenidaScreen({
       : '—';
     return (
       <div>
-        <HeroBlock subtitulo={<>Último diagnóstico completado el <strong className="text-white/80">{fecha}</strong>. Puedes ver el resultado o iniciar un nuevo diagnóstico.</>} />
-        <div className="mb-5 rounded-2xl border border-white/[0.08] bg-[#1c1c1e] p-5">
+        <HeroBlock subtitulo={<>Último diagnóstico completado el <strong className="text-[var(--sx-text-muted)]">{fecha}</strong>. Puedes ver el resultado o iniciar un nuevo diagnóstico.</>} />
+        <div className="mb-5 rounded-2xl border border-[var(--sx-border)] bg-[var(--sx-card)] p-5">
           <div className="mb-3 flex items-center gap-3">
             <div className={`flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl ${COLOR_ICON_BG[v.color]}`}>
               <VIcon className={`h-[18px] w-[18px] ${COLOR_TEXT[v.color]}`} />
             </div>
             <div>
-              <h3 className="text-[15px] font-bold text-white">Diagnóstico completado</h3>
-              <span className="text-xs text-white/40">{fecha}</span>
+              <h3 className="text-[15px] font-bold text-[var(--sx-text)]">Diagnóstico completado</h3>
+              <span className="text-xs text-[var(--sx-text-dim)]">{fecha}</span>
             </div>
           </div>
           <div className={`flex items-start gap-2.5 rounded-lg border p-3.5 ${COLOR_BG[v.color]}`}>
             <VIcon className={`mt-0.5 h-4 w-4 flex-shrink-0 ${COLOR_TEXT[v.color]}`} />
             <div>
               <strong className={`mb-0.5 block text-[13.5px] font-bold ${COLOR_TEXT[v.color]}`}>{v.nombre}</strong>
-              <p className="text-xs leading-relaxed text-white/50">{v.descripcion}</p>
+              <p className="text-xs leading-relaxed text-[var(--sx-text-muted)]">{v.descripcion}</p>
             </div>
           </div>
         </div>
@@ -934,7 +934,7 @@ function BienvenidaScreen({
           <button onClick={onVerResultado} className="flex items-center gap-2 rounded-xl bg-gradient-to-br from-[#1aab99] to-[#3533cd] px-5 py-2.5 text-sm font-bold text-white transition hover:opacity-90">
             <Eye className="h-4 w-4" /> Ver resultado completo
           </button>
-          <button onClick={onIniciar} disabled={iniciando} className="flex items-center gap-2 rounded-xl border border-white/10 px-5 py-2.5 text-sm font-semibold text-white/60 transition hover:bg-white/[0.06] hover:text-white disabled:opacity-40">
+          <button onClick={onIniciar} disabled={iniciando} className="flex items-center gap-2 rounded-xl border border-[var(--sx-border)] px-5 py-2.5 text-sm font-semibold text-[var(--sx-text-muted)] transition hover:bg-[var(--sx-card-hover)] hover:text-[var(--sx-text)] disabled:opacity-40">
             {iniciando ? <Loader2 className="h-4 w-4 animate-spin" /> : <Plus className="h-4 w-4" />} Nuevo diagnóstico
           </button>
         </div>
@@ -949,17 +949,17 @@ function BienvenidaScreen({
       <HeroBlock subtitulo="8 variables financieras. 3 índices clave. 3 matrices diagnósticas. Un veredicto claro sobre la salud financiera de tu empresa — y una agenda de acción inmediata." />
 
       {diagActivo && (
-        <div className="mb-5 rounded-2xl border border-white/[0.08] bg-[#1c1c1e] p-5">
+        <div className="mb-5 rounded-2xl border border-[var(--sx-border)] bg-[var(--sx-card)] p-5">
           <div className="mb-3 flex items-center gap-3">
             <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-amber-500/15">
               <Activity className="h-[18px] w-[18px] text-amber-400" />
             </div>
             <div>
-              <h3 className="text-[15px] font-bold text-white">Diagnóstico en progreso</h3>
-              <span className="text-xs text-white/40">{diagActivo.variables_capturadas || 0} de 8 variables capturadas ({pct}%)</span>
+              <h3 className="text-[15px] font-bold text-[var(--sx-text)]">Diagnóstico en progreso</h3>
+              <span className="text-xs text-[var(--sx-text-dim)]">{diagActivo.variables_capturadas || 0} de 8 variables capturadas ({pct}%)</span>
             </div>
           </div>
-          <div className="h-[5px] overflow-hidden rounded-full bg-white/[0.06]">
+          <div className="h-[5px] overflow-hidden rounded-full bg-[var(--sx-card-hover)]">
             <div className="h-full rounded-full bg-gradient-to-r from-amber-500 to-red-500 transition-all" style={{ width: `${pct}%` }} />
           </div>
         </div>
@@ -976,7 +976,7 @@ function BienvenidaScreen({
           disabled={iniciando}
           className={
             diagActivo
-              ? 'flex items-center gap-2 rounded-xl border border-white/10 px-5 py-2.5 text-sm font-semibold text-white/60 transition hover:bg-white/[0.06] hover:text-white disabled:opacity-40'
+              ? 'flex items-center gap-2 rounded-xl border border-[var(--sx-border)] px-5 py-2.5 text-sm font-semibold text-[var(--sx-text-muted)] transition hover:bg-[var(--sx-card-hover)] hover:text-[var(--sx-text)] disabled:opacity-40'
               : 'flex items-center gap-2 rounded-xl bg-gradient-to-br from-amber-500 to-red-500 px-5 py-2.5 text-sm font-bold text-white transition hover:opacity-90 disabled:opacity-40'
           }
         >
@@ -986,7 +986,7 @@ function BienvenidaScreen({
 
       {historial.length > 0 && (
         <div>
-          <div className="mb-3 text-xs font-bold uppercase tracking-wide text-white/40">Historial</div>
+          <div className="mb-3 text-xs font-bold uppercase tracking-wide text-[var(--sx-text-dim)]">Historial</div>
           <div className="flex flex-col gap-2">
             {historial.slice(0, 5).map((h, i) => {
               const key = (h.veredicto as VeredictoKey) || 'estresado';
@@ -995,11 +995,11 @@ function BienvenidaScreen({
                 ? new Date(h.completado_en).toLocaleDateString('es-MX', { day: 'numeric', month: 'short', year: 'numeric' })
                 : '—';
               return (
-                <div key={i} className="flex items-center gap-3 rounded-lg border border-white/10 bg-white/[0.03] px-4 py-3">
+                <div key={i} className="flex items-center gap-3 rounded-lg border border-[var(--sx-border)] bg-[var(--sx-card-hover)] px-4 py-3">
                   <span className={`h-2 w-2 flex-shrink-0 rounded-full ${COLOR_DOT[v.color]}`} />
                   <div className="flex-1">
-                    <div className="text-[13px] font-semibold text-white">Diagnóstico PRISMA</div>
-                    <div className="text-[11px] text-white/30">{fecha}</div>
+                    <div className="text-[13px] font-semibold text-[var(--sx-text)]">Diagnóstico PRISMA</div>
+                    <div className="text-[11px] text-[var(--sx-text-faint)]">{fecha}</div>
                   </div>
                   <span className={`text-[11px] font-bold ${COLOR_TEXT[v.color]}`}>{v.nombre}</span>
                 </div>
@@ -1056,8 +1056,8 @@ function CapturaScreen({
     <div>
       {/* Progreso */}
       <div className="mb-7 flex items-center gap-3">
-        <span className="whitespace-nowrap text-xs font-bold text-white/40">Variable</span>
-        <div className="h-[5px] flex-1 overflow-hidden rounded-full bg-white/[0.06]">
+        <span className="whitespace-nowrap text-xs font-bold text-[var(--sx-text-dim)]">Variable</span>
+        <div className="h-[5px] flex-1 overflow-hidden rounded-full bg-[var(--sx-card-hover)]">
           <div className="h-full rounded-full bg-gradient-to-r from-amber-500 to-red-500 transition-all" style={{ width: `${pct}%` }} />
         </div>
         <span className="whitespace-nowrap text-xs font-bold text-amber-400">{num} / 8</span>
@@ -1066,10 +1066,10 @@ function CapturaScreen({
       {/* Header */}
       <div className="mb-6">
         <div className="mb-1.5 text-[11px] font-bold uppercase tracking-wide text-amber-400">Variable {num} de 8</div>
-        <div className="mb-1.5 text-[22px] font-extrabold tracking-tight text-white">{v.nombre}</div>
+        <div className="mb-1.5 text-[22px] font-extrabold tracking-tight text-[var(--sx-text)]">{v.nombre}</div>
         <span className="mb-2.5 inline-block rounded-full bg-amber-500/15 px-2.5 py-0.5 text-[11px] font-bold tracking-wide text-amber-400">{v.abreviacion}</span>
-        <p className="mb-2 text-sm leading-relaxed text-white/60">{v.descripcion}</p>
-        <div className="rounded-lg border-l-[3px] border-amber-500 bg-white/[0.04] px-4 py-3 text-[13px] leading-relaxed text-white/50">{v.explicacion}</div>
+        <p className="mb-2 text-sm leading-relaxed text-[var(--sx-text-muted)]">{v.descripcion}</p>
+        <div className="rounded-lg border-l-[3px] border-amber-500 bg-[var(--sx-card-hover)] px-4 py-3 text-[13px] leading-relaxed text-[var(--sx-text-muted)]">{v.explicacion}</div>
       </div>
 
       {/* Inputs dinámicos según tipo */}
@@ -1082,7 +1082,7 @@ function CapturaScreen({
 
       {/* Notas del consultor */}
       <div className="mt-5">
-        <div className="mb-1.5 flex items-center gap-1.5 text-xs font-bold text-white/40">
+        <div className="mb-1.5 flex items-center gap-1.5 text-xs font-bold text-[var(--sx-text-dim)]">
           <PencilLine className="h-3 w-3" /> Notas del consultor (opcional)
         </div>
         <textarea
@@ -1094,8 +1094,8 @@ function CapturaScreen({
       </div>
 
       {/* Navegación */}
-      <div className="mt-7 flex items-center justify-between border-t border-white/10 pt-5">
-        <button onClick={onPrev} className="flex items-center gap-2 rounded-xl border border-white/10 px-5 py-2.5 text-sm font-semibold text-white/60 transition hover:bg-white/[0.06] hover:text-white">
+      <div className="mt-7 flex items-center justify-between border-t border-[var(--sx-border)] pt-5">
+        <button onClick={onPrev} className="flex items-center gap-2 rounded-xl border border-[var(--sx-border)] px-5 py-2.5 text-sm font-semibold text-[var(--sx-text-muted)] transition hover:bg-[var(--sx-card-hover)] hover:text-[var(--sx-text)]">
           <ArrowLeft className="h-4 w-4" /> {num === 1 ? 'Cancelar' : 'Anterior'}
         </button>
         <button
@@ -1113,9 +1113,9 @@ function CapturaScreen({
 function Ejemplos({ items }: { items: string[] }) {
   return (
     <div className="mt-2">
-      <div className="mb-1 text-[10.5px] font-bold uppercase tracking-wide text-white/25">Ejemplos</div>
+      <div className="mb-1 text-[10.5px] font-bold uppercase tracking-wide text-[var(--sx-text-faint)]">Ejemplos</div>
       {items.map((e, i) => (
-        <div key={i} className="flex items-center gap-1.5 py-0.5 text-[11.5px] text-white/30">
+        <div key={i} className="flex items-center gap-1.5 py-0.5 text-[11.5px] text-[var(--sx-text-faint)]">
           <span>·</span>{e}
         </div>
       ))}
@@ -1130,10 +1130,10 @@ function InputsSimple({
   const isErr = errorCodigo === comp.codigo;
   return (
     <div>
-      <div className="mb-1 text-sm font-bold text-white">{comp.label}</div>
-      <div className="mb-2.5 text-xs leading-relaxed text-white/40">{comp.ayuda}</div>
+      <div className="mb-1 text-sm font-bold text-[var(--sx-text)]">{comp.label}</div>
+      <div className="mb-2.5 text-xs leading-relaxed text-[var(--sx-text-dim)]">{comp.ayuda}</div>
       <div className="relative">
-        <span className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-sm text-white/40">$</span>
+        <span className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-sm text-[var(--sx-text-dim)]">$</span>
         <input
           type="number"
           min={0}
@@ -1159,10 +1159,10 @@ function InputsCompuesta({
         const isErr = errorCodigo === comp.codigo;
         return (
           <div key={comp.codigo}>
-            <div className="mb-1 text-sm font-bold text-white">{comp.label}</div>
-            <div className="mb-2.5 text-xs leading-relaxed text-white/40">{comp.ayuda}</div>
+            <div className="mb-1 text-sm font-bold text-[var(--sx-text)]">{comp.label}</div>
+            <div className="mb-2.5 text-xs leading-relaxed text-[var(--sx-text-dim)]">{comp.ayuda}</div>
             <div className="relative">
-              <span className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-sm text-white/40">$</span>
+              <span className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-sm text-[var(--sx-text-dim)]">$</span>
               <input
                 type="number"
                 min={0}
@@ -1178,10 +1178,10 @@ function InputsCompuesta({
         );
       })}
       {v.formula_display && (
-        <div className={`rounded-lg border-[1.5px] px-5 py-4 transition ${vivo.active ? 'border-amber-500/40 bg-amber-500/5' : 'border-white/10 bg-white/[0.03]'}`}>
-          <div className="mb-1 text-[11px] font-bold uppercase tracking-wide text-white/30">Resultado calculado</div>
-          <div className="mb-2 font-mono text-xs text-white/40">{v.formula_display}</div>
-          <div className={vivo.active ? 'text-2xl font-extrabold tracking-tight text-amber-400' : 'text-lg font-medium text-white/30'}>{vivo.text}</div>
+        <div className={`rounded-lg border-[1.5px] px-5 py-4 transition ${vivo.active ? 'border-amber-500/40 bg-amber-500/5' : 'border-[var(--sx-border)] bg-[var(--sx-card-hover)]'}`}>
+          <div className="mb-1 text-[11px] font-bold uppercase tracking-wide text-[var(--sx-text-faint)]">Resultado calculado</div>
+          <div className="mb-2 font-mono text-xs text-[var(--sx-text-dim)]">{v.formula_display}</div>
+          <div className={vivo.active ? 'text-2xl font-extrabold tracking-tight text-amber-400' : 'text-lg font-medium text-[var(--sx-text-faint)]'}>{vivo.text}</div>
         </div>
       )}
     </div>
@@ -1219,7 +1219,7 @@ function InputsLista({ v, valores, onChange }: { v: VariableDiagnostico; valores
 
   return (
     <div>
-      <div className="mb-3 text-xs leading-relaxed text-white/40">{v.explicacion}</div>
+      <div className="mb-3 text-xs leading-relaxed text-[var(--sx-text-dim)]">{v.explicacion}</div>
       <div className="flex flex-col gap-2">
         {items.map((item, i) => (
           <div key={i} className="grid grid-cols-[1fr_140px_36px] items-center gap-2">
@@ -1231,7 +1231,7 @@ function InputsLista({ v, valores, onChange }: { v: VariableDiagnostico; valores
               className={inputCls}
             />
             <div className="relative">
-              <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-sm text-white/40">$</span>
+              <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-sm text-[var(--sx-text-dim)]">$</span>
               <input
                 type="number"
                 min={0}
@@ -1242,19 +1242,19 @@ function InputsLista({ v, valores, onChange }: { v: VariableDiagnostico; valores
                 className={`${inputCls} pl-6 text-right`}
               />
             </div>
-            <button onClick={() => removeRow(i)} className="flex h-[34px] w-[34px] flex-shrink-0 items-center justify-center rounded-lg border border-white/10 text-white/30 transition hover:border-red-500/40 hover:text-red-400">
+            <button onClick={() => removeRow(i)} className="flex h-[34px] w-[34px] flex-shrink-0 items-center justify-center rounded-lg border border-[var(--sx-border)] text-[var(--sx-text-faint)] transition hover:border-red-500/40 hover:text-red-400">
               <X className="h-3.5 w-3.5" />
             </button>
           </div>
         ))}
       </div>
-      <button onClick={addRow} className="mt-2 flex items-center gap-1.5 rounded-lg border border-dashed border-white/15 px-3.5 py-2 text-xs font-semibold text-white/40 transition hover:border-amber-500 hover:text-amber-400">
+      <button onClick={addRow} className="mt-2 flex items-center gap-1.5 rounded-lg border border-dashed border-[var(--sx-border-strong)] px-3.5 py-2 text-xs font-semibold text-[var(--sx-text-dim)] transition hover:border-amber-500 hover:text-amber-400">
         <Plus className="h-3.5 w-3.5" /> Agregar concepto
       </button>
       <div className="mt-4 rounded-lg border-[1.5px] border-amber-500/40 bg-amber-500/5 px-5 py-4">
-        <div className="mb-1 text-[11px] font-bold uppercase tracking-wide text-white/30">Total {v.abreviacion}</div>
-        <div className="mb-2 font-mono text-xs text-white/40">{v.formula_display}</div>
-        <div className="text-2xl font-extrabold tracking-tight text-white">{fmtMoneda(total)}</div>
+        <div className="mb-1 text-[11px] font-bold uppercase tracking-wide text-[var(--sx-text-faint)]">Total {v.abreviacion}</div>
+        <div className="mb-2 font-mono text-xs text-[var(--sx-text-dim)]">{v.formula_display}</div>
+        <div className="text-2xl font-extrabold tracking-tight text-[var(--sx-text)]">{fmtMoneda(total)}</div>
       </div>
     </div>
   );
@@ -1280,7 +1280,7 @@ function InputsCCE({
   return (
     <div>
       <div className="mb-5">
-        <p className="mb-3 text-sm font-semibold text-white">{v.pregunta_detonante!.pregunta}</p>
+        <p className="mb-3 text-sm font-semibold text-[var(--sx-text)]">{v.pregunta_detonante!.pregunta}</p>
         <div className="flex flex-col gap-2">
           {v.pregunta_detonante!.opciones.map((opt) => {
             const selected = tipo === opt.codigo;
@@ -1289,13 +1289,13 @@ function InputsCCE({
                 key={opt.codigo}
                 onClick={() => onChange({ ...valores, cce_tipo: opt.codigo })}
                 className={`flex cursor-pointer items-center gap-3 rounded-lg border-[1.5px] px-4 py-3 transition ${
-                  selected ? 'border-amber-500 bg-amber-500/10' : 'border-white/10 bg-white/[0.03] hover:border-amber-500/50'
+                  selected ? 'border-amber-500 bg-amber-500/10' : 'border-[var(--sx-border)] bg-[var(--sx-card-hover)] hover:border-amber-500/50'
                 }`}
               >
-                <span className={`flex h-4 w-4 flex-shrink-0 items-center justify-center rounded-full border-2 ${selected ? 'border-amber-500 bg-amber-500' : 'border-white/25'}`}>
+                <span className={`flex h-4 w-4 flex-shrink-0 items-center justify-center rounded-full border-2 ${selected ? 'border-amber-500 bg-amber-500' : 'border-[var(--sx-border-strong)]'}`}>
                   {selected && <span className="h-1.5 w-1.5 rounded-full bg-white" />}
                 </span>
-                <span className="text-[13.5px] leading-snug text-white/70">{opt.label}</span>
+                <span className="text-[13.5px] leading-snug text-[var(--sx-text-muted)]">{opt.label}</span>
               </label>
             );
           })}
@@ -1309,8 +1309,8 @@ function InputsCCE({
             const isErr = errorCodigo === comp.codigo;
             return (
               <div key={comp.codigo}>
-                <div className="mb-1 text-sm font-bold text-white">{comp.label}</div>
-                <div className="mb-2.5 text-xs leading-relaxed text-white/40">{comp.ayuda}</div>
+                <div className="mb-1 text-sm font-bold text-[var(--sx-text)]">{comp.label}</div>
+                <div className="mb-2.5 text-xs leading-relaxed text-[var(--sx-text-dim)]">{comp.ayuda}</div>
                 <div className="relative">
                   <input
                     type="number"
@@ -1321,18 +1321,18 @@ function InputsCCE({
                     onChange={(e) => onChange({ ...valores, [comp.codigo]: e.target.value === '' ? '' : parseFloat(e.target.value) })}
                     className={`${inputCls} pr-14 ${isErr ? 'border-red-500 focus:border-red-500' : ''}`}
                   />
-                  <span className="pointer-events-none absolute right-3.5 top-1/2 -translate-y-1/2 text-xs text-white/40">días</span>
+                  <span className="pointer-events-none absolute right-3.5 top-1/2 -translate-y-1/2 text-xs text-[var(--sx-text-dim)]">días</span>
                 </div>
-                {comp.ayuda_calculo && <div className="mt-1.5 text-[11.5px] italic text-white/30">{comp.ayuda_calculo}</div>}
+                {comp.ayuda_calculo && <div className="mt-1.5 text-[11.5px] italic text-[var(--sx-text-faint)]">{comp.ayuda_calculo}</div>}
                 {comp.ejemplos && <Ejemplos items={comp.ejemplos} />}
               </div>
             );
           })}
 
-          <div className={`rounded-lg border-[1.5px] px-5 py-4 transition ${vivoTexto ? 'border-amber-500/40 bg-amber-500/5' : 'border-white/10 bg-white/[0.03]'}`}>
-            <div className="mb-1 text-[11px] font-bold uppercase tracking-wide text-white/30">CCE calculado</div>
-            <div className="mb-2 font-mono text-xs text-white/40">{v.formula_display}</div>
-            <div className={vivoTexto ? 'text-2xl font-extrabold tracking-tight text-amber-400' : 'text-lg font-medium text-white/30'}>{vivoTexto ?? '—'}</div>
+          <div className={`rounded-lg border-[1.5px] px-5 py-4 transition ${vivoTexto ? 'border-amber-500/40 bg-amber-500/5' : 'border-[var(--sx-border)] bg-[var(--sx-card-hover)]'}`}>
+            <div className="mb-1 text-[11px] font-bold uppercase tracking-wide text-[var(--sx-text-faint)]">CCE calculado</div>
+            <div className="mb-2 font-mono text-xs text-[var(--sx-text-dim)]">{v.formula_display}</div>
+            <div className={vivoTexto ? 'text-2xl font-extrabold tracking-tight text-amber-400' : 'text-lg font-medium text-[var(--sx-text-faint)]'}>{vivoTexto ?? '—'}</div>
           </div>
 
           {errorMsg && <p className="text-xs font-semibold text-red-400">{errorMsg}</p>}
@@ -1361,16 +1361,16 @@ function ResultadoScreen({
         </div>
         <div>
           <h2 className={`mb-1.5 text-xl font-extrabold tracking-tight ${COLOR_TEXT[veredicto.color]}`}>{veredicto.titulo}</h2>
-          <p className="mb-2.5 text-[13.5px] leading-relaxed text-white/60">{veredicto.descripcion}</p>
-          <div className="rounded-lg border border-white/10 bg-white/[0.04] px-3.5 py-2.5 text-[12.5px] leading-relaxed text-white/50">
-            <strong className="text-white/70">Siguiente paso:</strong> {veredicto.siguiente_paso}
+          <p className="mb-2.5 text-[13.5px] leading-relaxed text-[var(--sx-text-muted)]">{veredicto.descripcion}</p>
+          <div className="rounded-lg border border-[var(--sx-border)] bg-[var(--sx-card-hover)] px-3.5 py-2.5 text-[12.5px] leading-relaxed text-[var(--sx-text-muted)]">
+            <strong className="text-[var(--sx-text-muted)]">Siguiente paso:</strong> {veredicto.siguiente_paso}
           </div>
         </div>
       </div>
 
       {/* 3 índices */}
       <div>
-        <h3 className="mb-4 text-base font-extrabold tracking-tight text-white">Los 3 Índices Financieros</h3>
+        <h3 className="mb-4 text-base font-extrabold tracking-tight text-[var(--sx-text)]">Los 3 Índices Financieros</h3>
         <div className="grid gap-3.5 md:grid-cols-3">
           <IndiceCard codigo="iaf" valor={indices.iaf} />
           <IndiceCard codigo="iafi" valor={indices.iafi} />
@@ -1380,7 +1380,7 @@ function ResultadoScreen({
 
       {/* 3 matrices */}
       <div>
-        <h3 className="mb-4 text-base font-extrabold tracking-tight text-white">Las 3 Matrices Diagnósticas</h3>
+        <h3 className="mb-4 text-base font-extrabold tracking-tight text-[var(--sx-text)]">Las 3 Matrices Diagnósticas</h3>
         <div className="grid gap-3.5 md:grid-cols-3">
           <MatrizCard clave="matriz1" valores={valores} />
           <MatrizCard clave="matriz2" valores={valores} />
@@ -1390,13 +1390,13 @@ function ResultadoScreen({
 
       {/* Agenda */}
       <div>
-        <h3 className="mb-4 text-base font-extrabold tracking-tight text-white">Agenda de Acción</h3>
+        <h3 className="mb-4 text-base font-extrabold tracking-tight text-[var(--sx-text)]">Agenda de Acción</h3>
         <AgendaCards veredictoKey={veredictoKey} />
       </div>
 
       {/* Acciones finales */}
       <div className="flex flex-wrap gap-3">
-        <button onClick={onNuevo} className="flex items-center gap-2 rounded-xl border border-white/10 px-5 py-2.5 text-sm font-semibold text-white/60 transition hover:bg-white/[0.06] hover:text-white">
+        <button onClick={onNuevo} className="flex items-center gap-2 rounded-xl border border-[var(--sx-border)] px-5 py-2.5 text-sm font-semibold text-[var(--sx-text-muted)] transition hover:bg-[var(--sx-card-hover)] hover:text-[var(--sx-text)]">
           <Plus className="h-4 w-4" /> Nuevo diagnóstico
         </button>
       </div>
@@ -1416,13 +1416,13 @@ function IndiceCard({ codigo, valor }: { codigo: IndiceCodigo; valor: number | n
   }
 
   return (
-    <div className="rounded-2xl border border-white/[0.08] bg-[#1c1c1e] p-5">
-      <div className="mb-1 text-[11px] italic text-white/30">{meta.apodo}</div>
-      <div className="mb-2.5 text-xs font-bold text-white/50">{meta.nombre}</div>
-      <div className={`mb-2 font-extrabold leading-none tracking-tight ${ev ? `text-[28px] ${COLOR_TEXT[ev.color]}` : 'text-lg text-white/30'}`}>{valorStr}</div>
+    <div className="rounded-2xl border border-[var(--sx-border)] bg-[var(--sx-card)] p-5">
+      <div className="mb-1 text-[11px] italic text-[var(--sx-text-faint)]">{meta.apodo}</div>
+      <div className="mb-2.5 text-xs font-bold text-[var(--sx-text-muted)]">{meta.nombre}</div>
+      <div className={`mb-2 font-extrabold leading-none tracking-tight ${ev ? `text-[28px] ${COLOR_TEXT[ev.color]}` : 'text-lg text-[var(--sx-text-faint)]'}`}>{valorStr}</div>
       {ev && <span className={`mb-2 inline-block rounded-full px-2 py-0.5 text-[10.5px] font-bold ${COLOR_BADGE[ev.color]}`}>{ev.label}</span>}
-      <div className="mb-2 font-mono text-[10.5px] text-white/30">{meta.formula_display}</div>
-      <div className="text-xs leading-relaxed text-white/50">{ev ? ev.interpretacion : 'No se pudo calcular con los datos disponibles.'}</div>
+      <div className="mb-2 font-mono text-[10.5px] text-[var(--sx-text-faint)]">{meta.formula_display}</div>
+      <div className="text-xs leading-relaxed text-[var(--sx-text-muted)]">{ev ? ev.interpretacion : 'No se pudo calcular con los datos disponibles.'}</div>
     </div>
   );
 }
@@ -1446,7 +1446,7 @@ function CuadranteGrid({ clave, cuadranteKey }: { clave: MatrizKey; cuadranteKey
 
   return (
     <div className="mb-3 flex flex-col gap-1">
-      <div className="text-right text-[10px] text-white/30">{m.eje_y.label} ↑</div>
+      <div className="text-right text-[10px] text-[var(--sx-text-faint)]">{m.eje_y.label} ↑</div>
       <div className="grid aspect-square grid-cols-2 grid-rows-2 gap-1">
         {celdas.map((c) => {
           const activo = c === pos && !!color;
@@ -1454,7 +1454,7 @@ function CuadranteGrid({ clave, cuadranteKey }: { clave: MatrizKey; cuadranteKey
             <div
               key={c}
               className={`flex min-h-[40px] items-center justify-center rounded-md border-[1.5px] ${
-                activo && color ? COLOR_CELL_ACTIVE[color] : 'border-white/10 bg-white/[0.03]'
+                activo && color ? COLOR_CELL_ACTIVE[color] : 'border-[var(--sx-border)] bg-[var(--sx-card-hover)]'
               }`}
             >
               {activo && color && <div className={`h-3 w-3 rounded-full ${COLOR_DOT[color]} ring-4 ring-white/10`} />}
@@ -1462,7 +1462,7 @@ function CuadranteGrid({ clave, cuadranteKey }: { clave: MatrizKey; cuadranteKey
           );
         })}
       </div>
-      <div className="text-left text-[10px] text-white/30">{m.eje_x.label} →</div>
+      <div className="text-left text-[10px] text-[var(--sx-text-faint)]">{m.eje_x.label} →</div>
     </div>
   );
 }
@@ -1497,18 +1497,18 @@ function MatrizCard({ clave, valores }: { clave: MatrizKey; valores: Valores }) 
   const cuadrante = m.cuadrantes[cuadranteKey] ?? null;
 
   return (
-    <div className="rounded-2xl border border-white/[0.08] bg-[#1c1c1e] p-4">
-      <div className="mb-0.5 text-xs font-bold text-white/50">{m.nombre}</div>
-      <div className="mb-3 text-[11px] italic text-white/30">{m.apodo}</div>
+    <div className="rounded-2xl border border-[var(--sx-border)] bg-[var(--sx-card)] p-4">
+      <div className="mb-0.5 text-xs font-bold text-[var(--sx-text-muted)]">{m.nombre}</div>
+      <div className="mb-3 text-[11px] italic text-[var(--sx-text-faint)]">{m.apodo}</div>
       <CuadranteGrid clave={clave} cuadranteKey={cuadranteKey} />
       {cuadrante ? (
         <>
           <div className={`mb-1 text-[13.5px] font-bold ${COLOR_TEXT[cuadrante.color]}`}>{cuadrante.nombre}</div>
-          <div className="mb-1.5 text-[11.5px] leading-relaxed text-white/50">{cuadrante.descripcion}</div>
-          <div className="border-t border-white/10 pt-1.5 text-[11px] italic leading-relaxed text-white/30">▶ {cuadrante.accion}</div>
+          <div className="mb-1.5 text-[11.5px] leading-relaxed text-[var(--sx-text-muted)]">{cuadrante.descripcion}</div>
+          <div className="border-t border-[var(--sx-border)] pt-1.5 text-[11px] italic leading-relaxed text-[var(--sx-text-faint)]">▶ {cuadrante.accion}</div>
         </>
       ) : (
-        <div className="text-xs text-white/30">No hay suficientes datos para posicionar en la matriz.</div>
+        <div className="text-xs text-[var(--sx-text-faint)]">No hay suficientes datos para posicionar en la matriz.</div>
       )}
     </div>
   );
@@ -1527,8 +1527,8 @@ function AgendaCards({ veredictoKey }: { veredictoKey: VeredictoKey }) {
   return (
     <div className="grid gap-3 sm:grid-cols-3">
       {HORIZONTES.map((h) => (
-        <div key={h.key} className="overflow-hidden rounded-2xl border border-white/[0.08] bg-[#1c1c1e]">
-          <div className="flex items-center justify-between border-b border-white/10 px-3.5 py-2">
+        <div key={h.key} className="overflow-hidden rounded-2xl border border-[var(--sx-border)] bg-[var(--sx-card)]">
+          <div className="flex items-center justify-between border-b border-[var(--sx-border)] px-3.5 py-2">
             <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[10.5px] font-bold ${h.bg} ${h.color}`}>
               <Clock className="h-2.5 w-2.5" /> {h.label}
             </span>
@@ -1539,11 +1539,11 @@ function AgendaCards({ veredictoKey }: { veredictoKey: VeredictoKey }) {
                 checked={!!checked[h.key]}
                 onChange={(e) => setChecked((s) => ({ ...s, [h.key]: e.target.checked }))}
               />
-              <span className="flex h-[17px] w-[17px] items-center justify-center rounded-[5px] border-[1.5px] border-white/20 bg-white/[0.03] transition peer-checked:border-emerald-500 peer-checked:bg-emerald-500" />
+              <span className="flex h-[17px] w-[17px] items-center justify-center rounded-[5px] border-[1.5px] border-[var(--sx-border-strong)] bg-[var(--sx-card-hover)] transition peer-checked:border-emerald-500 peer-checked:bg-emerald-500" />
             </label>
           </div>
           <div className="p-3.5">
-            <div className={`text-[12.5px] leading-relaxed ${checked[h.key] ? 'text-white/30 line-through' : 'text-white/60'}`}>{agenda[h.key] || '—'}</div>
+            <div className={`text-[12.5px] leading-relaxed ${checked[h.key] ? 'text-[var(--sx-text-faint)] line-through' : 'text-[var(--sx-text-muted)]'}`}>{agenda[h.key] || '—'}</div>
           </div>
         </div>
       ))}

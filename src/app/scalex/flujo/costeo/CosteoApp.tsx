@@ -85,14 +85,14 @@ export function CosteoApp() {
   }, [view, orgId, loadKpis]);
 
   if (loading) {
-    return <div className="flex items-center justify-center py-20"><Loader2 className="h-8 w-8 animate-spin text-white/40" /></div>;
+    return <div className="flex items-center justify-center py-20"><Loader2 className="h-8 w-8 animate-spin text-[var(--sx-text-dim)]" /></div>;
   }
 
   if (!orgId) {
     return (
-      <div className="rounded-2xl border border-white/[0.08] bg-[#1c1c1e] p-16 text-center">
-        <h2 className="text-xl font-bold text-white">Sin organización asignada</h2>
-        <p className="mt-2 text-white/50">Contacta a tu consultor SCALEx.</p>
+      <div className="rounded-2xl border border-[var(--sx-border)] bg-[var(--sx-card)] p-16 text-center">
+        <h2 className="text-xl font-bold text-[var(--sx-text)]">Sin organización asignada</h2>
+        <p className="mt-2 text-[var(--sx-text-muted)]">Contacta a tu consultor SCALEx.</p>
       </div>
     );
   }
@@ -106,39 +106,39 @@ export function CosteoApp() {
   return (
     <div>
       <div className="mb-6 flex items-center gap-3">
-        <Link href="/scalex/flujo" className="flex h-9 w-9 items-center justify-center rounded-lg border border-white/10 text-white/60 transition hover:bg-white/[0.06] hover:text-white">
+        <Link href="/scalex/flujo" className="flex h-9 w-9 items-center justify-center rounded-lg border border-[var(--sx-border)] text-[var(--sx-text-muted)] transition hover:bg-[var(--sx-card-hover)] hover:text-[var(--sx-text)]">
           <ArrowLeft className="h-4 w-4" />
         </Link>
         <div>
           <p className="text-xs font-semibold uppercase tracking-wide text-[#1aab99]">Flujo · Costeo</p>
-          <h1 className="text-2xl font-bold text-white">Sistema de Costeo</h1>
+          <h1 className="text-2xl font-bold text-[var(--sx-text)]">Sistema de Costeo</h1>
         </div>
       </div>
-      <p className="-mt-3 mb-6 text-white/50">Construí el costo real de lo que vendés: desde los gastos fijos hasta el margen por producto, paso a paso.</p>
+      <p className="-mt-3 mb-6 text-[var(--sx-text-muted)]">Construí el costo real de lo que vendés: desde los gastos fijos hasta el margen por producto, paso a paso.</p>
 
       {/* KPIs */}
       <div className="mb-7 grid grid-cols-2 gap-3 lg:grid-cols-4">
-        <div className="rounded-2xl border border-white/[0.08] bg-gradient-to-br from-[#1aab99] to-[#3533cd] p-4">
+        <div className="rounded-2xl border border-[var(--sx-border)] bg-gradient-to-br from-[#1aab99] to-[#3533cd] p-4">
           <div className="text-[10.5px] font-bold uppercase tracking-wide text-white/80">Gastos fijos / mes</div>
           <div className="mt-1 text-2xl font-extrabold text-white">{kpisLoading ? '—' : fmtMoney(kpis.totalGastos, kpis.moneda, 0)}</div>
           <div className="mt-0.5 text-xs text-white/70">{kpisLoading ? 'cargando...' : `${kpis.nConceptos} concepto${kpis.nConceptos !== 1 ? 's' : ''}`}</div>
         </div>
-        <div className="rounded-2xl border border-white/[0.08] bg-[#1c1c1e] p-4">
-          <div className="text-[10.5px] font-bold uppercase tracking-wide text-white/40">Recursos</div>
-          <div className="mt-1 text-2xl font-extrabold text-white">{kpisLoading ? '—' : kpis.nRecursos}</div>
-          <div className="mt-0.5 text-xs text-white/40">activos</div>
+        <div className="rounded-2xl border border-[var(--sx-border)] bg-[var(--sx-card)] p-4">
+          <div className="text-[10.5px] font-bold uppercase tracking-wide text-[var(--sx-text-dim)]">Recursos</div>
+          <div className="mt-1 text-2xl font-extrabold text-[var(--sx-text)]">{kpisLoading ? '—' : kpis.nRecursos}</div>
+          <div className="mt-0.5 text-xs text-[var(--sx-text-dim)]">activos</div>
         </div>
-        <div className="rounded-2xl border border-white/[0.08] bg-[#1c1c1e] p-4">
-          <div className="text-[10.5px] font-bold uppercase tracking-wide text-white/40">Componentes</div>
-          <div className="mt-1 text-2xl font-extrabold text-white">{kpisLoading ? '—' : kpis.nComponentes}</div>
-          <div className="mt-0.5 text-xs text-white/40">activos</div>
+        <div className="rounded-2xl border border-[var(--sx-border)] bg-[var(--sx-card)] p-4">
+          <div className="text-[10.5px] font-bold uppercase tracking-wide text-[var(--sx-text-dim)]">Componentes</div>
+          <div className="mt-1 text-2xl font-extrabold text-[var(--sx-text)]">{kpisLoading ? '—' : kpis.nComponentes}</div>
+          <div className="mt-0.5 text-xs text-[var(--sx-text-dim)]">activos</div>
         </div>
-        <div className="rounded-2xl border border-white/[0.08] bg-[#1c1c1e] p-4">
-          <div className="text-[10.5px] font-bold uppercase tracking-wide text-white/40">Margen promedio</div>
-          <div className="mt-1 text-2xl font-extrabold text-white">
+        <div className="rounded-2xl border border-[var(--sx-border)] bg-[var(--sx-card)] p-4">
+          <div className="text-[10.5px] font-bold uppercase tracking-wide text-[var(--sx-text-dim)]">Margen promedio</div>
+          <div className="mt-1 text-2xl font-extrabold text-[var(--sx-text)]">
             {kpisLoading ? '—' : kpis.margenPromedio !== null ? `${fmtNum(kpis.margenPromedio, 1)}%` : kpis.nProductos > 0 ? kpis.nProductos : '—'}
           </div>
-          <div className="mt-0.5 text-xs text-white/40">
+          <div className="mt-0.5 text-xs text-[var(--sx-text-dim)]">
             {kpisLoading ? '' : kpis.margenPromedio !== null ? `en ${kpis.nProductos} producto${kpis.nProductos !== 1 ? 's' : ''}` : kpis.nProductos > 0 ? 'sin precio definido' : 'sin productos'}
           </div>
         </div>
@@ -179,19 +179,19 @@ export function CosteoApp() {
               <TrendingUp className="h-5 w-5" />
             </div>
             <div className="text-right">
-              <div className="text-xl font-extrabold text-white">{kpisLoading ? '—' : kpis.margenPromedio !== null ? `${fmtNum(kpis.margenPromedio, 1)}%` : '—'}</div>
-              <div className="text-[10px] font-semibold uppercase tracking-wide text-white/40">margen promedio</div>
+              <div className="text-xl font-extrabold text-[var(--sx-text)]">{kpisLoading ? '—' : kpis.margenPromedio !== null ? `${fmtNum(kpis.margenPromedio, 1)}%` : '—'}</div>
+              <div className="text-[10px] font-semibold uppercase tracking-wide text-[var(--sx-text-dim)]">margen promedio</div>
             </div>
           </div>
           <div>
-            <div className="text-[17px] font-extrabold text-white">Resumen y Punto de Equilibrio</div>
-            <p className="mt-1 text-sm leading-relaxed text-white/50">
+            <div className="text-[17px] font-extrabold text-[var(--sx-text)]">Resumen y Punto de Equilibrio</div>
+            <p className="mt-1 text-sm leading-relaxed text-[var(--sx-text-muted)]">
               La foto financiera completa. Margen promedio, ranking de rentabilidad, punto de equilibrio y simulador de escenarios &quot;¿qué pasaría si...?&quot; para anticipar el impacto de subir precios o reducir costos.
             </p>
           </div>
-          <div className="flex items-center justify-between border-t border-white/[0.06] pt-3">
+          <div className="flex items-center justify-between border-t border-[var(--sx-border)] pt-3">
             <span className="flex items-center gap-1.5 text-xs font-bold text-[#1aab99]">Ver resumen <ArrowRight className="h-3.5 w-3.5" /></span>
-            <span className="text-xs text-white/40">Paso 5 · Análisis final</span>
+            <span className="text-xs text-[var(--sx-text-dim)]">Paso 5 · Análisis final</span>
           </div>
         </div>
       </div>
@@ -208,7 +208,7 @@ function HubCard({
   return (
     <div
       onClick={onClick}
-      className="group relative flex cursor-pointer flex-col gap-3.5 overflow-hidden rounded-2xl border border-white/[0.08] bg-[#1c1c1e] p-6 transition hover:-translate-y-0.5 hover:border-white/20"
+      className="group relative flex cursor-pointer flex-col gap-3.5 overflow-hidden rounded-2xl border border-[var(--sx-border)] bg-[var(--sx-card)] p-6 transition hover:-translate-y-0.5 hover:border-[var(--sx-border-strong)]"
     >
       <div className={`absolute inset-x-0 top-0 h-[3px] bg-gradient-to-r ${accent} opacity-0 transition-opacity group-hover:opacity-100`} />
       <div className="flex items-start justify-between gap-3">
@@ -216,17 +216,17 @@ function HubCard({
           <Icon className="h-5 w-5" />
         </div>
         <div className="text-right">
-          <div className="text-xl font-extrabold text-white">{badge}</div>
-          <div className="text-[10px] font-semibold uppercase tracking-wide text-white/40">{badgeLabel}</div>
+          <div className="text-xl font-extrabold text-[var(--sx-text)]">{badge}</div>
+          <div className="text-[10px] font-semibold uppercase tracking-wide text-[var(--sx-text-dim)]">{badgeLabel}</div>
         </div>
       </div>
       <div>
-        <div className="text-[17px] font-extrabold text-white">{title}</div>
-        <p className="mt-1 text-sm leading-relaxed text-white/50">{desc}</p>
+        <div className="text-[17px] font-extrabold text-[var(--sx-text)]">{title}</div>
+        <p className="mt-1 text-sm leading-relaxed text-[var(--sx-text-muted)]">{desc}</p>
       </div>
-      <div className="flex items-center justify-between border-t border-white/[0.06] pt-3">
+      <div className="flex items-center justify-between border-t border-[var(--sx-border)] pt-3">
         <span className="flex items-center gap-1.5 text-xs font-bold text-[#1aab99]">Ver {title.toLowerCase()} <ArrowRight className="h-3.5 w-3.5" /></span>
-        <span className="text-xs text-white/40">{stat}</span>
+        <span className="text-xs text-[var(--sx-text-dim)]">{stat}</span>
       </div>
     </div>
   );

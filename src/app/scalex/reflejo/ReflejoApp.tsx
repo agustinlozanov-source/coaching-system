@@ -90,16 +90,16 @@ export function ReflejoApp() {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-20">
-        <Loader2 className="h-8 w-8 animate-spin text-white/40" />
+        <Loader2 className="h-8 w-8 animate-spin text-[var(--sx-text-dim)]" />
       </div>
     );
   }
 
   if (!orgId || !userId) {
     return (
-      <div className="rounded-2xl border border-white/[0.08] bg-[#1c1c1e] p-16 text-center">
-        <h2 className="text-xl font-bold text-white">Sin organización asignada</h2>
-        <p className="mt-2 text-white/50">Contacta a tu consultor SCALEx.</p>
+      <div className="rounded-2xl border border-[var(--sx-border)] bg-[var(--sx-card)] p-16 text-center">
+        <h2 className="text-xl font-bold text-[var(--sx-text)]">Sin organización asignada</h2>
+        <p className="mt-2 text-[var(--sx-text-muted)]">Contacta a tu consultor SCALEx.</p>
       </div>
     );
   }
@@ -141,10 +141,10 @@ function HubView({
       <div className="mb-6 grid gap-4 lg:grid-cols-[1.3fr_1fr]">
         <div>
           <p className="text-xs font-semibold uppercase tracking-wide text-[#1aab99]">Pilar 1 · Reflejo</p>
-          <h1 className="mt-1 text-3xl font-black leading-tight text-white">
+          <h1 className="mt-1 text-3xl font-black leading-tight text-[var(--sx-text)]">
             Reflejo — El espejo del <span className="bg-gradient-to-br from-[#1aab99] to-[#3533cd] bg-clip-text text-transparent">líder</span>
           </h1>
-          <p className="mt-3 max-w-xl text-sm leading-relaxed text-white/50">
+          <p className="mt-3 max-w-xl text-sm leading-relaxed text-[var(--sx-text-muted)]">
             Reflejo mide dónde estás tú como líder, dónde está tu empresa, y cruza ambos resultados en un plan de acción concreto. Es el punto de partida de SCALEx.
           </p>
         </div>
@@ -197,8 +197,8 @@ function HubView({
         </div>
       </div>
 
-      <div className="mt-6 rounded-2xl border border-white/[0.08] bg-[#1c1c1e] p-5">
-        <div className="mb-4 flex items-center gap-2 text-xs font-bold uppercase tracking-wide text-white">
+      <div className="mt-6 rounded-2xl border border-[var(--sx-border)] bg-[var(--sx-card)] p-5">
+        <div className="mb-4 flex items-center gap-2 text-xs font-bold uppercase tracking-wide text-[var(--sx-text)]">
           <Target className="h-3.5 w-3.5 text-[#1aab99]" /> Cómo se conectan
         </div>
         <div className="flex flex-wrap gap-3">
@@ -210,12 +210,12 @@ function HubView({
             { n: 5, nombre: 'Ejecución', desc: 'Trackear y evolucionar' },
           ].map((s, i, arr) => (
             <div key={s.n} className="flex flex-1 items-center gap-2">
-              <div className="min-w-[110px] flex-1 rounded-xl bg-[#141416] p-3.5 text-center">
+              <div className="min-w-[110px] flex-1 rounded-xl bg-[var(--sx-input)] p-3.5 text-center">
                 <div className="mb-1 text-[11px] font-extrabold text-[#1aab99]">{s.n}</div>
-                <div className="text-[13px] font-bold text-white">{s.nombre}</div>
-                <div className="mt-0.5 text-[11px] text-white/40">{s.desc}</div>
+                <div className="text-[13px] font-bold text-[var(--sx-text)]">{s.nombre}</div>
+                <div className="mt-0.5 text-[11px] text-[var(--sx-text-dim)]">{s.desc}</div>
               </div>
-              {i < arr.length - 1 && <ArrowRight className="h-4 w-4 flex-shrink-0 text-white/20" />}
+              {i < arr.length - 1 && <ArrowRight className="h-4 w-4 flex-shrink-0 text-[var(--sx-text-faint)]" />}
             </div>
           ))}
         </div>
@@ -226,8 +226,8 @@ function HubView({
           <FileText className="h-4 w-4" />
         </div>
         <div>
-          <div className="mb-1 text-sm font-bold text-white">¿Primera vez? Empieza por PIE</div>
-          <div className="text-xs leading-relaxed text-white/60">
+          <div className="mb-1 text-sm font-bold text-[var(--sx-text)]">¿Primera vez? Empieza por PIE</div>
+          <div className="text-xs leading-relaxed text-[var(--sx-text-muted)]">
             El orden importa. PIE primero (tu liderazgo), después MAPE (tu empresa), y al final PRISMA cruza ambos para darte el plan de acción. Cada herramienta toma 8-15 minutos.
           </div>
         </div>
@@ -243,12 +243,12 @@ function ReflejoCard({
   status: 'active' | 'pending'; statusText: string; desc: string;
   value: string; valueLabel: string; onClick: () => void; highlight?: boolean;
 }) {
-  const statusCls = status === 'active' ? 'bg-emerald-500/15 text-emerald-400' : 'bg-white/[0.06] text-white/40';
+  const statusCls = status === 'active' ? 'bg-emerald-500/15 text-emerald-400' : 'bg-[var(--sx-card-hover)] text-[var(--sx-text-dim)]';
   return (
     <div
       onClick={onClick}
-      className={`flex cursor-pointer flex-col rounded-2xl border p-5 transition hover:border-white/20 hover:bg-[#242426] ${
-        highlight ? 'border-[#1aab99]/40 bg-gradient-to-br from-[#1aab99]/[0.06] to-[#3533cd]/[0.06]' : 'border-white/[0.08] bg-[#1c1c1e]'
+      className={`flex cursor-pointer flex-col rounded-2xl border p-5 transition hover:border-[var(--sx-border-strong)] hover:bg-[var(--sx-card-hover)] ${
+        highlight ? 'border-[#1aab99]/40 bg-gradient-to-br from-[#1aab99]/[0.06] to-[#3533cd]/[0.06]' : 'border-[var(--sx-border)] bg-[var(--sx-card)]'
       }`}
     >
       <div className="mb-3 flex items-start gap-3">
@@ -256,15 +256,15 @@ function ReflejoCard({
           <Icon className="h-5 w-5" />
         </div>
         <div className="min-w-0 flex-1">
-          <div className="font-bold text-white">{nombre}</div>
-          <div className="text-xs text-white/40">{pilar}</div>
+          <div className="font-bold text-[var(--sx-text)]">{nombre}</div>
+          <div className="text-xs text-[var(--sx-text-dim)]">{pilar}</div>
         </div>
         <span className={`rounded-full px-2.5 py-1 text-[11px] font-semibold ${statusCls}`}>{statusText}</span>
       </div>
-      <p className="mb-4 flex-1 text-sm leading-relaxed text-white/50">{desc}</p>
-      <div className="flex flex-wrap items-center gap-4 border-t border-white/[0.06] pt-3">
-        <span className={`text-sm font-extrabold ${status === 'active' ? 'text-[#1aab99]' : 'text-white/40'}`}>{value}</span>
-        <span className="text-xs font-semibold uppercase tracking-wide text-white/40">{valueLabel}</span>
+      <p className="mb-4 flex-1 text-sm leading-relaxed text-[var(--sx-text-muted)]">{desc}</p>
+      <div className="flex flex-wrap items-center gap-4 border-t border-[var(--sx-border)] pt-3">
+        <span className={`text-sm font-extrabold ${status === 'active' ? 'text-[#1aab99]' : 'text-[var(--sx-text-dim)]'}`}>{value}</span>
+        <span className="text-xs font-semibold uppercase tracking-wide text-[var(--sx-text-dim)]">{valueLabel}</span>
         <span className="ml-auto flex items-center gap-1 text-xs font-semibold text-[#1aab99]">
           {status === 'active' ? 'Ver detalles' : 'Empezar'} <ArrowRight className="h-3.5 w-3.5" />
         </span>

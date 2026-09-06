@@ -40,7 +40,7 @@ export function HubView({ sesionId, sesion, onNavigate }: { sesionId: string; se
     <div>
       <div className="mb-6">
         <p className="text-xs font-semibold uppercase tracking-wide text-[#1aab99]">Pilar 2 · ADN</p>
-        <h1 className="text-2xl font-bold text-white">ADN — Cultura y personalidad</h1>
+        <h1 className="text-2xl font-bold text-[var(--sx-text)]">ADN — Cultura y personalidad</h1>
       </div>
 
       {/* Hero */}
@@ -49,8 +49,8 @@ export function HubView({ sesionId, sesion, onNavigate }: { sesionId: string; se
           <Dna className="h-7 w-7 text-white" />
         </div>
         <div>
-          <div className="font-bold text-white">Diagnóstico de ADN Empresarial</div>
-          <p className="mt-1 max-w-2xl text-sm leading-relaxed text-white/50">
+          <div className="font-bold text-[var(--sx-text)]">Diagnóstico de ADN Empresarial</div>
+          <p className="mt-1 max-w-2xl text-sm leading-relaxed text-[var(--sx-text-muted)]">
             3 pasos para revelar la identidad profunda de tu empresa: cómo está estructurada su pirámide de poder,
             cuál es su perfil de personalidad empresarial, y qué rectores la sostienen institucionalmente.
           </p>
@@ -59,8 +59,8 @@ export function HubView({ sesionId, sesion, onNavigate }: { sesionId: string; se
 
       {/* Progress */}
       <div className="mb-7 flex items-center gap-3">
-        <span className="whitespace-nowrap text-xs font-semibold text-white/40">Progreso general</span>
-        <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-white/[0.06]">
+        <span className="whitespace-nowrap text-xs font-semibold text-[var(--sx-text-dim)]">Progreso general</span>
+        <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-[var(--sx-card-hover)]">
           <div className="h-full rounded-full bg-gradient-to-r from-pink-500 to-purple-600 transition-all duration-500" style={{ width: `${pct}%` }} />
         </div>
         <span className="whitespace-nowrap text-xs font-bold text-pink-400">{pct}%</span>
@@ -115,7 +115,7 @@ export function HubView({ sesionId, sesion, onNavigate }: { sesionId: string; se
         />
       </div>
 
-      <div className="mt-5 flex items-start gap-3 rounded-xl border border-white/[0.08] bg-white/[0.03] p-4 text-xs leading-relaxed text-white/40">
+      <div className="mt-5 flex items-start gap-3 rounded-xl border border-[var(--sx-border)] bg-[var(--sx-card-hover)] p-4 text-xs leading-relaxed text-[var(--sx-text-dim)]">
         <Info className="mt-0.5 h-4 w-4 flex-shrink-0 text-pink-400" />
         <span>
           Los pasos se desbloquean en orden. Completa el Paso 0 para acceder al Paso 1, y así sucesivamente. Puedes
@@ -148,17 +148,17 @@ function StepCard({
   const badgeCls =
     status === 'done' ? 'bg-emerald-500/15 text-emerald-400'
       : status === 'active' ? 'bg-pink-500/15 text-pink-400'
-      : 'bg-white/[0.06] text-white/40';
+      : 'bg-[var(--sx-card-hover)] text-[var(--sx-text-dim)]';
   const badgeText = status === 'done' ? 'Completado' : status === 'active' ? 'En curso' : 'Bloqueado';
   const numCls =
     status === 'done' ? 'bg-emerald-500/15 text-emerald-400'
       : status === 'active' ? 'bg-pink-500/15 text-pink-400'
-      : 'bg-white/[0.06] text-white/40';
+      : 'bg-[var(--sx-card-hover)] text-[var(--sx-text-dim)]';
 
   return (
     <div
       onClick={locked ? undefined : onClick}
-      className={`group relative flex flex-col gap-3.5 overflow-hidden rounded-2xl border border-white/[0.08] bg-[#1c1c1e] p-5 ${
+      className={`group relative flex flex-col gap-3.5 overflow-hidden rounded-2xl border border-[var(--sx-border)] bg-[var(--sx-card)] p-5 ${
         locked ? 'opacity-50' : 'cursor-pointer transition hover:-translate-y-0.5 hover:border-pink-500/40'
       }`}
     >
@@ -171,24 +171,24 @@ function StepCard({
         </div>
         <div className="min-w-0 flex-1">
           <div className="mb-0.5 text-[10px] font-bold uppercase tracking-wide text-pink-400">{tag}</div>
-          <div className="text-[15px] font-bold text-white">{title}</div>
+          <div className="text-[15px] font-bold text-[var(--sx-text)]">{title}</div>
         </div>
         <span className={`h-fit rounded-full px-2 py-0.5 text-[10px] font-bold ${badgeCls}`}>{badgeText}</span>
       </div>
 
-      <div className="text-[12.5px] leading-relaxed text-white/45">{desc}</div>
+      <div className="text-[12.5px] leading-relaxed text-[var(--sx-text-muted)]">{desc}</div>
 
       {resultValue && ResultIcon && (
-        <div className="flex items-center gap-2 rounded-lg bg-white/[0.04] px-3.5 py-2.5 text-xs text-white/60">
+        <div className="flex items-center gap-2 rounded-lg bg-[var(--sx-card-hover)] px-3.5 py-2.5 text-xs text-[var(--sx-text-muted)]">
           <ResultIcon className="h-3.5 w-3.5 flex-shrink-0 text-pink-400" />
           <span>
-            <span className="font-bold text-white/70">{resultLabel}:</span> {resultValue}
+            <span className="font-bold text-[var(--sx-text-muted)]">{resultLabel}:</span> {resultValue}
           </span>
         </div>
       )}
 
-      <div className="mt-auto flex items-center justify-between border-t border-white/[0.06] pt-3">
-        <span className="text-[11px] text-white/30">
+      <div className="mt-auto flex items-center justify-between border-t border-[var(--sx-border)] pt-3">
+        <span className="text-[11px] text-[var(--sx-text-faint)]">
           {locked ? (
             <span className="flex items-center gap-1">
               <Lock className="h-3 w-3" /> Bloqueado

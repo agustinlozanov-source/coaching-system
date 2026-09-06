@@ -68,7 +68,7 @@ export function RitmoApp() {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-20">
-        <Loader2 className="h-8 w-8 animate-spin text-white/40" />
+        <Loader2 className="h-8 w-8 animate-spin text-[var(--sx-text-dim)]" />
       </div>
     );
   }
@@ -120,8 +120,8 @@ export function RitmoApp() {
     <div>
       <div className="mb-6">
         <p className="text-xs font-semibold uppercase tracking-wide text-[#1aab99]">Pilar 4 · Ritmo</p>
-        <h1 className="text-2xl font-bold text-white">Ritmo — El pulso de la ejecución</h1>
-        <p className="mt-1 text-white/50">
+        <h1 className="text-2xl font-bold text-[var(--sx-text)]">Ritmo — El pulso de la ejecución</h1>
+        <p className="mt-1 text-[var(--sx-text-muted)]">
           Tres capas anidadas — el trimestre del Vector, la ronda semanal y el Pulso diario — para que
           ejecutar deje de improvisarse y empiece a diseñarse.
         </p>
@@ -163,12 +163,12 @@ function BackBar({ onBack, eyebrow, title }: { onBack: () => void; eyebrow: stri
   return (
     <div className="mb-6 flex items-center gap-3">
       <button onClick={onBack}
-        className="flex h-9 w-9 items-center justify-center rounded-lg border border-white/10 text-white/60 transition hover:bg-white/[0.06] hover:text-white">
+        className="flex h-9 w-9 items-center justify-center rounded-lg border border-[var(--sx-border)] text-[var(--sx-text-muted)] transition hover:bg-[var(--sx-card-hover)] hover:text-[var(--sx-text)]">
         <ArrowLeft className="h-4 w-4" />
       </button>
       <div>
         <p className="text-xs font-semibold uppercase tracking-wide text-[#1aab99]">{eyebrow}</p>
-        <h1 className="text-2xl font-bold text-white">{title}</h1>
+        <h1 className="text-2xl font-bold text-[var(--sx-text)]">{title}</h1>
       </div>
     </div>
   );
@@ -184,26 +184,26 @@ function ModuleCard({
   const statusCls =
     status === 'active' ? 'bg-emerald-500/15 text-emerald-400'
       : status === 'pending' ? 'bg-amber-500/15 text-amber-400'
-        : 'bg-white/[0.06] text-white/40';
+        : 'bg-[var(--sx-card-hover)] text-[var(--sx-text-dim)]';
   return (
     <div onClick={onClick}
-      className="flex cursor-pointer flex-col rounded-2xl border border-white/[0.08] bg-[#1c1c1e] p-5 transition hover:border-white/20 hover:bg-[#242426]">
+      className="flex cursor-pointer flex-col rounded-2xl border border-[var(--sx-border)] bg-[var(--sx-card)] p-5 transition hover:border-[var(--sx-border-strong)] hover:bg-[var(--sx-card-hover)]">
       <div className="mb-3 flex items-start gap-3">
         <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-[#1aab99]/20 to-[#3533cd]/20 text-[#1aab99]">
           <Icon className="h-5 w-5" />
         </div>
         <div className="min-w-0 flex-1">
-          <div className="font-bold text-white">{nombre}</div>
-          <div className="text-xs text-white/40">{pilar}</div>
+          <div className="font-bold text-[var(--sx-text)]">{nombre}</div>
+          <div className="text-xs text-[var(--sx-text-dim)]">{pilar}</div>
         </div>
         <span className={`rounded-full px-2.5 py-1 text-[11px] font-semibold ${statusCls}`}>{statusText}</span>
       </div>
-      <p className="mb-4 flex-1 text-sm leading-relaxed text-white/50">{desc}</p>
-      <div className="flex flex-wrap items-center gap-4 border-t border-white/[0.06] pt-3">
+      <p className="mb-4 flex-1 text-sm leading-relaxed text-[var(--sx-text-muted)]">{desc}</p>
+      <div className="flex flex-wrap items-center gap-4 border-t border-[var(--sx-border)] pt-3">
         {meta.map((m, i) => {
           const M = m.icon;
           return (
-            <span key={i} className="flex items-center gap-1.5 text-xs text-white/50">
+            <span key={i} className="flex items-center gap-1.5 text-xs text-[var(--sx-text-muted)]">
               <M className="h-3.5 w-3.5" /> {m.text}
             </span>
           );

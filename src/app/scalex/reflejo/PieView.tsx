@@ -160,7 +160,7 @@ export function PieView({ orgId, userId, onBack }: { orgId: string; userId: stri
   if (loading) {
     return (
       <div className="flex items-center justify-center py-20">
-        <Loader2 className="h-8 w-8 animate-spin text-white/40" />
+        <Loader2 className="h-8 w-8 animate-spin text-[var(--sx-text-dim)]" />
       </div>
     );
   }
@@ -173,13 +173,13 @@ export function PieView({ orgId, userId, onBack }: { orgId: string; userId: stri
       <div className="mb-6 flex items-center gap-3">
         <button
           onClick={onBack}
-          className="flex h-9 w-9 items-center justify-center rounded-lg border border-white/10 text-white/60 transition hover:bg-white/[0.06] hover:text-white"
+          className="flex h-9 w-9 items-center justify-center rounded-lg border border-[var(--sx-border)] text-[var(--sx-text-muted)] transition hover:bg-[var(--sx-card-hover)] hover:text-[var(--sx-text)]"
         >
           <ArrowLeft className="h-4 w-4" />
         </button>
         <div>
           <p className="text-xs font-semibold uppercase tracking-wide text-[#1aab99]">{eyebrow}</p>
-          <h1 className="text-2xl font-bold text-white">{title}</h1>
+          <h1 className="text-2xl font-bold text-[var(--sx-text)]">{title}</h1>
         </div>
       </div>
 
@@ -222,20 +222,20 @@ function IntroView({
   const ultima = historial[0];
   return (
     <>
-      <p className="-mt-3 mb-6 max-w-2xl text-white/50">
+      <p className="-mt-3 mb-6 max-w-2xl text-[var(--sx-text-muted)]">
         El PIE es un espejo sin filtros. La forma más rápida de saber si eres el motor de la escalabilidad o el freno de tu negocio.
       </p>
 
       {ultima && (
-        <div className="mb-6 flex items-center gap-4 rounded-2xl border border-white/[0.08] border-l-[3px] border-l-[#1aab99] bg-[#1c1c1e] p-5">
+        <div className="mb-6 flex items-center gap-4 rounded-2xl border border-[var(--sx-border)] border-l-[3px] border-l-[#1aab99] bg-[var(--sx-card)] p-5">
           <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg bg-[#1aab99]/15 text-[#1aab99]">
             <History className="h-5 w-5" />
           </div>
-          <div className="flex flex-wrap gap-x-4 gap-y-1 text-sm text-white/50">
+          <div className="flex flex-wrap gap-x-4 gap-y-1 text-sm text-[var(--sx-text-muted)]">
             <span>Ya completaste el PIE antes</span>
-            <span>Última vez: <strong className="text-white/80">{fmtFecha(ultima.completada_en)}</strong></span>
-            <span>Perfil: <strong className="text-white/80">{PIE_PERFILES[ultima.perfil]?.nombre ?? ultima.perfil}</strong></span>
-            <span>Puntaje: <strong className="text-white/80">{ultima.puntaje_total} / 100</strong></span>
+            <span>Última vez: <strong className="text-[var(--sx-text-muted)]">{fmtFecha(ultima.completada_en)}</strong></span>
+            <span>Perfil: <strong className="text-[var(--sx-text-muted)]">{PIE_PERFILES[ultima.perfil]?.nombre ?? ultima.perfil}</strong></span>
+            <span>Puntaje: <strong className="text-[var(--sx-text-muted)]">{ultima.puntaje_total} / 100</strong></span>
           </div>
         </div>
       )}
@@ -249,36 +249,36 @@ function IntroView({
           <p className="text-sm opacity-90">Esta evaluación no busca buenos o malos. Solo claridad sobre dónde estás y qué necesitas ajustar.</p>
         </div>
 
-        <div className="flex flex-col rounded-2xl border border-white/[0.08] bg-[#1c1c1e] p-5">
+        <div className="flex flex-col rounded-2xl border border-[var(--sx-border)] bg-[var(--sx-card)] p-5">
           {[
             { icon: Clock, label: 'Duración estimada', value: '8-12 minutos' },
             { icon: ListChecks, label: 'Preguntas', value: '20 afirmaciones · escala 1-5' },
             { icon: Award, label: 'Resultado', value: 'Tu perfil de líder' },
             { icon: Shield, label: 'Confidencialidad', value: 'Solo tú y tu consultor' },
           ].map((s, i, arr) => (
-            <div key={s.label} className={`flex items-center gap-3 py-3 ${i < arr.length - 1 ? 'border-b border-white/[0.08]' : ''}`}>
+            <div key={s.label} className={`flex items-center gap-3 py-3 ${i < arr.length - 1 ? 'border-b border-[var(--sx-border)]' : ''}`}>
               <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg bg-[#1aab99]/15 text-[#1aab99]">
                 <s.icon className="h-4 w-4" />
               </div>
               <div>
-                <div className="text-[10.5px] font-semibold uppercase tracking-wide text-white/40">{s.label}</div>
-                <div className="text-sm font-bold text-white">{s.value}</div>
+                <div className="text-[10.5px] font-semibold uppercase tracking-wide text-[var(--sx-text-dim)]">{s.label}</div>
+                <div className="text-sm font-bold text-[var(--sx-text)]">{s.value}</div>
               </div>
             </div>
           ))}
         </div>
       </div>
 
-      <div className="mb-6 rounded-2xl border border-white/[0.08] bg-[#1c1c1e] p-5">
-        <div className="mb-4 flex items-center gap-2 text-xs font-bold uppercase tracking-wide text-white">
+      <div className="mb-6 rounded-2xl border border-[var(--sx-border)] bg-[var(--sx-card)] p-5">
+        <div className="mb-4 flex items-center gap-2 text-xs font-bold uppercase tracking-wide text-[var(--sx-text)]">
           <Layers className="h-3.5 w-3.5 text-[#1aab99]" /> Las 4 dimensiones que evalúa
         </div>
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           {PIE_SECCIONES.map((s) => (
-            <div key={s.codigo} className="rounded-xl border border-white/10 bg-[#141416] p-4">
+            <div key={s.codigo} className="rounded-xl border border-[var(--sx-border)] bg-[var(--sx-input)] p-4">
               <div className="mb-1 text-[10.5px] font-bold uppercase tracking-wide text-[#1aab99]">Sección {s.numero}</div>
-              <div className="mb-1 text-sm font-bold text-white">{s.titulo}</div>
-              <div className="text-xs leading-relaxed text-white/40">{s.pregunta}</div>
+              <div className="mb-1 text-sm font-bold text-[var(--sx-text)]">{s.titulo}</div>
+              <div className="text-xs leading-relaxed text-[var(--sx-text-dim)]">{s.pregunta}</div>
             </div>
           ))}
         </div>
@@ -318,32 +318,32 @@ function EvalView({
 
   return (
     <>
-      <div className="mb-1.5 h-1.5 w-full overflow-hidden rounded-full bg-white/[0.06]">
+      <div className="mb-1.5 h-1.5 w-full overflow-hidden rounded-full bg-[var(--sx-border)]">
         <div className="h-full rounded-full bg-gradient-to-r from-[#1aab99] to-[#3533cd] transition-all" style={{ width: `${progreso.pct}%` }} />
       </div>
-      <div className="mb-6 flex flex-wrap items-center justify-between gap-3 text-xs text-white/40">
-        <span>Sección <strong className="text-white">{seccionActual + 1}</strong> de {PIE_SECCIONES.length}</span>
+      <div className="mb-6 flex flex-wrap items-center justify-between gap-3 text-xs text-[var(--sx-text-dim)]">
+        <span>Sección <strong className="text-[var(--sx-text)]">{seccionActual + 1}</strong> de {PIE_SECCIONES.length}</span>
         <span className="flex items-center gap-1.5">
           <span className={`h-1.5 w-1.5 rounded-full ${saving ? 'animate-pulse bg-amber-400' : 'bg-emerald-400'}`} />
           {saving ? 'Guardando…' : 'Respuestas guardadas'}
         </span>
-        <span><strong className="text-white">{progreso.respondidas}</strong> de {progreso.total} preguntas</span>
+        <span><strong className="text-[var(--sx-text)]">{progreso.respondidas}</strong> de {progreso.total} preguntas</span>
       </div>
 
       <div className="mb-5">
         <div className="mb-2.5 inline-block rounded-full bg-[#1aab99]/15 px-3 py-1 text-[11px] font-extrabold uppercase tracking-wide text-[#1aab99]">
           Sección {seccion.numero} · {seccion.titulo}
         </div>
-        <h2 className="mb-1.5 text-xl font-extrabold text-white">{seccion.pregunta}</h2>
-        <p className="text-sm italic text-white/40">{seccion.descripcion}</p>
+        <h2 className="mb-1.5 text-xl font-extrabold text-[var(--sx-text)]">{seccion.pregunta}</h2>
+        <p className="text-sm italic text-[var(--sx-text-dim)]">{seccion.descripcion}</p>
       </div>
 
       <div className="space-y-3">
         {preguntas.map((p) => {
           const respuesta = respuestas[p.codigo];
           return (
-            <div key={p.codigo} className="rounded-2xl border border-white/[0.08] bg-[#1c1c1e] p-5">
-              <div className="mb-4 text-[15px] font-semibold leading-relaxed text-white">&ldquo;{p.texto}&rdquo;</div>
+            <div key={p.codigo} className="rounded-2xl border border-[var(--sx-border)] bg-[var(--sx-card)] p-5">
+              <div className="mb-4 text-[15px] font-semibold leading-relaxed text-[var(--sx-text)]">&ldquo;{p.texto}&rdquo;</div>
               <div className="grid grid-cols-5 gap-2">
                 {PIE_ESCALA.map((e) => {
                   const selected = respuesta === e.valor;
@@ -355,11 +355,11 @@ function EvalView({
                       className={`rounded-lg border px-1.5 py-3 text-center transition ${
                         selected
                           ? 'border-transparent bg-gradient-to-br from-[#1aab99] to-[#3533cd] text-white'
-                          : 'border-white/10 bg-[#141416] text-white/70 hover:border-[#1aab99]/50 hover:bg-white/[0.04]'
+                          : 'border-[var(--sx-border)] bg-[var(--sx-input)] text-[var(--sx-text-muted)] hover:border-[#1aab99]/50 hover:bg-[var(--sx-card-hover)]'
                       }`}
                     >
                       <div className="text-lg font-black">{e.valor}</div>
-                      <div className={`text-[10px] leading-tight ${selected ? 'text-white/90' : 'text-white/40'}`}>{e.label}</div>
+                      <div className={`text-[10px] leading-tight ${selected ? 'text-white/90' : 'text-[var(--sx-text-dim)]'}`}>{e.label}</div>
                     </button>
                   );
                 })}
@@ -373,7 +373,7 @@ function EvalView({
         <button
           onClick={onPrev}
           disabled={seccionActual === 0}
-          className={`flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.04] px-5 py-2.5 text-sm font-bold text-white transition hover:bg-white/[0.08] ${seccionActual === 0 ? 'invisible' : ''}`}
+          className={`flex items-center gap-2 rounded-full border border-[var(--sx-border)] bg-[var(--sx-card-hover)] px-5 py-2.5 text-sm font-bold text-[var(--sx-text)] transition hover:bg-[var(--sx-border)] ${seccionActual === 0 ? 'invisible' : ''}`}
         >
           <ArrowLeft className="h-4 w-4" /> Sección anterior
         </button>
@@ -429,14 +429,14 @@ function ResultView({
       </div>
 
       <div className="mb-6 grid gap-4 lg:grid-cols-2">
-        <div className="rounded-2xl border border-white/[0.08] bg-[#1c1c1e] p-5">
-          <div className="mb-4 text-xs font-bold uppercase tracking-wide text-white">Radar por dimensión</div>
+        <div className="rounded-2xl border border-[var(--sx-border)] bg-[var(--sx-card)] p-5">
+          <div className="mb-4 text-xs font-bold uppercase tracking-wide text-[var(--sx-text)]">Radar por dimensión</div>
           <div className="flex justify-center">
             <PieRadar scores={scores} />
           </div>
         </div>
-        <div className="rounded-2xl border border-white/[0.08] bg-[#1c1c1e] p-5">
-          <div className="mb-4 text-xs font-bold uppercase tracking-wide text-white">Desglose por sección</div>
+        <div className="rounded-2xl border border-[var(--sx-border)] bg-[var(--sx-card)] p-5">
+          <div className="mb-4 text-xs font-bold uppercase tracking-wide text-[var(--sx-text)]">Desglose por sección</div>
           <div className="flex flex-col gap-4">
             {secciones.map((s) => {
               const pct = (s.valor / 25) * 100;
@@ -444,10 +444,10 @@ function ResultView({
               return (
                 <div key={s.nombre}>
                   <div className="mb-1 flex items-baseline justify-between">
-                    <span className="text-sm text-white/70">{s.nombre}</span>
-                    <span className="text-sm font-extrabold text-white">{s.valor} / 25</span>
+                    <span className="text-sm text-[var(--sx-text-muted)]">{s.nombre}</span>
+                    <span className="text-sm font-extrabold text-[var(--sx-text)]">{s.valor} / 25</span>
                   </div>
-                  <div className="h-1.5 w-full overflow-hidden rounded-full bg-white/[0.06]">
+                  <div className="h-1.5 w-full overflow-hidden rounded-full bg-[var(--sx-border)]">
                     <div className={`h-full rounded-full transition-all ${barCls}`} style={{ width: `${pct}%` }} />
                   </div>
                 </div>
@@ -457,28 +457,28 @@ function ResultView({
         </div>
       </div>
 
-      <div className="mb-6 rounded-2xl border border-white/[0.08] bg-[#1c1c1e] p-5">
-        <div className="mb-4 flex items-center gap-2 text-xs font-bold uppercase tracking-wide text-white">
+      <div className="mb-6 rounded-2xl border border-[var(--sx-border)] bg-[var(--sx-card)] p-5">
+        <div className="mb-4 flex items-center gap-2 text-xs font-bold uppercase tracking-wide text-[var(--sx-text)]">
           <Target className="h-3.5 w-3.5 text-[#1aab99]" /> Qué hacer ahora — acciones prioritarias
         </div>
         <ul className="flex flex-col gap-2.5">
-          <li className="flex items-start gap-3 rounded-xl border border-white/10 border-l-[3px] border-l-[#1aab99] bg-[#141416] p-4">
+          <li className="flex items-start gap-3 rounded-xl border border-[var(--sx-border)] border-l-[3px] border-l-[#1aab99] bg-[var(--sx-input)] p-4">
             <div className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-md bg-[#1aab99]/15 text-[#1aab99]"><Target className="h-3 w-3" /></div>
-            <div className="text-sm leading-relaxed text-white/70">
-              <strong className="text-white">Tu dimensión más baja es &ldquo;{masBaja.nombre}&rdquo; ({masBaja.valor}/25).</strong> Es donde más espacio tienes para crecer y donde más impacto generará mejorar.
+            <div className="text-sm leading-relaxed text-[var(--sx-text-muted)]">
+              <strong className="text-[var(--sx-text)]">Tu dimensión más baja es &ldquo;{masBaja.nombre}&rdquo; ({masBaja.valor}/25).</strong> Es donde más espacio tienes para crecer y donde más impacto generará mejorar.
             </div>
           </li>
           {perfil.acciones.map((a) => (
-            <li key={a} className="flex items-start gap-3 rounded-xl border border-white/10 border-l-[3px] border-l-[#1aab99] bg-[#141416] p-4">
+            <li key={a} className="flex items-start gap-3 rounded-xl border border-[var(--sx-border)] border-l-[3px] border-l-[#1aab99] bg-[var(--sx-input)] p-4">
               <div className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-md bg-[#1aab99]/15 text-[#1aab99]"><Check className="h-3 w-3" /></div>
-              <div className="text-sm leading-relaxed text-white/70">{a}</div>
+              <div className="text-sm leading-relaxed text-[var(--sx-text-muted)]">{a}</div>
             </li>
           ))}
         </ul>
       </div>
 
       <div className="flex flex-wrap gap-2.5">
-        <button onClick={onVolverIntro} className="flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.04] px-5 py-2.5 text-sm font-bold text-white transition hover:bg-white/[0.08]">
+        <button onClick={onVolverIntro} className="flex items-center gap-2 rounded-full border border-[var(--sx-border)] bg-[var(--sx-card-hover)] px-5 py-2.5 text-sm font-bold text-[var(--sx-text)] transition hover:bg-[var(--sx-border)]">
           <Home className="h-4 w-4" /> Volver al inicio
         </button>
         <button onClick={onNuevaEvaluacion} className="flex items-center gap-2 rounded-full bg-gradient-to-br from-[#1aab99] to-[#3533cd] px-5 py-2.5 text-sm font-bold text-white transition hover:opacity-90">
@@ -526,12 +526,12 @@ function PieRadar({ scores }: { scores: { mentalidad: number; decisiones: number
         </linearGradient>
       </defs>
       {grids.map((g, i) => (
-        <polygon key={i} points={g} fill="none" stroke="rgba(255,255,255,0.13)" strokeWidth="0.8" opacity={0.5} />
+        <polygon key={i} points={g} fill="none" stroke="var(--sx-border-strong)" strokeWidth="0.8" opacity={0.6} />
       ))}
       {order.map((_, i) => {
         const x = center + Math.cos(angles[i]) * radius;
         const y = center + Math.sin(angles[i]) * radius;
-        return <line key={i} x1={center} y1={center} x2={x} y2={y} stroke="rgba(255,255,255,0.08)" strokeWidth="0.5" />;
+        return <line key={i} x1={center} y1={center} x2={x} y2={y} stroke="var(--sx-border)" strokeWidth="0.5" />;
       })}
       <polygon points={userPoints} fill="url(#pieRadarGrad)" stroke="#1aab99" strokeWidth="2" />
       {order.map((k, i) => {
@@ -541,7 +541,7 @@ function PieRadar({ scores }: { scores: { mentalidad: number; decisiones: number
         return <circle key={k} cx={x.toFixed(1)} cy={y.toFixed(1)} r="4" fill="#1aab99" />;
       })}
       {labels.map((l) => (
-        <text key={l.text} x={l.x} y={l.y} textAnchor="middle" fontSize="9" fontFamily="inherit" fill="rgba(255,255,255,0.5)" fontWeight={700}>
+        <text key={l.text} x={l.x} y={l.y} textAnchor="middle" fontSize="9" fontFamily="inherit" fill="var(--sx-text-muted)" fontWeight={700}>
           {l.text}
         </text>
       ))}

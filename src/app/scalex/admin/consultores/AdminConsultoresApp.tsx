@@ -34,7 +34,7 @@ const NIVEL_BADGE_CLS: Record<string, string> = {
   senior: 'bg-[#3533cd]/15 text-[#8c8aff]',
   master: 'bg-purple-500/15 text-purple-400',
   master_certificador: 'bg-amber-500/15 text-amber-400',
-  ninguno: 'bg-white/[0.06] text-white/40',
+  ninguno: 'bg-[var(--sx-card-hover)] text-[var(--sx-text-dim)]',
 };
 
 function hoy() {
@@ -95,7 +95,7 @@ export function AdminConsultoresApp() {
   if (gate === 'checking') {
     return (
       <div className="flex items-center justify-center py-20">
-        <Loader2 className="h-8 w-8 animate-spin text-white/40" />
+        <Loader2 className="h-8 w-8 animate-spin text-[var(--sx-text-dim)]" />
       </div>
     );
   }
@@ -104,12 +104,12 @@ export function AdminConsultoresApp() {
     return (
       <div>
         <Header onReload={undefined} />
-        <div className="flex flex-col items-center justify-center gap-4 rounded-2xl border border-white/[0.08] bg-[#1c1c1e] px-8 py-20 text-center">
+        <div className="flex flex-col items-center justify-center gap-4 rounded-2xl border border-[var(--sx-border)] bg-[var(--sx-card)] px-8 py-20 text-center">
           <div className="flex h-16 w-16 items-center justify-center rounded-full bg-red-500/15 text-red-400">
             <ShieldX className="h-7 w-7" />
           </div>
-          <h2 className="text-xl font-bold text-white">Acceso restringido — solo administradores</h2>
-          <p className="max-w-md text-sm text-white/50">
+          <h2 className="text-xl font-bold text-[var(--sx-text)]">Acceso restringido — solo administradores</h2>
+          <p className="max-w-md text-sm text-[var(--sx-text-muted)]">
             Solo los administradores globales pueden asignar certificaciones de consultores. Contacta a Agustín si necesitas acceso.
           </p>
         </div>
@@ -122,23 +122,23 @@ export function AdminConsultoresApp() {
       <Header onReload={cargarConsultores} />
 
       <div className="mb-4 flex items-center justify-between">
-        <div className="text-sm font-bold text-white">Usuarios del sistema</div>
-        <div className="text-xs text-white/40">
+        <div className="text-sm font-bold text-[var(--sx-text)]">Usuarios del sistema</div>
+        <div className="text-xs text-[var(--sx-text-dim)]">
           {loading ? 'Cargando…' : `${perfiles.length} usuario${perfiles.length !== 1 ? 's' : ''}`}
         </div>
       </div>
 
       {loading ? (
         <div className="flex items-center justify-center py-20">
-          <Loader2 className="h-8 w-8 animate-spin text-white/40" />
+          <Loader2 className="h-8 w-8 animate-spin text-[var(--sx-text-dim)]" />
         </div>
       ) : (
-        <div className="overflow-x-auto rounded-2xl border border-white/[0.08] bg-[#1c1c1e]">
+        <div className="overflow-x-auto rounded-2xl border border-[var(--sx-border)] bg-[var(--sx-card)]">
           <table className="w-full border-collapse text-sm">
             <thead>
               <tr>
                 {['Usuario', 'Rol', 'Nivel', '# Cert', 'Estado', 'Acciones'].map((h) => (
-                  <th key={h} className="border-b border-white/[0.08] px-4 py-3 text-left text-[11px] font-bold uppercase tracking-wide text-white/40">
+                  <th key={h} className="border-b border-[var(--sx-border)] px-4 py-3 text-left text-[11px] font-bold uppercase tracking-wide text-[var(--sx-text-dim)]">
                     {h}
                   </th>
                 ))}
@@ -152,8 +152,8 @@ export function AdminConsultoresApp() {
                 const badgeCls = NIVEL_BADGE_CLS[nivel ?? 'ninguno'] ?? NIVEL_BADGE_CLS.ninguno;
                 const vigente = p.cert_vigente === true;
                 return (
-                  <tr key={p.id} className="transition hover:bg-white/[0.03]">
-                    <td className="border-b border-white/[0.06] px-4 py-3">
+                  <tr key={p.id} className="transition hover:bg-[var(--sx-card-hover)]">
+                    <td className="border-b border-[var(--sx-border)] px-4 py-3">
                       <div className="flex items-center gap-3">
                         <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center overflow-hidden rounded-full bg-gradient-to-br from-[#1aab99] to-[#3533cd] text-xs font-extrabold text-white">
                           {p.avatar_url ? (
@@ -164,27 +164,27 @@ export function AdminConsultoresApp() {
                           )}
                         </div>
                         <div className="min-w-0">
-                          <div className="truncate text-[13.5px] font-semibold text-white">{nombre}</div>
-                          <div className="truncate text-[11.5px] text-white/40">{p.email || '—'}</div>
+                          <div className="truncate text-[13.5px] font-semibold text-[var(--sx-text)]">{nombre}</div>
+                          <div className="truncate text-[11.5px] text-[var(--sx-text-dim)]">{p.email || '—'}</div>
                         </div>
                       </div>
                     </td>
-                    <td className="border-b border-white/[0.06] px-4 py-3 text-xs text-white/50">{p.rol_global || 'cliente'}</td>
-                    <td className="border-b border-white/[0.06] px-4 py-3">
+                    <td className="border-b border-[var(--sx-border)] px-4 py-3 text-xs text-[var(--sx-text-muted)]">{p.rol_global || 'cliente'}</td>
+                    <td className="border-b border-[var(--sx-border)] px-4 py-3">
                       <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-bold ${badgeCls}`}>
                         {nivelLabel}
                       </span>
                     </td>
-                    <td className="border-b border-white/[0.06] px-4 py-3 font-semibold text-white">
+                    <td className="border-b border-[var(--sx-border)] px-4 py-3 font-semibold text-[var(--sx-text)]">
                       {nivel ? `#${p.cert_numero || '—'}` : '—'}
                     </td>
-                    <td className="border-b border-white/[0.06] px-4 py-3">
-                      <span className={`flex items-center gap-1.5 text-xs font-semibold ${vigente ? 'text-emerald-400' : 'text-white/40'}`}>
-                        <span className={`h-1.5 w-1.5 rounded-full ${vigente ? 'bg-emerald-400' : 'bg-white/30'}`} />
+                    <td className="border-b border-[var(--sx-border)] px-4 py-3">
+                      <span className={`flex items-center gap-1.5 text-xs font-semibold ${vigente ? 'text-emerald-400' : 'text-[var(--sx-text-dim)]'}`}>
+                        <span className={`h-1.5 w-1.5 rounded-full ${vigente ? 'bg-emerald-400' : 'bg-[var(--sx-border-strong)]'}`} />
                         {vigente ? 'Vigente' : 'No vigente'}
                       </span>
                     </td>
-                    <td className="border-b border-white/[0.06] px-4 py-3">
+                    <td className="border-b border-[var(--sx-border)] px-4 py-3">
                       <button
                         onClick={() => setModalUser(p)}
                         className="inline-flex items-center gap-1.5 rounded-lg bg-gradient-to-br from-[#1aab99] to-[#3533cd] px-3 py-1.5 text-xs font-bold text-white transition hover:opacity-85"
@@ -198,7 +198,7 @@ export function AdminConsultoresApp() {
               })}
               {perfiles.length === 0 && (
                 <tr>
-                  <td colSpan={6} className="px-4 py-10 text-center text-sm text-white/40">
+                  <td colSpan={6} className="px-4 py-10 text-center text-sm text-[var(--sx-text-dim)]">
                     Sin usuarios registrados.
                   </td>
                 </tr>
@@ -228,13 +228,13 @@ function Header({ onReload }: { onReload?: () => void }) {
     <div className="mb-6 flex items-center justify-between">
       <div>
         <p className="text-xs font-semibold uppercase tracking-wide text-[#1aab99]">Admin</p>
-        <h1 className="text-2xl font-bold text-white">Consultores</h1>
+        <h1 className="text-2xl font-bold text-[var(--sx-text)]">Consultores</h1>
       </div>
       {onReload && (
         <button
           onClick={onReload}
           title="Recargar"
-          className="flex h-9 w-9 items-center justify-center rounded-lg border border-white/10 text-white/60 transition hover:bg-white/[0.06] hover:text-white"
+          className="flex h-9 w-9 items-center justify-center rounded-lg border border-[var(--sx-border)] text-[var(--sx-text-muted)] transition hover:bg-[var(--sx-card-hover)] hover:text-[var(--sx-text)]"
         >
           <RefreshCw className="h-4 w-4" />
         </button>
@@ -306,20 +306,20 @@ function CertModal({
       className="fixed inset-0 z-[999] flex items-center justify-center bg-black/60 backdrop-blur-sm"
       onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
     >
-      <div className="w-full max-w-md rounded-2xl border border-white/[0.13] bg-[#1c1c1e] p-8">
+      <div className="w-full max-w-md rounded-2xl border border-[var(--sx-border-strong)] bg-[var(--sx-card)] p-8">
         <div className="mb-6 flex items-center justify-between">
-          <div className="text-[17px] font-extrabold text-white">
+          <div className="text-[17px] font-extrabold text-[var(--sx-text)]">
             {perfil.nivel_consultor ? 'Editar certificación' : 'Asignar certificación'}
           </div>
           <button
             onClick={onClose}
-            className="flex h-8 w-8 items-center justify-center rounded-full border border-white/10 text-white/50 transition hover:text-white"
+            className="flex h-8 w-8 items-center justify-center rounded-full border border-[var(--sx-border)] text-[var(--sx-text-muted)] transition hover:text-[var(--sx-text)]"
           >
             <X className="h-3.5 w-3.5" />
           </button>
         </div>
 
-        <div className="mb-6 flex items-center gap-3 border-b border-white/10 pb-5">
+        <div className="mb-6 flex items-center gap-3 border-b border-[var(--sx-border)] pb-5">
           <div className="flex h-11 w-11 flex-shrink-0 items-center justify-center overflow-hidden rounded-full bg-gradient-to-br from-[#1aab99] to-[#3533cd] text-xs font-extrabold text-white">
             {perfil.avatar_url ? (
               // eslint-disable-next-line @next/next/no-img-element
@@ -329,17 +329,17 @@ function CertModal({
             )}
           </div>
           <div>
-            <div className="text-[15px] font-bold text-white">{nombre}</div>
-            <div className="text-xs text-white/40">{perfil.email || '—'}</div>
+            <div className="text-[15px] font-bold text-[var(--sx-text)]">{nombre}</div>
+            <div className="text-xs text-[var(--sx-text-dim)]">{perfil.email || '—'}</div>
           </div>
         </div>
 
         <div className="mb-4">
-          <div className="mb-1.5 text-xs font-semibold uppercase tracking-wide text-white/40">Nivel de consultor</div>
+          <div className="mb-1.5 text-xs font-semibold uppercase tracking-wide text-[var(--sx-text-dim)]">Nivel de consultor</div>
           <select
             value={nivel}
             onChange={(e) => setNivel(e.target.value)}
-            className="w-full rounded-lg border border-white/10 bg-[#141416] px-3 py-2 text-sm text-white outline-none transition focus:border-[#1aab99] focus:ring-2 focus:ring-[#1aab99]/25"
+            className="w-full rounded-lg border border-[var(--sx-border)] bg-[var(--sx-input)] px-3 py-2 text-sm text-[var(--sx-text)] outline-none transition focus:border-[#1aab99] focus:ring-2 focus:ring-[#1aab99]/25"
           >
             <option value="junior">Junior</option>
             <option value="senior">Senior</option>
@@ -349,22 +349,22 @@ function CertModal({
         </div>
 
         <div className="mb-4">
-          <div className="mb-1.5 text-xs font-semibold uppercase tracking-wide text-white/40">Número de certificación</div>
+          <div className="mb-1.5 text-xs font-semibold uppercase tracking-wide text-[var(--sx-text-dim)]">Número de certificación</div>
           <input
             value={certNumero}
             onChange={(e) => setCertNumero(e.target.value)}
             placeholder="JR-017"
-            className="w-full rounded-lg border border-white/10 bg-[#141416] px-3 py-2 text-sm text-white outline-none transition placeholder:text-white/25 focus:border-[#1aab99] focus:ring-2 focus:ring-[#1aab99]/25"
+            className="w-full rounded-lg border border-[var(--sx-border)] bg-[var(--sx-input)] px-3 py-2 text-sm text-[var(--sx-text)] outline-none transition placeholder:text-[var(--sx-text-faint)] focus:border-[#1aab99] focus:ring-2 focus:ring-[#1aab99]/25"
           />
         </div>
 
         <div className="mb-2">
-          <div className="mb-1.5 text-xs font-semibold uppercase tracking-wide text-white/40">Fecha de certificación</div>
+          <div className="mb-1.5 text-xs font-semibold uppercase tracking-wide text-[var(--sx-text-dim)]">Fecha de certificación</div>
           <input
             type="date"
             value={certFecha}
             onChange={(e) => setCertFecha(e.target.value)}
-            className="w-full rounded-lg border border-white/10 bg-[#141416] px-3 py-2 text-sm text-white outline-none transition focus:border-[#1aab99] focus:ring-2 focus:ring-[#1aab99]/25"
+            className="w-full rounded-lg border border-[var(--sx-border)] bg-[var(--sx-input)] px-3 py-2 text-sm text-[var(--sx-text)] outline-none transition focus:border-[#1aab99] focus:ring-2 focus:ring-[#1aab99]/25"
           />
         </div>
 
@@ -389,7 +389,7 @@ function CertModal({
         </div>
 
         {feedback.text && (
-          <div className={`mt-3.5 text-center text-xs ${feedback.type === 'ok' ? 'text-emerald-400' : feedback.type === 'err' ? 'text-red-400' : 'text-white/40'}`}>
+          <div className={`mt-3.5 text-center text-xs ${feedback.type === 'ok' ? 'text-emerald-400' : feedback.type === 'err' ? 'text-red-400' : 'text-[var(--sx-text-dim)]'}`}>
             {feedback.text}
           </div>
         )}

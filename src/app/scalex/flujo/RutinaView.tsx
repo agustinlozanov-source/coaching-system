@@ -122,15 +122,15 @@ function HorizonteCard({
 }) {
   const clase = nivelClase(nivel);
   return (
-    <div className={`flex flex-col gap-3.5 rounded-2xl border border-white/[0.08] border-l-4 bg-[#1c1c1e] p-5 ${nivelBorderCls[clase]}`}>
+    <div className={`flex flex-col gap-3.5 rounded-2xl border border-[var(--sx-border)] border-l-4 bg-[var(--sx-card)] p-5 ${nivelBorderCls[clase]}`}>
       <div className="flex items-start justify-between gap-3">
         <div className="flex items-center gap-2.5">
           <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl" style={{ background: bgTint }}>
             <Icon className="h-[18px] w-[18px]" style={{ color: colorHex }} />
           </div>
           <div className="flex flex-col gap-0.5">
-            <div className="text-[10px] font-bold uppercase tracking-wide text-white/40">{freq}</div>
-            <div className="text-[15px] font-bold text-white">{nombre}</div>
+            <div className="text-[10px] font-bold uppercase tracking-wide text-[var(--sx-text-dim)]">{freq}</div>
+            <div className="text-[15px] font-bold text-[var(--sx-text)]">{nombre}</div>
           </div>
         </div>
         <NivelBadge nivel={nivel} />
@@ -149,12 +149,12 @@ function AlertaRow({ children }: { children: React.ReactNode }) {
   );
 }
 function InfoRow({ children }: { children: React.ReactNode }) {
-  return <div className="text-[13px] text-white/40">{children}</div>;
+  return <div className="text-[13px] text-[var(--sx-text-dim)]">{children}</div>;
 }
 function ChecklistItem({ children }: { children: React.ReactNode }) {
   return (
-    <div className="flex items-center gap-2 text-xs text-white/40">
-      <Check className="h-3.5 w-3.5 flex-shrink-0 text-white/25" /> {children}
+    <div className="flex items-center gap-2 text-xs text-[var(--sx-text-dim)]">
+      <Check className="h-3.5 w-3.5 flex-shrink-0 text-[var(--sx-text-faint)]" /> {children}
     </div>
   );
 }
@@ -166,7 +166,7 @@ function LinkCta({ icon: Icon, children, tone = 'amber' }: { icon: any; children
     return (
       <span
         title="Disponible desde el menú de Flujo"
-        className="flex cursor-default items-center gap-1.5 rounded-lg border border-white/10 bg-white/[0.03] px-3.5 py-2 text-xs font-semibold text-white/40"
+        className="flex cursor-default items-center gap-1.5 rounded-lg border border-[var(--sx-border)] bg-[var(--sx-card-hover)] px-3.5 py-2 text-xs font-semibold text-[var(--sx-text-dim)]"
       >
         <Icon className="h-3.5 w-3.5" /> {children}
       </span>
@@ -293,7 +293,7 @@ export function RutinaView({ onBack }: { onBack: () => void }) {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-20">
-        <Loader2 className="h-8 w-8 animate-spin text-white/40" />
+        <Loader2 className="h-8 w-8 animate-spin text-[var(--sx-text-dim)]" />
       </div>
     );
   }
@@ -343,18 +343,18 @@ export function RutinaView({ onBack }: { onBack: () => void }) {
     <div>
       {/* Header */}
       <div className="mb-6 flex items-center gap-3">
-        <button onClick={onBack} className="flex h-9 w-9 items-center justify-center rounded-lg border border-white/10 text-white/60 transition hover:bg-white/[0.06] hover:text-white">
+        <button onClick={onBack} className="flex h-9 w-9 items-center justify-center rounded-lg border border-[var(--sx-border)] text-[var(--sx-text-muted)] transition hover:bg-[var(--sx-card-hover)] hover:text-[var(--sx-text)]">
           <ArrowLeft className="h-4 w-4" />
         </button>
         <div className="flex-1">
           <p className="text-xs font-semibold uppercase tracking-wide text-[#1aab99]">Pilar 5 · Flujo</p>
-          <h1 className="text-2xl font-bold text-white">Rutina Financiera</h1>
+          <h1 className="text-2xl font-bold text-[var(--sx-text)]">Rutina Financiera</h1>
         </div>
         <button
           onClick={handleRefresh}
           disabled={refreshing}
           title="Refrescar"
-          className="flex h-9 w-9 items-center justify-center rounded-lg border border-white/10 text-white/60 transition hover:bg-white/[0.06] hover:text-white disabled:opacity-50"
+          className="flex h-9 w-9 items-center justify-center rounded-lg border border-[var(--sx-border)] text-[var(--sx-text-muted)] transition hover:bg-[var(--sx-card-hover)] hover:text-[var(--sx-text)] disabled:opacity-50"
         >
           <RefreshCw className={`h-4 w-4 ${refreshing ? 'animate-spin' : ''}`} />
         </button>
@@ -364,13 +364,13 @@ export function RutinaView({ onBack }: { onBack: () => void }) {
         {/* Resumen general */}
         <div className={`flex flex-col gap-4 rounded-2xl border p-6 sm:flex-row sm:items-center sm:justify-between ${resumenBannerCls}`}>
           <div className="flex flex-col gap-1.5">
-            <div className="text-[11px] font-bold uppercase tracking-wide text-white/40">Estado general del sistema</div>
+            <div className="text-[11px] font-bold uppercase tracking-wide text-[var(--sx-text-dim)]">Estado general del sistema</div>
             <div className={`text-[22px] font-extrabold ${resumenTextCls}`}>{egLabel}</div>
           </div>
           <div className="flex min-w-[220px] flex-col gap-2">
-            <div className="text-xs text-white/40">Cumplimiento últimos 30 días</div>
+            <div className="text-xs text-[var(--sx-text-dim)]">Cumplimiento últimos 30 días</div>
             <div className="flex items-center gap-2.5">
-              <div className="h-2 flex-1 overflow-hidden rounded-full border border-white/10 bg-white/[0.04]">
+              <div className="h-2 flex-1 overflow-hidden rounded-full border border-[var(--sx-border)] bg-[var(--sx-card-hover)]">
                 <div className="h-full rounded-full transition-all" style={{ width: `${pct}%`, background: progColorHex }} />
               </div>
               <div className={`min-w-[36px] text-right text-sm font-bold ${progTextCls}`}>{pct}%</div>
@@ -388,19 +388,19 @@ export function RutinaView({ onBack }: { onBack: () => void }) {
               : <LinkCta icon={ArrowRight}>Ir al Flujo de Caja Diario</LinkCta>
           }
         >
-          <div className={`flex items-center gap-2 text-sm font-semibold ${hoyCap ? 'text-emerald-400' : 'text-white/40'}`}>
+          <div className={`flex items-center gap-2 text-sm font-semibold ${hoyCap ? 'text-emerald-400' : 'text-[var(--sx-text-dim)]'}`}>
             {hoyCap ? <CheckCircle2 className="h-4 w-4" /> : <Circle className="h-4 w-4" />}
             Hoy: {hoyCap ? 'Capturado' : 'Pendiente'}
           </div>
           <div>
-            <div className="mb-2 text-[13px] text-white/40">Últimos 7 días</div>
+            <div className="mb-2 text-[13px] text-[var(--sx-text-dim)]">Últimos 7 días</div>
             <div className="flex items-center gap-1.5">
               {dias7.map((dia, idx) => {
                 const esPasado = !dia.esHoy && idx < 6;
                 const totalCapturados = hoyCap ? diasCap : Math.max(0, diasCap);
                 const desdeHoy = 6 - idx;
                 const estaCapturado = desdeHoy < totalCapturados || (desdeHoy === 0 && hoyCap);
-                let dotCls = 'bg-white/[0.06] text-white/30';
+                let dotCls = 'bg-[var(--sx-card-hover)] text-[var(--sx-text-faint)]';
                 if (estaCapturado) dotCls = 'bg-emerald-500/15 text-emerald-400';
                 else if (esPasado || dia.esHoy) dotCls = 'bg-red-500/[0.12] text-red-400';
                 const icono = estaCapturado ? '✓' : (!estaCapturado && !esPasado && !dia.esHoy ? '—' : '✕');
@@ -408,20 +408,20 @@ export function RutinaView({ onBack }: { onBack: () => void }) {
                   <div key={idx} className="flex flex-col items-center gap-1">
                     <div
                       className={`flex h-7 w-7 items-center justify-center rounded-lg text-[11px] font-bold ${dotCls} ${
-                        dia.esHoy ? 'ring-2 ring-amber-400/70 ring-offset-2 ring-offset-[#1c1c1e]' : ''
+                        dia.esHoy ? 'ring-2 ring-amber-400/70 ring-offset-2 ring-offset-[var(--sx-card)]' : ''
                       }`}
                     >
                       {icono}
                     </div>
-                    <div className="text-[10px] font-medium text-white/30">{dia.label}</div>
+                    <div className="text-[10px] font-medium text-[var(--sx-text-faint)]">{dia.label}</div>
                   </div>
                 );
               })}
             </div>
           </div>
-          <div className="flex items-center gap-1.5 text-[13px] text-white/60">
+          <div className="flex items-center gap-1.5 text-[13px] text-[var(--sx-text-muted)]">
             <Flame className="h-3.5 w-3.5 text-amber-400" />
-            <span>Racha: <strong className="text-white">{rachaDiario}</strong> días consecutivos</span>
+            <span>Racha: <strong className="text-[var(--sx-text)]">{rachaDiario}</strong> días consecutivos</span>
           </div>
           {(nivelDiario === 'alerta' || nivelDiario === 'atencion') && !hoyCap && (
             <AlertaRow>Llevas {7 - diasCap} días sin capturar el flujo de caja</AlertaRow>
@@ -450,12 +450,12 @@ export function RutinaView({ onBack }: { onBack: () => void }) {
             )
           }
         >
-          <div className={`flex items-center gap-2 text-sm font-semibold ${semanalHecha ? 'text-emerald-400' : 'text-white/40'}`}>
+          <div className={`flex items-center gap-2 text-sm font-semibold ${semanalHecha ? 'text-emerald-400' : 'text-[var(--sx-text-dim)]'}`}>
             {semanalHecha ? <CheckCircle2 className="h-4 w-4" /> : <Clock className="h-4 w-4" />}
             Esta semana: {semanalHecha ? 'Completa' : 'Pendiente'}
           </div>
           {!semanalHecha && semanalDiasDesde !== null && (
-            <InfoRow>Última revisión: hace <span className="font-semibold text-white/70">{semanalDiasDesde} días</span></InfoRow>
+            <InfoRow>Última revisión: hace <span className="font-semibold text-[var(--sx-text-muted)]">{semanalDiasDesde} días</span></InfoRow>
           )}
           {!semanalHecha && (nivelSemanal === 'alerta' || nivelSemanal === 'atencion') && (
             <AlertaRow>Han pasado {semanalDiasDesde ?? '?'} días desde tu última revisión semanal</AlertaRow>
@@ -474,12 +474,12 @@ export function RutinaView({ onBack }: { onBack: () => void }) {
           icon={Clipboard} freq="Mensual" nombre="Estado de Resultados"
           actions={<LinkCta icon={ArrowRight}>Ir al Estado de Resultados</LinkCta>}
         >
-          <div className={`flex items-center gap-2 text-sm font-semibold ${mensualHecho ? 'text-emerald-400' : 'text-white/40'}`}>
+          <div className={`flex items-center gap-2 text-sm font-semibold ${mensualHecho ? 'text-emerald-400' : 'text-[var(--sx-text-dim)]'}`}>
             {mensualHecho ? <CheckCircle2 className="h-4 w-4" /> : <Clock className="h-4 w-4" />}
             Mes anterior: {mensualHecho ? 'Completado' : 'Pendiente'}
           </div>
           {mensualDiasDesde !== null && (
-            <InfoRow>Días desde cierre del mes: <span className="font-semibold text-white/70">{mensualDiasDesde}</span></InfoRow>
+            <InfoRow>Días desde cierre del mes: <span className="font-semibold text-[var(--sx-text-muted)]">{mensualDiasDesde}</span></InfoRow>
           )}
           {!mensualHecho && (nivelMensual === 'alerta' || nivelMensual === 'atencion') && (
             <AlertaRow>El Estado de Resultados del mes anterior aún no se ha cerrado. Llevas {mensualDiasDesde ?? '?'} días.</AlertaRow>
@@ -493,12 +493,12 @@ export function RutinaView({ onBack }: { onBack: () => void }) {
           actions={<LinkCta icon={ArrowRight}>Iniciar nuevo Diagnóstico</LinkCta>}
         >
           {trimDiasDesde !== null ? (
-            <InfoRow>Último Diagnóstico: hace <span className="font-semibold text-white/70">{trimDiasDesde} días</span></InfoRow>
+            <InfoRow>Último Diagnóstico: hace <span className="font-semibold text-[var(--sx-text-muted)]">{trimDiasDesde} días</span></InfoRow>
           ) : (
             <div className="text-[13px] text-red-400">Nunca realizado</div>
           )}
           {trimProximoEn !== null && trimProximoEn > 0 && (
-            <InfoRow>Próximo recomendado: en <span className="font-semibold text-white/70">{trimProximoEn} días</span></InfoRow>
+            <InfoRow>Próximo recomendado: en <span className="font-semibold text-[var(--sx-text-muted)]">{trimProximoEn} días</span></InfoRow>
           )}
           {trimProximoEn === 0 && (
             <div className="flex items-center gap-2 rounded-lg border border-amber-500/20 bg-amber-500/10 px-3 py-2 text-[13px] text-amber-400">
@@ -533,7 +533,7 @@ export function RutinaView({ onBack }: { onBack: () => void }) {
           }
         >
           {anualUltimoAnio ? (
-            <InfoRow>Última revisión: <span className="font-semibold text-white/70">{anualUltimoAnio}</span></InfoRow>
+            <InfoRow>Última revisión: <span className="font-semibold text-[var(--sx-text-muted)]">{anualUltimoAnio}</span></InfoRow>
           ) : (
             <div className="text-[13px] text-red-400">Nunca marcada</div>
           )}

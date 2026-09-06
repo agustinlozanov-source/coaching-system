@@ -45,8 +45,8 @@ const RECTOR_ICONOS: Record<RectorCodigo, any> = {
   gobierno_institucional: Building2,
 };
 
-const inputCls = 'w-full rounded-lg border border-white/10 bg-[#141416] px-3 py-2 text-sm text-white outline-none transition placeholder:text-white/25 focus:border-[#1aab99] focus:ring-2 focus:ring-[#1aab99]/25';
-const labelCls = 'mb-1.5 text-[11px] font-semibold uppercase tracking-wide text-white/40';
+const inputCls = 'w-full rounded-lg border border-[var(--sx-border)] bg-[var(--sx-input)] px-3 py-2 text-sm text-[var(--sx-text)] outline-none transition placeholder:text-[var(--sx-text-faint)] focus:border-[#1aab99] focus:ring-2 focus:ring-[#1aab99]/25';
+const labelCls = 'mb-1.5 text-[11px] font-semibold uppercase tracking-wide text-[var(--sx-text-dim)]';
 
 export function MapaView({
   sesionId, sesion, onBack, onCompleted,
@@ -284,7 +284,7 @@ export function MapaView({
     return (
       <div>
         <Header onBack={onBack} />
-        <div className="rounded-2xl border border-white/[0.08] bg-[#1c1c1e] p-10 text-center text-white/50">
+        <div className="rounded-2xl border border-[var(--sx-border)] bg-[var(--sx-card)] p-10 text-center text-[var(--sx-text-muted)]">
           Completa primero el Paso 1 · Perfil de Personalidad.
         </div>
       </div>
@@ -294,7 +294,7 @@ export function MapaView({
   if (loading) {
     return (
       <div className="flex items-center justify-center py-20">
-        <Loader2 className="h-8 w-8 animate-spin text-white/40" />
+        <Loader2 className="h-8 w-8 animate-spin text-[var(--sx-text-dim)]" />
       </div>
     );
   }
@@ -315,7 +315,7 @@ export function MapaView({
       </div>
 
       {/* Tabs */}
-      <div className="mb-5 flex flex-wrap items-center gap-2 border-b border-white/[0.08] pb-4">
+      <div className="mb-5 flex flex-wrap items-center gap-2 border-b border-[var(--sx-border)] pb-4">
         {tabs.map((t) => {
           const Icon = t.icon;
           const active = tab === t.id;
@@ -324,12 +324,12 @@ export function MapaView({
               key={t.id}
               onClick={() => setTab(t.id)}
               className={`flex items-center gap-1.5 rounded-full border px-3.5 py-1.5 text-xs font-bold transition ${
-                active ? 'border-pink-500 bg-pink-500 text-white' : 'border-white/10 bg-white/[0.03] text-white/50 hover:text-white'
+                active ? 'border-pink-500 bg-pink-500 text-white' : 'border-[var(--sx-border)] bg-[var(--sx-card-hover)] text-[var(--sx-text-muted)] hover:text-[var(--sx-text)]'
               }`}
             >
               <Icon className="h-3.5 w-3.5" /> {t.label}
               {t.count !== undefined && (
-                <span className={`rounded-full px-1.5 text-[10px] ${active ? 'bg-white/20' : 'bg-white/[0.08] text-white/40'}`}>{t.count}</span>
+                <span className={`rounded-full px-1.5 text-[10px] ${active ? 'bg-white/20' : 'bg-[var(--sx-card-hover)] text-[var(--sx-text-dim)]'}`}>{t.count}</span>
               )}
             </button>
           );
@@ -393,18 +393,18 @@ export function MapaView({
 
       {/* AGENDAS */}
       {tab === 'agendas' && (
-        <div className="rounded-2xl border border-white/[0.08] bg-[#1c1c1e] p-5">
+        <div className="rounded-2xl border border-[var(--sx-border)] bg-[var(--sx-card)] p-5">
           {completado ? (
             <AgendasForStep sesionId={sesionId} paso="paso_2_rector" />
           ) : (
-            <div className="py-6 text-center text-xs text-white/30">Completa el Paso 2 para ver las agendas de implementación.</div>
+            <div className="py-6 text-center text-xs text-[var(--sx-text-faint)]">Completa el Paso 2 para ver las agendas de implementación.</div>
           )}
         </div>
       )}
 
       {/* Completar */}
-      <div className="mt-6 flex items-center justify-between gap-4 border-t border-white/[0.08] pt-5">
-        <div className="text-xs text-white/40">
+      <div className="mt-6 flex items-center justify-between gap-4 border-t border-[var(--sx-border)] pt-5">
+        <div className="text-xs text-[var(--sx-text-dim)]">
           {completado
             ? '✓ Paso 2 completado'
             : listo
@@ -431,12 +431,12 @@ export function MapaView({
 function Header({ onBack }: { onBack: () => void }) {
   return (
     <div className="flex items-center gap-3">
-      <button onClick={onBack} className="flex h-9 w-9 items-center justify-center rounded-lg border border-white/10 text-white/60 transition hover:bg-white/[0.06] hover:text-white">
+      <button onClick={onBack} className="flex h-9 w-9 items-center justify-center rounded-lg border border-[var(--sx-border)] text-[var(--sx-text-muted)] transition hover:bg-[var(--sx-card-hover)] hover:text-[var(--sx-text)]">
         <ArrowLeft className="h-4 w-4" />
       </button>
       <div>
         <p className="text-xs font-semibold uppercase tracking-wide text-[#1aab99]">ADN · Paso 2</p>
-        <h1 className="text-2xl font-bold text-white">Mapa ADN</h1>
+        <h1 className="text-2xl font-bold text-[var(--sx-text)]">Mapa ADN</h1>
       </div>
     </div>
   );
@@ -444,16 +444,16 @@ function Header({ onBack }: { onBack: () => void }) {
 
 function CapaIntro({ title, text }: { title: string; text: string }) {
   return (
-    <div className="rounded-lg border-l-2 border-pink-500 bg-white/[0.03] p-4">
-      <div className="mb-1 text-[13px] font-bold text-white">{title}</div>
-      <div className="text-[12.5px] leading-relaxed text-white/50">{text}</div>
+    <div className="rounded-lg border-l-2 border-pink-500 bg-[var(--sx-card-hover)] p-4">
+      <div className="mb-1 text-[13px] font-bold text-[var(--sx-text)]">{title}</div>
+      <div className="text-[12.5px] leading-relaxed text-[var(--sx-text-muted)]">{text}</div>
     </div>
   );
 }
 
 function AddButton({ label, onClick }: { label: string; onClick: () => void }) {
   return (
-    <button onClick={onClick} className="flex items-center justify-center gap-2 rounded-full border border-dashed border-white/15 px-4 py-2.5 text-xs font-bold text-white/40 transition hover:border-pink-500/50 hover:bg-pink-500/[0.06] hover:text-pink-400">
+    <button onClick={onClick} className="flex items-center justify-center gap-2 rounded-full border border-dashed border-[var(--sx-border-strong)] px-4 py-2.5 text-xs font-bold text-[var(--sx-text-dim)] transition hover:border-pink-500/50 hover:bg-pink-500/[0.06] hover:text-pink-400">
       <Plus className="h-3.5 w-3.5" /> {label}
     </button>
   );
@@ -461,8 +461,8 @@ function AddButton({ label, onClick }: { label: string; onClick: () => void }) {
 
 function ItemCardShell({ children, hasData, onDelete }: { children: React.ReactNode; hasData: boolean; onDelete: () => void }) {
   return (
-    <div className={`relative rounded-2xl border bg-[#1c1c1e] p-5 transition ${hasData ? 'border-pink-500/25' : 'border-white/[0.08]'}`}>
-      <button onClick={onDelete} className="absolute right-5 top-5 flex h-7 w-7 items-center justify-center rounded-lg border border-white/10 text-white/40 transition hover:border-red-500/40 hover:bg-red-500/10 hover:text-red-400">
+    <div className={`relative rounded-2xl border bg-[var(--sx-card)] p-5 transition ${hasData ? 'border-pink-500/25' : 'border-[var(--sx-border)]'}`}>
+      <button onClick={onDelete} className="absolute right-5 top-5 flex h-7 w-7 items-center justify-center rounded-lg border border-[var(--sx-border)] text-[var(--sx-text-dim)] transition hover:border-red-500/40 hover:bg-red-500/10 hover:text-red-400">
         <Trash2 className="h-3.5 w-3.5" />
       </button>
       {children}
@@ -479,7 +479,7 @@ function PillGroup({ options, value, onChange }: { options: { v: string; l: stri
           type="button"
           onClick={() => onChange(o.v)}
           className={`rounded-full border px-3 py-1 text-[11.5px] font-semibold transition ${
-            value === o.v ? 'border-pink-500/60 bg-pink-500/15 text-pink-400' : 'border-white/10 bg-white/[0.03] text-white/40 hover:border-pink-500/30'
+            value === o.v ? 'border-pink-500/60 bg-pink-500/15 text-pink-400' : 'border-[var(--sx-border)] bg-[var(--sx-card-hover)] text-[var(--sx-text-dim)] hover:border-pink-500/30'
           }`}
         >
           {o.l}
@@ -687,8 +687,8 @@ function TextAreaField({ label, value, placeholder, onChange }: { label: string;
 
 function FieldSection({ icon: Icon, title, children }: { icon: any; title: string; children: React.ReactNode }) {
   return (
-    <div className="mt-3 rounded-lg bg-white/[0.03] p-4">
-      <div className="mb-3 flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wide text-white/30">
+    <div className="mt-3 rounded-lg bg-[var(--sx-card-hover)] p-4">
+      <div className="mb-3 flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wide text-[var(--sx-text-faint)]">
         <Icon className="h-3 w-3" /> {title}
       </div>
       <div className="grid gap-3 sm:grid-cols-2">{children}</div>
@@ -709,17 +709,17 @@ function RectorCard({
   const [notas, setNotas] = useState(saved?.notas_consultor || '');
 
   return (
-    <div className={`rounded-2xl border bg-[#1c1c1e] p-5 transition ${estado !== 'ausente' ? 'border-pink-500/25' : 'border-white/[0.08]'}`}>
+    <div className={`rounded-2xl border bg-[var(--sx-card)] p-5 transition ${estado !== 'ausente' ? 'border-pink-500/25' : 'border-[var(--sx-border)]'}`}>
       <div className="mb-3 flex items-center gap-3">
         <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg border border-pink-500/25 bg-pink-500/10 text-pink-400">
           <Icon className="h-4 w-4" />
         </div>
         <div>
-          <div className="text-[14px] font-extrabold text-white">{rector.nombre}</div>
-          <div className="text-xs text-white/40">{rector.descripcion_corta}</div>
+          <div className="text-[14px] font-extrabold text-[var(--sx-text)]">{rector.nombre}</div>
+          <div className="text-xs text-[var(--sx-text-dim)]">{rector.descripcion_corta}</div>
         </div>
       </div>
-      <div className="mb-3.5 rounded-lg border-l-2 border-pink-500 bg-white/[0.03] p-3 text-[12.5px] leading-relaxed text-white/55">
+      <div className="mb-3.5 rounded-lg border-l-2 border-pink-500 bg-[var(--sx-card-hover)] p-3 text-[12.5px] leading-relaxed text-[var(--sx-text-muted)]">
         {rector.pregunta_evaluacion}
       </div>
       <div className="grid gap-3 sm:grid-cols-2">
@@ -740,7 +740,7 @@ function RectorCard({
                 type="button"
                 onClick={() => onField(rector.codigo, 'ano_construccion', n)}
                 className={`flex h-8 w-8 items-center justify-center rounded-lg border text-xs font-bold transition ${
-                  saved?.ano_construccion === n ? 'border-pink-500/60 bg-pink-500/15 text-pink-400' : 'border-white/10 bg-white/[0.03] text-white/40 hover:border-pink-500/30'
+                  saved?.ano_construccion === n ? 'border-pink-500/60 bg-pink-500/15 text-pink-400' : 'border-[var(--sx-border)] bg-[var(--sx-card-hover)] text-[var(--sx-text-dim)] hover:border-pink-500/30'
                 }`}
               >
                 {n}
@@ -758,7 +758,7 @@ function RectorCard({
           className={`${inputCls} min-h-[60px] resize-y`}
         />
       </div>
-      <div className="mt-3 rounded-lg bg-white/[0.03] p-3 text-[11px] leading-relaxed text-white/40">
+      <div className="mt-3 rounded-lg bg-[var(--sx-card-hover)] p-3 text-[11px] leading-relaxed text-[var(--sx-text-dim)]">
         <strong className="text-red-400">Si no existe: </strong>{rector.si_no_existe}
       </div>
     </div>

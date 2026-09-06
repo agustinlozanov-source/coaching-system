@@ -83,14 +83,14 @@ export function AdnApp() {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-20">
-        <Loader2 className="h-8 w-8 animate-spin text-white/40" />
+        <Loader2 className="h-8 w-8 animate-spin text-[var(--sx-text-dim)]" />
       </div>
     );
   }
 
   if (error || !sesionId || !sesion) {
     return (
-      <div className="rounded-2xl border border-white/[0.08] bg-[#1c1c1e] p-10 text-center text-white/60">
+      <div className="rounded-2xl border border-[var(--sx-border)] bg-[var(--sx-card)] p-10 text-center text-[var(--sx-text-muted)]">
         {error ?? 'No se pudo cargar el ADN de tu organización.'}
       </div>
     );

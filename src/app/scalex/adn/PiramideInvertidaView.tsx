@@ -53,7 +53,7 @@ export function PiramideInvertidaView({
     return (
       <div>
         <Header onBack={onBack} />
-        <div className="rounded-2xl border border-white/[0.08] bg-[#1c1c1e] p-10 text-center text-white/50">
+        <div className="rounded-2xl border border-[var(--sx-border)] bg-[var(--sx-card)] p-10 text-center text-[var(--sx-text-muted)]">
           Completa primero el Paso 2 · Mapa ADN para ver la pirámide invertida.
         </div>
       </div>
@@ -63,7 +63,7 @@ export function PiramideInvertidaView({
   if (loading) {
     return (
       <div className="flex items-center justify-center py-20">
-        <Loader2 className="h-8 w-8 animate-spin text-white/40" />
+        <Loader2 className="h-8 w-8 animate-spin text-[var(--sx-text-dim)]" />
       </div>
     );
   }
@@ -80,18 +80,18 @@ export function PiramideInvertidaView({
 
       {/* Resumen */}
       <div className="mb-6 grid gap-4 md:grid-cols-2">
-        <div className="rounded-2xl border border-white/[0.08] bg-[#1c1c1e] p-5">
-          <div className="text-[10px] font-bold uppercase tracking-wide text-white/30">Paso 0 · Tipo de pirámide</div>
+        <div className="rounded-2xl border border-[var(--sx-border)] bg-[var(--sx-card)] p-5">
+          <div className="text-[10px] font-bold uppercase tracking-wide text-[var(--sx-text-faint)]">Paso 0 · Tipo de pirámide</div>
           <div className="mt-1 text-lg font-extrabold" style={{ color: piramide.color }}>{piramide.nombre}</div>
-          <div className="mt-1 text-[12.5px] leading-relaxed text-white/45">{piramide.descripcion_corta}</div>
+          <div className="mt-1 text-[12.5px] leading-relaxed text-[var(--sx-text-dim)]">{piramide.descripcion_corta}</div>
           <div className="mt-2.5 inline-flex w-fit items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold" style={{ background: `${piramide.color}18`, border: `1px solid ${piramide.color}33`, color: piramide.color }}>
             {puntaje} puntos · {piramide.rango}
           </div>
         </div>
-        <div className="rounded-2xl border border-white/[0.08] bg-[#1c1c1e] p-5">
-          <div className="text-[10px] font-bold uppercase tracking-wide text-white/30">Paso 1 · Perfil de personalidad</div>
+        <div className="rounded-2xl border border-[var(--sx-border)] bg-[var(--sx-card)] p-5">
+          <div className="text-[10px] font-bold uppercase tracking-wide text-[var(--sx-text-faint)]">Paso 1 · Perfil de personalidad</div>
           <div className="mt-1 text-lg font-extrabold text-pink-400">{nombreHibrido}</div>
-          <div className="mt-1 text-[12.5px] leading-relaxed text-white/45">{hibridoEntry ? hibridoEntry.esencia : 'Identidad empresarial definida en el Paso 1.'}</div>
+          <div className="mt-1 text-[12.5px] leading-relaxed text-[var(--sx-text-dim)]">{hibridoEntry ? hibridoEntry.esencia : 'Identidad empresarial definida en el Paso 1.'}</div>
           <div className="mt-2.5 inline-flex w-fit items-center gap-1.5 rounded-full border border-pink-500/25 bg-pink-500/10 px-2.5 py-1 text-xs font-semibold text-pink-400">
             <Dna className="h-3.5 w-3.5" /> Híbrido empresarial
           </div>
@@ -99,10 +99,10 @@ export function PiramideInvertidaView({
       </div>
 
       {/* Pirámide de capas */}
-      <div className="mb-6 overflow-hidden rounded-2xl border border-white/[0.08] bg-[#1c1c1e]">
-        <div className="border-b border-white/[0.08] p-5">
-          <div className="text-[15px] font-bold text-white">Estructura ADN de la empresa</div>
-          <div className="text-[12.5px] text-white/40">Las 4 capas que sostienen la identidad y el poder operativo.</div>
+      <div className="mb-6 overflow-hidden rounded-2xl border border-[var(--sx-border)] bg-[var(--sx-card)]">
+        <div className="border-b border-[var(--sx-border)] p-5">
+          <div className="text-[15px] font-bold text-[var(--sx-text)]">Estructura ADN de la empresa</div>
+          <div className="text-[12.5px] text-[var(--sx-text-dim)]">Las 4 capas que sostienen la identidad y el poder operativo.</div>
         </div>
 
         <Layer icon={Users} color="#ec4899" name="Públicos" desc="A quién servimos — en la cima de la pirámide">
@@ -132,12 +132,12 @@ export function PiramideInvertidaView({
         </Layer>
 
         <div className="grid grid-cols-[160px_1fr]">
-          <div className="flex flex-col justify-center gap-1 border-r border-white/[0.08] bg-white/[0.02] p-5">
+          <div className="flex flex-col justify-center gap-1 border-r border-[var(--sx-border)] bg-[var(--sx-card-hover)] p-5">
             <div className="mb-1 flex h-8 w-8 items-center justify-center rounded-lg bg-[#d4a256]/15">
               <Shield className="h-4 w-4" style={{ color: '#d4a256' }} />
             </div>
             <div className="text-xs font-bold uppercase tracking-wide" style={{ color: '#d4a256' }}>Rectores</div>
-            <div className="text-[11px] leading-tight text-white/40">La base institucional que sostiene todo</div>
+            <div className="text-[11px] leading-tight text-[var(--sx-text-dim)]">La base institucional que sostiene todo</div>
           </div>
           <div className="grid grid-cols-1 gap-2 p-4 sm:grid-cols-3">
             {RECTORES.map((r) => {
@@ -146,14 +146,14 @@ export function PiramideInvertidaView({
               const cfg = {
                 operativo: { color: 'text-emerald-400', border: 'border-emerald-500/20', bg: 'bg-emerald-500/[0.08]', label: 'Operativo' },
                 declarado: { color: 'text-amber-400', border: 'border-amber-500/20', bg: 'bg-amber-500/[0.08]', label: 'Declarado' },
-                ausente: { color: 'text-white/40', border: 'border-white/[0.08]', bg: 'bg-white/[0.02]', label: 'Ausente' },
-              }[estado] ?? { color: 'text-white/40', border: 'border-white/[0.08]', bg: 'bg-white/[0.02]', label: 'Ausente' };
+                ausente: { color: 'text-[var(--sx-text-dim)]', border: 'border-[var(--sx-border)]', bg: 'bg-[var(--sx-card-hover)]', label: 'Ausente' },
+              }[estado] ?? { color: 'text-[var(--sx-text-dim)]', border: 'border-[var(--sx-border)]', bg: 'bg-[var(--sx-card-hover)]', label: 'Ausente' };
               return (
                 <div key={r.codigo} className={`rounded-lg border p-3 ${cfg.border} ${cfg.bg}`}>
-                  <div className="text-xs font-bold text-white">{r.nombre}</div>
+                  <div className="text-xs font-bold text-[var(--sx-text)]">{r.nombre}</div>
                   <div className="mt-1 flex items-center gap-1.5">
                     <span className={`text-[11px] font-semibold ${cfg.color}`}>{cfg.label}</span>
-                    {data.ano_construccion && <span className="text-[11px] text-white/35">· Año {data.ano_construccion}</span>}
+                    {data.ano_construccion && <span className="text-[11px] text-[var(--sx-text-dim)]">· Año {data.ano_construccion}</span>}
                   </div>
                 </div>
               );
@@ -163,50 +163,50 @@ export function PiramideInvertidaView({
       </div>
 
       {/* Detalle pirámide */}
-      <div className="mb-6 rounded-2xl border border-white/[0.08] bg-[#1c1c1e] p-6">
+      <div className="mb-6 rounded-2xl border border-[var(--sx-border)] bg-[var(--sx-card)] p-6">
         <div className="mb-4 flex items-start gap-4">
           <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-2xl" style={{ background: `${piramide.color}18`, border: `1px solid ${piramide.color}30` }}>
             <Sparkles className="h-5 w-5" style={{ color: piramide.color }} />
           </div>
           <div>
-            <div className="text-lg font-extrabold text-white">{piramide.nombre}</div>
+            <div className="text-lg font-extrabold text-[var(--sx-text)]">{piramide.nombre}</div>
             <div className="text-xs font-semibold opacity-70" style={{ color: piramide.color }}>{piramide.rango}</div>
           </div>
         </div>
-        <p className="mb-4 text-sm leading-relaxed text-white/60">{piramide.descripcion_larga}</p>
+        <p className="mb-4 text-sm leading-relaxed text-[var(--sx-text-muted)]">{piramide.descripcion_larga}</p>
         <div className="mb-4">
-          <div className="mb-2 text-[11px] font-bold uppercase tracking-wide text-white/30">Señales características</div>
+          <div className="mb-2 text-[11px] font-bold uppercase tracking-wide text-[var(--sx-text-faint)]">Señales características</div>
           <div className="flex flex-col gap-2">
             {piramide.indicadores.map((ind) => (
-              <div key={ind} className="flex items-start gap-2.5 text-[13px] leading-relaxed text-white/55">
+              <div key={ind} className="flex items-start gap-2.5 text-[13px] leading-relaxed text-[var(--sx-text-muted)]">
                 <span className="mt-1.5 h-1.5 w-1.5 flex-shrink-0 rounded-full bg-[#1aab99]" /> {ind}
               </div>
             ))}
           </div>
         </div>
-        <div className="rounded-lg border border-white/[0.08] bg-white/[0.03] p-4 text-[13px] leading-relaxed text-white/55">
-          <strong className="text-white">Próximo paso: </strong>{piramide.proximo_paso}
+        <div className="rounded-lg border border-[var(--sx-border)] bg-[var(--sx-card-hover)] p-4 text-[13px] leading-relaxed text-[var(--sx-text-muted)]">
+          <strong className="text-[var(--sx-text)]">Próximo paso: </strong>{piramide.proximo_paso}
         </div>
       </div>
 
       {/* Detalle híbrido */}
       {hibridoEntry && (
-        <div className="flex gap-5 rounded-2xl border border-white/[0.08] bg-[#1c1c1e] p-6">
+        <div className="flex gap-5 rounded-2xl border border-[var(--sx-border)] bg-[var(--sx-card)] p-6">
           <div className="flex h-13 w-13 flex-shrink-0 items-center justify-center rounded-2xl border border-pink-500/20 bg-pink-500/10">
             <Sparkles className="h-6 w-6 text-pink-400" />
           </div>
           <div className="flex-1">
             <div className="mb-1 text-[11px] font-bold uppercase tracking-wide text-pink-400">Perfil de personalidad · Paso 1</div>
-            <div className="mb-2 text-lg font-extrabold text-white">{hibridoEntry.nombre}</div>
-            <div className="mb-3 text-sm leading-relaxed text-white/60">{hibridoEntry.esencia}</div>
+            <div className="mb-2 text-lg font-extrabold text-[var(--sx-text)]">{hibridoEntry.nombre}</div>
+            <div className="mb-3 text-sm leading-relaxed text-[var(--sx-text-muted)]">{hibridoEntry.esencia}</div>
             <div className="grid gap-3 sm:grid-cols-2">
-              <div className="rounded-lg border border-white/[0.08] bg-white/[0.03] p-3">
-                <div className="mb-1.5 text-[10px] font-bold uppercase tracking-wide text-white/30">Fortaleza central</div>
-                <div className="text-xs leading-relaxed text-white/55">{hibridoEntry.fortaleza}</div>
+              <div className="rounded-lg border border-[var(--sx-border)] bg-[var(--sx-card-hover)] p-3">
+                <div className="mb-1.5 text-[10px] font-bold uppercase tracking-wide text-[var(--sx-text-faint)]">Fortaleza central</div>
+                <div className="text-xs leading-relaxed text-[var(--sx-text-muted)]">{hibridoEntry.fortaleza}</div>
               </div>
-              <div className="rounded-lg border border-white/[0.08] bg-white/[0.03] p-3">
-                <div className="mb-1.5 text-[10px] font-bold uppercase tracking-wide text-white/30">Punto de atención</div>
-                <div className="text-xs leading-relaxed text-white/55">{hibridoEntry.debilidad}</div>
+              <div className="rounded-lg border border-[var(--sx-border)] bg-[var(--sx-card-hover)] p-3">
+                <div className="mb-1.5 text-[10px] font-bold uppercase tracking-wide text-[var(--sx-text-faint)]">Punto de atención</div>
+                <div className="text-xs leading-relaxed text-[var(--sx-text-muted)]">{hibridoEntry.debilidad}</div>
               </div>
             </div>
           </div>
@@ -219,12 +219,12 @@ export function PiramideInvertidaView({
 function Header({ onBack }: { onBack: () => void }) {
   return (
     <div className="mb-6 flex items-center gap-3">
-      <button onClick={onBack} className="flex h-9 w-9 items-center justify-center rounded-lg border border-white/10 text-white/60 transition hover:bg-white/[0.06] hover:text-white">
+      <button onClick={onBack} className="flex h-9 w-9 items-center justify-center rounded-lg border border-[var(--sx-border)] text-[var(--sx-text-muted)] transition hover:bg-[var(--sx-card-hover)] hover:text-[var(--sx-text)]">
         <ArrowLeft className="h-4 w-4" />
       </button>
       <div>
         <p className="text-xs font-semibold uppercase tracking-wide text-[#1aab99]">ADN · Paso 3</p>
-        <h1 className="text-2xl font-bold text-white">Pirámide Invertida</h1>
+        <h1 className="text-2xl font-bold text-[var(--sx-text)]">Pirámide Invertida</h1>
       </div>
     </div>
   );
@@ -232,13 +232,13 @@ function Header({ onBack }: { onBack: () => void }) {
 
 function Layer({ icon: Icon, color, name, desc, children }: { icon: any; color: string; name: string; desc: string; children: React.ReactNode }) {
   return (
-    <div className="grid grid-cols-[160px_1fr] border-b border-white/[0.08]">
-      <div className="flex flex-col justify-center gap-1 border-r border-white/[0.08] bg-white/[0.02] p-5">
+    <div className="grid grid-cols-[160px_1fr] border-b border-[var(--sx-border)]">
+      <div className="flex flex-col justify-center gap-1 border-r border-[var(--sx-border)] bg-[var(--sx-card-hover)] p-5">
         <div className="mb-1 flex h-8 w-8 items-center justify-center rounded-lg" style={{ background: `${color}22` }}>
           <Icon className="h-4 w-4" style={{ color }} />
         </div>
         <div className="text-xs font-bold uppercase tracking-wide" style={{ color }}>{name}</div>
-        <div className="text-[11px] leading-tight text-white/40">{desc}</div>
+        <div className="text-[11px] leading-tight text-[var(--sx-text-dim)]">{desc}</div>
       </div>
       <div className="flex min-h-[72px] flex-wrap items-center gap-2 p-4">{children}</div>
     </div>
@@ -258,5 +258,5 @@ function Chip({ color, dot, children }: { color: string; dot?: boolean; children
 }
 
 function EmptyChip({ children }: { children: React.ReactNode }) {
-  return <span className="text-xs italic text-white/25">{children}</span>;
+  return <span className="text-xs italic text-[var(--sx-text-faint)]">{children}</span>;
 }

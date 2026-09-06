@@ -48,7 +48,7 @@ export function VectorApp() {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-20">
-        <Loader2 className="h-8 w-8 animate-spin text-white/40" />
+        <Loader2 className="h-8 w-8 animate-spin text-[var(--sx-text-dim)]" />
       </div>
     );
   }
@@ -64,14 +64,14 @@ export function VectorApp() {
         {view !== 'hub' && (
           <button
             onClick={() => (view === 'trimestre' ? setView('norte') : setView('hub'))}
-            className="flex h-9 w-9 items-center justify-center rounded-lg border border-white/10 text-white/60 transition hover:bg-white/[0.06] hover:text-white"
+            className="flex h-9 w-9 items-center justify-center rounded-lg border border-[var(--sx-border)] text-[var(--sx-text-dim)] transition hover:bg-[var(--sx-card-hover)] hover:text-[var(--sx-text)]"
           >
             <ArrowLeft className="h-4 w-4" />
           </button>
         )}
         <div>
           <p className="text-xs font-semibold uppercase tracking-wide text-[#1aab99]">{eyebrow}</p>
-          <h1 className="text-2xl font-bold text-white">{title}</h1>
+          <h1 className="text-2xl font-bold text-[var(--sx-text)]">{title}</h1>
         </div>
       </div>
 

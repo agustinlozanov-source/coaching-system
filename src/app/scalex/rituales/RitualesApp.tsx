@@ -137,7 +137,7 @@ export function RitualesApp() {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-20">
-        <Loader2 className="h-8 w-8 animate-spin text-white/40" />
+        <Loader2 className="h-8 w-8 animate-spin text-[var(--sx-text-dim)]" />
       </div>
     );
   }
@@ -151,13 +151,13 @@ export function RitualesApp() {
       <div className="mb-6 flex items-center gap-3">
         {view !== 'lista' && (
           <button onClick={() => setView('lista')}
-            className="flex h-9 w-9 items-center justify-center rounded-lg border border-white/10 text-white/60 transition hover:bg-white/[0.06] hover:text-white">
+            className="flex h-9 w-9 items-center justify-center rounded-lg border border-[var(--sx-border)] text-[var(--sx-text-muted)] transition hover:bg-[var(--sx-card-hover)] hover:text-[var(--sx-text)]">
             <ArrowLeft className="h-4 w-4" />
           </button>
         )}
         <div>
           <p className="text-xs font-semibold uppercase tracking-wide text-[#1aab99]">{eyebrow}</p>
-          <h1 className="text-2xl font-bold text-white">{title}</h1>
+          <h1 className="text-2xl font-bold text-[var(--sx-text)]">{title}</h1>
         </div>
       </div>
 
@@ -191,7 +191,7 @@ function ListaView({
 
   return (
     <>
-      <p className="-mt-3 mb-6 text-white/50">Disciplinas que sostienen la escalabilidad de tu empresa.</p>
+      <p className="-mt-3 mb-6 text-[var(--sx-text-muted)]">Disciplinas que sostienen la escalabilidad de tu empresa.</p>
       <div className="grid gap-4 lg:grid-cols-3">
         {/* Contrato */}
         <RitualCard
@@ -234,30 +234,30 @@ function RitualCard({
   const statusCls =
     status === 'active' ? 'bg-emerald-500/15 text-emerald-400'
       : status === 'pending' ? 'bg-amber-500/15 text-amber-400'
-        : 'bg-white/[0.06] text-white/40';
+        : 'bg-[var(--sx-card-hover)] text-[var(--sx-text-dim)]';
   return (
     <div
       onClick={locked ? undefined : onClick}
-      className={`flex flex-col rounded-2xl border border-white/[0.08] bg-[#1c1c1e] p-5 ${
-        locked ? 'opacity-60' : 'cursor-pointer transition hover:border-white/20 hover:bg-[#242426]'
+      className={`flex flex-col rounded-2xl border border-[var(--sx-border)] bg-[var(--sx-card)] p-5 ${
+        locked ? 'opacity-60' : 'cursor-pointer transition hover:border-[var(--sx-border-strong)] hover:bg-[var(--sx-card-hover)]'
       }`}
     >
       <div className="mb-3 flex items-start gap-3">
-        <div className={`flex h-11 w-11 items-center justify-center rounded-xl ${locked ? 'bg-white/[0.06] text-white/40' : 'bg-gradient-to-br from-[#1aab99]/20 to-[#3533cd]/20 text-[#1aab99]'}`}>
+        <div className={`flex h-11 w-11 items-center justify-center rounded-xl ${locked ? 'bg-[var(--sx-card-hover)] text-[var(--sx-text-dim)]' : 'bg-gradient-to-br from-[#1aab99]/20 to-[#3533cd]/20 text-[#1aab99]'}`}>
           <Icon className="h-5 w-5" />
         </div>
         <div className="min-w-0 flex-1">
-          <div className="font-bold text-white">{nombre}</div>
-          <div className="text-xs text-white/40">{pilar}</div>
+          <div className="font-bold text-[var(--sx-text)]">{nombre}</div>
+          <div className="text-xs text-[var(--sx-text-dim)]">{pilar}</div>
         </div>
         <span className={`rounded-full px-2.5 py-1 text-[11px] font-semibold ${statusCls}`}>{statusText}</span>
       </div>
-      <p className="mb-4 flex-1 text-sm leading-relaxed text-white/50">{desc}</p>
-      <div className="flex flex-wrap items-center gap-4 border-t border-white/[0.06] pt-3">
+      <p className="mb-4 flex-1 text-sm leading-relaxed text-[var(--sx-text-muted)]">{desc}</p>
+      <div className="flex flex-wrap items-center gap-4 border-t border-[var(--sx-border)] pt-3">
         {meta.map((m, i) => {
           const M = m.icon;
           return (
-            <span key={i} className="flex items-center gap-1.5 text-xs text-white/50">
+            <span key={i} className="flex items-center gap-1.5 text-xs text-[var(--sx-text-muted)]">
               <M className="h-3.5 w-3.5" /> {m.text}
             </span>
           );
@@ -298,7 +298,8 @@ function ContratoView({
     canvas.width = wrap.clientWidth;
     canvas.height = wrap.clientHeight;
     const ctx = canvas.getContext('2d')!;
-    ctx.strokeStyle = '#ffffff';
+    const inkColor = getComputedStyle(canvas).getPropertyValue('--sx-text').trim() || '#ffffff';
+    ctx.strokeStyle = inkColor;
     ctx.lineWidth = 2;
     ctx.lineCap = 'round';
     ctx.lineJoin = 'round';
@@ -353,7 +354,7 @@ function ContratoView({
     const canvas = canvasRef.current!;
     const ctx = canvas.getContext('2d')!;
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.fillStyle = '#ffffff';
+    ctx.fillStyle = getComputedStyle(canvas).getPropertyValue('--sx-text').trim() || '#ffffff';
     ctx.font = "italic 38px 'Caveat', cursive";
     const nombre = perfil ? `${perfil.nombre ?? ''} ${perfil.apellido ?? ''}`.trim() : 'Firma';
     ctx.fillText(nombre || 'Firma', 24, 88);
@@ -421,47 +422,47 @@ function ContratoView({
   return (
     <div className="grid gap-6 lg:grid-cols-[1fr_320px]">
       {/* Documento */}
-      <div className="relative overflow-hidden rounded-2xl border border-white/[0.08] bg-[#161618] p-8 sm:p-10">
-        <div className="pointer-events-none absolute right-6 top-6 text-[11px] font-bold uppercase tracking-[0.3em] text-white/[0.06]">
+      <div className="relative overflow-hidden rounded-2xl border border-[var(--sx-border)] bg-[var(--sx-card)] p-8 sm:p-10">
+        <div className="pointer-events-none absolute right-6 top-6 text-[11px] font-bold uppercase tracking-[0.3em] text-[var(--sx-text-faint)]">
           SCALEx · LATAM
         </div>
 
-        <div className="mb-8 border-b border-white/[0.08] pb-6 text-center">
+        <div className="mb-8 border-b border-[var(--sx-border)] pb-6 text-center">
           <div className="text-xs font-semibold uppercase tracking-[0.2em] text-[#1aab99]">Ritual de Efectividad #1</div>
-          <h2 className="mt-2 text-2xl font-extrabold leading-tight text-white">Contrato de Compromiso<br />con la Escalabilidad</h2>
-          <p className="mt-2 text-sm text-white/50">El líder se compromete consigo mismo antes de pedir compromiso al equipo</p>
+          <h2 className="mt-2 text-2xl font-extrabold leading-tight text-[var(--sx-text)]">Contrato de Compromiso<br />con la Escalabilidad</h2>
+          <p className="mt-2 text-sm text-[var(--sx-text-muted)]">El líder se compromete consigo mismo antes de pedir compromiso al equipo</p>
         </div>
 
-        <p className="mb-8 leading-relaxed text-white/80">
+        <p className="mb-8 leading-relaxed text-[var(--sx-text-muted)]">
           Yo,{' '}
           <input
             value={contrato.firmante_nombre ?? ''} disabled={firmado} placeholder="Tu nombre"
             onChange={(e) => scheduleFieldSave({ firmante_nombre: e.target.value })}
-            className="inline-block min-w-[160px] border-b border-[#1aab99]/50 bg-transparent px-1 text-white outline-none placeholder:text-white/25 focus:border-[#1aab99] disabled:opacity-70"
+            className="inline-block min-w-[160px] border-b border-[#1aab99]/50 bg-transparent px-1 text-[var(--sx-text)] outline-none placeholder:text-[var(--sx-text-faint)] focus:border-[#1aab99] disabled:opacity-70"
           />
           , en mi calidad de dueño y líder de{' '}
           <input
             value={contrato.empresa_nombre ?? ''} disabled={firmado} placeholder="Tu empresa"
             onChange={(e) => scheduleFieldSave({ empresa_nombre: e.target.value })}
-            className="inline-block min-w-[240px] border-b border-[#1aab99]/50 bg-transparent px-1 text-white outline-none placeholder:text-white/25 focus:border-[#1aab99] disabled:opacity-70"
+            className="inline-block min-w-[240px] border-b border-[#1aab99]/50 bg-transparent px-1 text-[var(--sx-text)] outline-none placeholder:text-[var(--sx-text-faint)] focus:border-[#1aab99] disabled:opacity-70"
           />
           , declaro lo siguiente y lo asumo como guía no negociable de mi conducta empresarial:
         </p>
 
         {CLAUSULAS.map((cl) => (
           <div key={cl.num} className="mb-6">
-            <div className="mb-2 flex items-center gap-3 font-bold text-white">
+            <div className="mb-2 flex items-center gap-3 font-bold text-[var(--sx-text)]">
               <span className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-md bg-gradient-to-br from-[#1aab99] to-[#3533cd] text-xs font-extrabold text-white">
                 {cl.num}
               </span>
               {cl.title}
             </div>
-            <div className="pl-10 text-sm leading-relaxed text-white/70">{cl.body}</div>
+            <div className="pl-10 text-sm leading-relaxed text-[var(--sx-text-muted)]">{cl.body}</div>
           </div>
         ))}
 
         {/* Bloque de firma */}
-        <div className="mt-8 grid gap-8 border-t border-white/[0.08] pt-8 sm:grid-cols-2">
+        <div className="mt-8 grid gap-8 border-t border-[var(--sx-border)] pt-8 sm:grid-cols-2">
           <div className="flex flex-col gap-4 text-sm">
             {[
               ['Firmante', contrato.firmante_nombre],
@@ -470,16 +471,16 @@ function ContratoView({
               ['Lugar', contrato.lugar],
             ].map(([label, value]) => (
               <div key={label as string}>
-                <div className="text-[11px] font-semibold uppercase tracking-wide text-white/40">{label}</div>
-                <div className="mt-0.5 font-semibold text-white">{value || '—'}</div>
+                <div className="text-[11px] font-semibold uppercase tracking-wide text-[var(--sx-text-dim)]">{label}</div>
+                <div className="mt-0.5 font-semibold text-[var(--sx-text)]">{value || '—'}</div>
               </div>
             ))}
           </div>
 
           <div className="flex flex-col">
-            <div className="mb-2 text-[11px] font-semibold uppercase tracking-wide text-white/40">Tu firma manuscrita</div>
+            <div className="mb-2 text-[11px] font-semibold uppercase tracking-wide text-[var(--sx-text-dim)]">Tu firma manuscrita</div>
             <div ref={wrapRef}
-              className={`relative h-[140px] rounded-xl border ${hasSignature ? 'border-[#1aab99]/50 bg-[#1aab99]/[0.04]' : 'border-dashed border-white/15 bg-[#141416]'}`}>
+              className={`relative h-[140px] rounded-xl border ${hasSignature ? 'border-[#1aab99]/50 bg-[#1aab99]/[0.04]' : 'border-dashed border-[var(--sx-border-strong)] bg-[var(--sx-input)]'}`}>
               <canvas
                 ref={canvasRef}
                 className="h-full w-full touch-none"
@@ -488,15 +489,15 @@ function ContratoView({
                 onTouchStart={onTouchStart} onTouchMove={onTouchMove} onTouchEnd={end}
               />
               {showPlaceholder && (
-                <div className="pointer-events-none absolute inset-0 flex items-center justify-center text-sm text-white/25">Firma aquí</div>
+                <div className="pointer-events-none absolute inset-0 flex items-center justify-center text-sm text-[var(--sx-text-faint)]">Firma aquí</div>
               )}
             </div>
             {!firmado && (
               <div className="mt-2 flex gap-2">
-                <button onClick={clearSig} className="flex items-center gap-1.5 rounded-lg border border-white/10 px-3 py-1.5 text-xs text-white/60 transition hover:bg-white/[0.06] hover:text-white">
+                <button onClick={clearSig} className="flex items-center gap-1.5 rounded-lg border border-[var(--sx-border)] px-3 py-1.5 text-xs text-[var(--sx-text-muted)] transition hover:bg-[var(--sx-card-hover)] hover:text-[var(--sx-text)]">
                   <Eraser className="h-3.5 w-3.5" /> Limpiar
                 </button>
-                <button onClick={typedSig} className="flex items-center gap-1.5 rounded-lg border border-white/10 px-3 py-1.5 text-xs text-white/60 transition hover:bg-white/[0.06] hover:text-white">
+                <button onClick={typedSig} className="flex items-center gap-1.5 rounded-lg border border-[var(--sx-border)] px-3 py-1.5 text-xs text-[var(--sx-text-muted)] transition hover:bg-[var(--sx-card-hover)] hover:text-[var(--sx-text)]">
                   <Type className="h-3.5 w-3.5" /> Escribir
                 </button>
               </div>
@@ -510,8 +511,8 @@ function ContratoView({
               <Check className="h-5 w-5" />
             </div>
             <div>
-              <div className="font-bold text-white">Contrato firmado</div>
-              <div className="text-sm text-white/50">
+              <div className="font-bold text-[var(--sx-text)]">Contrato firmado</div>
+              <div className="text-sm text-[var(--sx-text-muted)]">
                 Firmado · {contrato.signed_at ? new Date(contrato.signed_at).toLocaleString('es-MX', { dateStyle: 'long', timeStyle: 'short' }) : ''}
               </div>
             </div>
@@ -523,8 +524,8 @@ function ContratoView({
       <div className="flex flex-col gap-4">
         {!firmado && (
           <div className="rounded-2xl border border-[#1aab99]/30 bg-gradient-to-br from-[#1aab99]/10 to-[#3533cd]/10 p-5">
-            <div className="font-bold text-white">Listo para firmar</div>
-            <p className="mt-1.5 text-sm leading-relaxed text-white/60">
+            <div className="font-bold text-[var(--sx-text)]">Listo para firmar</div>
+            <p className="mt-1.5 text-sm leading-relaxed text-[var(--sx-text-muted)]">
               Al firmar confirmas tu compromiso con la metodología SCALEx y con la escalabilidad de tu empresa.
             </p>
             <button
@@ -537,34 +538,34 @@ function ContratoView({
           </div>
         )}
 
-        <div className="rounded-2xl border border-white/[0.08] bg-[#1c1c1e] p-5">
-          <div className="mb-3 flex items-center gap-2 text-sm font-bold text-white">
+        <div className="rounded-2xl border border-[var(--sx-border)] bg-[var(--sx-card)] p-5">
+          <div className="mb-3 flex items-center gap-2 text-sm font-bold text-[var(--sx-text)]">
             <CheckCircle2 className="h-4 w-4 text-[#1aab99]" /> Progreso de firma
           </div>
-          <div className="mb-4 h-1.5 w-full overflow-hidden rounded-full bg-white/10">
+          <div className="mb-4 h-1.5 w-full overflow-hidden rounded-full bg-[var(--sx-border-strong)]">
             <div className="h-full rounded-full bg-gradient-to-r from-[#1aab99] to-[#3533cd] transition-all" style={{ width: `${progress}%` }} />
           </div>
           <div className="flex flex-col gap-3">
             {checks.map((c, i) => (
               <div key={i} className="flex items-center gap-2.5 text-sm">
-                <span className={`flex h-5 w-5 items-center justify-center rounded-full ${c.done ? 'bg-emerald-500 text-white' : 'border border-white/15 bg-white/[0.04]'}`}>
+                <span className={`flex h-5 w-5 items-center justify-center rounded-full ${c.done ? 'bg-emerald-500 text-white' : 'border border-[var(--sx-border-strong)] bg-[var(--sx-card-hover)]'}`}>
                   {c.done && <Check className="h-3 w-3" />}
                 </span>
-                <span className={c.done ? 'text-white' : 'text-white/50'}>{c.text}</span>
+                <span className={c.done ? 'text-[var(--sx-text)]' : 'text-[var(--sx-text-muted)]'}>{c.text}</span>
               </div>
             ))}
           </div>
         </div>
 
-        <div className="rounded-2xl border border-white/[0.08] bg-[#1c1c1e] p-5">
-          <div className="mb-3 flex items-center gap-2 text-sm font-bold text-white">
+        <div className="rounded-2xl border border-[var(--sx-border)] bg-[var(--sx-card)] p-5">
+          <div className="mb-3 flex items-center gap-2 text-sm font-bold text-[var(--sx-text)]">
             <Info className="h-4 w-4 text-[#1aab99]" /> Información del documento
           </div>
           <div className="flex flex-col gap-2 text-sm">
             {[['Versión', 'v1.0'], ['Cláusulas', '6 + Preámbulo'], ['Firmantes', 'Solo dueño'], ['Validez', '12 meses']].map(([k, v]) => (
               <div key={k} className="flex justify-between">
-                <span className="text-white/50">{k}</span>
-                <span className="font-semibold text-white">{v}</span>
+                <span className="text-[var(--sx-text-muted)]">{k}</span>
+                <span className="font-semibold text-[var(--sx-text)]">{v}</span>
               </div>
             ))}
           </div>
@@ -659,9 +660,9 @@ function ConsejoView({
 }) {
   if (!consejo) {
     return (
-      <div className="rounded-2xl border border-white/[0.08] bg-[#1c1c1e] p-16 text-center">
-        <h2 className="text-xl font-bold text-white">Consejo no configurado</h2>
-        <p className="mt-2 text-white/50">Contacta a tu consultor SCALEx para configurar tu Consejo de Escalabilidad.</p>
+      <div className="rounded-2xl border border-[var(--sx-border)] bg-[var(--sx-card)] p-16 text-center">
+        <h2 className="text-xl font-bold text-[var(--sx-text)]">Consejo no configurado</h2>
+        <p className="mt-2 text-[var(--sx-text-muted)]">Contacta a tu consultor SCALEx para configurar tu Consejo de Escalabilidad.</p>
       </div>
     );
   }
@@ -676,55 +677,55 @@ function ConsejoView({
       {/* Columna izquierda */}
       <div className="flex flex-col gap-4">
         {/* Miembros */}
-        <div className="rounded-2xl border border-white/[0.08] bg-[#1c1c1e] p-5">
-          <h2 className="text-lg font-extrabold text-white">Miembros del Consejo</h2>
-          <p className="mt-0.5 text-sm text-white/50">2 a 3 personas con expertise multidisciplinario.</p>
+        <div className="rounded-2xl border border-[var(--sx-border)] bg-[var(--sx-card)] p-5">
+          <h2 className="text-lg font-extrabold text-[var(--sx-text)]">Miembros del Consejo</h2>
+          <p className="mt-0.5 text-sm text-[var(--sx-text-muted)]">2 a 3 personas con expertise multidisciplinario.</p>
           <div className="mt-4 grid gap-3 sm:grid-cols-3">
             {miembros.map((m, i) => (
-              <div key={m.id} className="flex flex-col items-center rounded-xl border border-white/[0.08] bg-[#141416] p-4 text-center">
+              <div key={m.id} className="flex flex-col items-center rounded-xl border border-[var(--sx-border)] bg-[var(--sx-input)] p-4 text-center">
                 <div className={`flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-br ${gradients[i % 3]} text-lg font-extrabold text-white`}>
                   {initials(`${m.nombre} ${m.apellido ?? ''}`)}
                 </div>
-                <div className="mt-2 font-bold text-white">{m.nombre} {m.apellido ?? ''}</div>
-                <div className="text-xs text-white/50">{m.area ?? '—'}</div>
+                <div className="mt-2 font-bold text-[var(--sx-text)]">{m.nombre} {m.apellido ?? ''}</div>
+                <div className="text-xs text-[var(--sx-text-muted)]">{m.area ?? '—'}</div>
                 <span className="mt-2 rounded-full bg-emerald-500/15 px-2 py-0.5 text-[11px] font-semibold text-emerald-400">Activo</span>
               </div>
             ))}
             {Array.from({ length: slots }).map((_, i) => (
-              <div key={`empty-${i}`} className="flex flex-col items-center rounded-xl border border-dashed border-white/10 bg-white/[0.02] p-4 text-center">
-                <div className="flex h-14 w-14 items-center justify-center rounded-full border border-white/10 text-white/30">
+              <div key={`empty-${i}`} className="flex flex-col items-center rounded-xl border border-dashed border-[var(--sx-border)] bg-[var(--sx-card-hover)] p-4 text-center">
+                <div className="flex h-14 w-14 items-center justify-center rounded-full border border-[var(--sx-border)] text-[var(--sx-text-faint)]">
                   <UserPlus className="h-5 w-5" />
                 </div>
-                <div className="mt-2 font-bold text-white/40">Agregar miembro</div>
-                <div className="text-xs text-white/30">Por asignar</div>
+                <div className="mt-2 font-bold text-[var(--sx-text-dim)]">Agregar miembro</div>
+                <div className="text-xs text-[var(--sx-text-faint)]">Por asignar</div>
               </div>
             ))}
           </div>
         </div>
 
         {/* Sesiones */}
-        <div className="rounded-2xl border border-white/[0.08] bg-[#1c1c1e] p-5">
-          <h2 className="text-lg font-extrabold text-white">Sesiones del Consejo</h2>
-          <p className="mt-0.5 text-sm text-white/50">Una sesión por trimestre. Rendición de cuentas + entrega de valor.</p>
+        <div className="rounded-2xl border border-[var(--sx-border)] bg-[var(--sx-card)] p-5">
+          <h2 className="text-lg font-extrabold text-[var(--sx-text)]">Sesiones del Consejo</h2>
+          <p className="mt-0.5 text-sm text-[var(--sx-text-muted)]">Una sesión por trimestre. Rendición de cuentas + entrega de valor.</p>
           <div className="mt-4 flex flex-col gap-2">
-            {sesiones.length === 0 && <div className="py-3 text-sm text-white/40">Sin sesiones programadas.</div>}
+            {sesiones.length === 0 && <div className="py-3 text-sm text-[var(--sx-text-dim)]">Sin sesiones programadas.</div>}
             {sesiones.slice(0, 5).map((s) => {
               const d = new Date(s.fecha_programada);
               const past = s.estado === 'completada';
               const upcoming = s.estado === 'programada';
               const dur = s.duracion_min ?? 90;
               const dEnd = new Date(d.getTime() + dur * 60000);
-              const statusCls = past ? 'bg-white/[0.06] text-white/50' : upcoming ? 'bg-[#1aab99]/15 text-[#1aab99]' : 'bg-amber-500/15 text-amber-400';
+              const statusCls = past ? 'bg-[var(--sx-card-hover)] text-[var(--sx-text-muted)]' : upcoming ? 'bg-[#1aab99]/15 text-[#1aab99]' : 'bg-amber-500/15 text-amber-400';
               const statusText = past ? 'Completada' : upcoming ? 'Próxima' : 'Programada';
               return (
-                <div key={s.id} className="flex items-center gap-3 rounded-xl border border-white/[0.06] bg-[#141416] p-3">
-                  <div className={`flex h-12 w-12 flex-shrink-0 flex-col items-center justify-center rounded-lg ${past ? 'bg-white/[0.06] text-white/40' : 'bg-gradient-to-br from-[#1aab99]/20 to-[#3533cd]/20 text-white'}`}>
+                <div key={s.id} className="flex items-center gap-3 rounded-xl border border-[var(--sx-border)] bg-[var(--sx-input)] p-3">
+                  <div className={`flex h-12 w-12 flex-shrink-0 flex-col items-center justify-center rounded-lg ${past ? 'bg-[var(--sx-card-hover)] text-[var(--sx-text-dim)]' : 'bg-gradient-to-br from-[#1aab99]/20 to-[#3533cd]/20 text-white'}`}>
                     <span className="text-base font-extrabold leading-none">{d.getDate()}</span>
                     <span className="text-[10px] uppercase">{MESES_CAL[d.getMonth()]}</span>
                   </div>
                   <div className="min-w-0 flex-1">
-                    <div className="font-semibold text-white">{s.titulo}</div>
-                    <div className="mt-0.5 flex flex-wrap gap-3 text-xs text-white/50">
+                    <div className="font-semibold text-[var(--sx-text)]">{s.titulo}</div>
+                    <div className="mt-0.5 flex flex-wrap gap-3 text-xs text-[var(--sx-text-muted)]">
                       <span className="flex items-center gap-1"><Clock className="h-3 w-3" /> {fmtTime(s.fecha_programada)} — {String(dEnd.getHours()).padStart(2, '0')}:{String(dEnd.getMinutes()).padStart(2, '0')}</span>
                       <span className="flex items-center gap-1">{past ? <FileText className="h-3 w-3" /> : <Users className="h-3 w-3" />} {past ? 'Acta firmada' : `${miembros.length} miembros`}</span>
                     </div>
@@ -740,30 +741,30 @@ function ConsejoView({
       {/* Columna derecha */}
       <div className="flex flex-col gap-4">
         {pagoPendiente && (
-          <div className="rounded-2xl border border-white/[0.08] bg-[#1c1c1e] p-5">
-            <div className="text-[11px] font-semibold uppercase tracking-wide text-white/40">Cuota trimestral</div>
-            <div className="mt-1 text-3xl font-extrabold text-white">{fmtMoney(pagoPendiente.monto, pagoPendiente.moneda ?? 'MXN')}</div>
-            <div className="text-sm text-white/50">{pagoPendiente.moneda} · {pagoPendiente.trimestre} {pagoPendiente.ano}</div>
+          <div className="rounded-2xl border border-[var(--sx-border)] bg-[var(--sx-card)] p-5">
+            <div className="text-[11px] font-semibold uppercase tracking-wide text-[var(--sx-text-dim)]">Cuota trimestral</div>
+            <div className="mt-1 text-3xl font-extrabold text-[var(--sx-text)]">{fmtMoney(pagoPendiente.monto, pagoPendiente.moneda ?? 'MXN')}</div>
+            <div className="text-sm text-[var(--sx-text-muted)]">{pagoPendiente.moneda} · {pagoPendiente.trimestre} {pagoPendiente.ano}</div>
             <div className="mt-4 flex items-center gap-2.5 rounded-xl border border-amber-500/30 bg-amber-500/10 p-3">
               <AlertCircle className="h-5 w-5 flex-shrink-0 text-amber-400" />
               <div>
                 <div className="text-sm font-semibold text-amber-400">Pendiente</div>
-                <div className="text-xs text-white/50">
+                <div className="text-xs text-[var(--sx-text-muted)]">
                   {pagoPendiente.fecha_vencimiento
                     ? `Vence el ${new Date(pagoPendiente.fecha_vencimiento).toLocaleDateString('es-MX', { day: 'numeric', month: 'long' })}`
                     : 'Sin fecha de vencimiento'}
                 </div>
               </div>
             </div>
-            <button disabled className="mt-4 flex w-full cursor-not-allowed items-center justify-center gap-2 rounded-xl bg-white/[0.06] px-4 py-2.5 text-sm font-semibold text-white/40">
+            <button disabled className="mt-4 flex w-full cursor-not-allowed items-center justify-center gap-2 rounded-xl bg-[var(--sx-card-hover)] px-4 py-2.5 text-sm font-semibold text-[var(--sx-text-dim)]">
               <CreditCard className="h-4 w-4" /> Pagar trimestre
             </button>
             {pagados.length > 0 && (
-              <div className="mt-4 border-t border-white/[0.06] pt-3">
-                <div className="mb-2 text-[11px] font-semibold uppercase tracking-wide text-white/40">Historial</div>
+              <div className="mt-4 border-t border-[var(--sx-border)] pt-3">
+                <div className="mb-2 text-[11px] font-semibold uppercase tracking-wide text-[var(--sx-text-dim)]">Historial</div>
                 {pagados.map((p) => (
                   <div key={p.id} className="flex justify-between py-1 text-sm">
-                    <span className="text-white/60">{p.trimestre} {p.ano}</span>
+                    <span className="text-[var(--sx-text-muted)]">{p.trimestre} {p.ano}</span>
                     <span className="font-semibold text-emerald-400">Pagado</span>
                   </div>
                 ))}
@@ -772,19 +773,19 @@ function ConsejoView({
           </div>
         )}
 
-        <div className="rounded-2xl border border-white/[0.08] bg-[#1c1c1e] p-5">
-          <div className="mb-2 flex items-center gap-2 text-sm font-bold text-white">
+        <div className="rounded-2xl border border-[var(--sx-border)] bg-[var(--sx-card)] p-5">
+          <div className="mb-2 flex items-center gap-2 text-sm font-bold text-[var(--sx-text)]">
             <Lightbulb className="h-4 w-4 text-[#1aab99]" /> Cuota base
           </div>
-          <div className="text-2xl font-extrabold text-white">{fmtMoney(consejo.cuota_trimestral, consejo.cuota_moneda ?? 'MXN')}</div>
-          <p className="mt-1 text-xs leading-relaxed text-white/50">Cuota acordada con el Consejo. Pagada cada inicio de trimestre.</p>
+          <div className="text-2xl font-extrabold text-[var(--sx-text)]">{fmtMoney(consejo.cuota_trimestral, consejo.cuota_moneda ?? 'MXN')}</div>
+          <p className="mt-1 text-xs leading-relaxed text-[var(--sx-text-muted)]">Cuota acordada con el Consejo. Pagada cada inicio de trimestre.</p>
         </div>
 
-        <div className="rounded-2xl border border-white/[0.08] bg-[#1c1c1e] p-5">
-          <div className="mb-2 flex items-center gap-2 text-sm font-bold text-white">
+        <div className="rounded-2xl border border-[var(--sx-border)] bg-[var(--sx-card)] p-5">
+          <div className="mb-2 flex items-center gap-2 text-sm font-bold text-[var(--sx-text)]">
             <Info className="h-4 w-4 text-[#1aab99]" /> ¿Por qué se paga?
           </div>
-          <p className="text-sm leading-relaxed text-white/60">
+          <p className="text-sm leading-relaxed text-[var(--sx-text-muted)]">
             Los miembros del Consejo dedican tiempo, expertise y reputación al éxito de tu empresa.
             La cuota trimestral honra ese compromiso y mantiene la relación profesional.
           </p>

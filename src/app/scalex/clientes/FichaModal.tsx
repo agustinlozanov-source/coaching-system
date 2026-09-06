@@ -12,7 +12,7 @@ import {
 } from './types';
 
 const inputCls =
-  'w-full rounded-lg border border-white/10 bg-[#141416] px-3 py-2 text-sm text-white outline-none transition placeholder:text-white/25 focus:border-[#1aab99] focus:ring-2 focus:ring-[#1aab99]/25';
+  'w-full rounded-lg border border-[var(--sx-border)] bg-[var(--sx-input)] px-3 py-2 text-sm text-[var(--sx-text)] outline-none transition placeholder:text-[var(--sx-text-faint)] focus:border-[#1aab99] focus:ring-2 focus:ring-[#1aab99]/25';
 
 const TIPO_ICON: Record<string, any> = {
   nota: FileText, mensaje: MessageSquare, llamada: Phone, reunion: Video, propuesta: Send,
@@ -48,7 +48,7 @@ function emptyForm(p: Prospecto | null): FormState {
 }
 
 function Label({ children }: { children: React.ReactNode }) {
-  return <label className="mb-1 block text-[11px] font-semibold uppercase tracking-wide text-white/40">{children}</label>;
+  return <label className="mb-1 block text-[11px] font-semibold uppercase tracking-wide text-[var(--sx-text-dim)]">{children}</label>;
 }
 
 export function FichaModal({
@@ -272,16 +272,16 @@ export function FichaModal({
       className="fixed inset-0 z-[1000] flex items-center justify-center bg-black/75 p-5 backdrop-blur-sm"
       onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
     >
-      <div className="flex max-h-[90vh] w-full max-w-3xl flex-col overflow-hidden rounded-2xl border border-white/[0.13] bg-[#1c1c1e] shadow-2xl">
+      <div className="flex max-h-[90vh] w-full max-w-3xl flex-col overflow-hidden rounded-2xl border border-[var(--sx-border-strong)] bg-[var(--sx-card)] shadow-2xl">
         {/* Header */}
-        <div className="flex flex-shrink-0 items-center gap-3 border-b border-white/[0.08] px-6 py-5">
-          <div className="flex-1 truncate text-lg font-extrabold text-white">{title}</div>
+        <div className="flex flex-shrink-0 items-center gap-3 border-b border-[var(--sx-border)] px-6 py-5">
+          <div className="flex-1 truncate text-lg font-extrabold text-[var(--sx-text)]">{title}</div>
           {savedFlash && (
             <div className="flex items-center gap-1.5 text-xs text-[#1aab99]">
               <CheckCircle2 className="h-3.5 w-3.5" /> Guardado
             </div>
           )}
-          <button onClick={onClose} className="flex h-8 w-8 items-center justify-center rounded-lg border border-white/10 text-white/50 transition hover:bg-white/[0.06] hover:text-white">
+          <button onClick={onClose} className="flex h-8 w-8 items-center justify-center rounded-lg border border-[var(--sx-border)] text-[var(--sx-text-muted)] transition hover:bg-[var(--sx-card-hover)] hover:text-[var(--sx-text)]">
             <X className="h-4 w-4" />
           </button>
         </div>
@@ -290,7 +290,7 @@ export function FichaModal({
         <div className="flex-1 space-y-6 overflow-y-auto px-6 py-6">
           {/* Empresa */}
           <div>
-            <div className="mb-3 text-[11px] font-bold uppercase tracking-wide text-white/40">Empresa</div>
+            <div className="mb-3 text-[11px] font-bold uppercase tracking-wide text-[var(--sx-text-dim)]">Empresa</div>
             <div className="grid grid-cols-2 gap-3">
               <div className="col-span-2">
                 <Label>Nombre de la empresa *</Label>
@@ -306,7 +306,7 @@ export function FichaModal({
 
           {/* Contacto */}
           <div>
-            <div className="mb-3 text-[11px] font-bold uppercase tracking-wide text-white/40">Contacto principal</div>
+            <div className="mb-3 text-[11px] font-bold uppercase tracking-wide text-[var(--sx-text-dim)]">Contacto principal</div>
             <div className="grid grid-cols-2 gap-3">
               <div><Label>Nombre del contacto *</Label><input className={inputCls} value={form.contacto_nombre} onChange={(e) => setField('contacto_nombre', e.target.value)} placeholder="Paula Méndez" /></div>
               <div><Label>Puesto</Label><input className={inputCls} value={form.contacto_puesto} onChange={(e) => setField('contacto_puesto', e.target.value)} placeholder="Director General" /></div>
@@ -317,7 +317,7 @@ export function FichaModal({
               <div>
                 <Label>Fuente</Label>
                 <select className={`${inputCls} cursor-pointer`} value={form.fuente} onChange={(e) => setField('fuente', e.target.value)}>
-                  {FUENTES.map((f) => <option key={f.value} value={f.value} className="bg-[#1c1c1e]">{f.label}</option>)}
+                  {FUENTES.map((f) => <option key={f.value} value={f.value} className="bg-[var(--sx-card)]">{f.label}</option>)}
                 </select>
               </div>
               <div><Label>Detalle de fuente</Label><input className={inputCls} value={form.fuente_detalle} onChange={(e) => setField('fuente_detalle', e.target.value)} placeholder="¿Quién o dónde?" /></div>
@@ -326,7 +326,7 @@ export function FichaModal({
 
           {/* Diagnóstico */}
           <div>
-            <div className="mb-3 text-[11px] font-bold uppercase tracking-wide text-white/40">Diagnóstico preliminar</div>
+            <div className="mb-3 text-[11px] font-bold uppercase tracking-wide text-[var(--sx-text-dim)]">Diagnóstico preliminar</div>
             <div className="flex flex-wrap gap-2">
               {PILARES.map((p) => {
                 const active = pilares.includes(p);
@@ -336,7 +336,7 @@ export function FichaModal({
                     type="button"
                     onClick={() => togglePilar(p)}
                     className={`rounded-full border px-3.5 py-1.5 text-xs font-semibold transition ${
-                      active ? 'border-[#1aab99] bg-[#1aab99]/15 text-[#1aab99]' : 'border-white/10 bg-white/[0.03] text-white/50 hover:bg-white/[0.06]'
+                      active ? 'border-[#1aab99] bg-[#1aab99]/15 text-[#1aab99]' : 'border-[var(--sx-border)] bg-[var(--sx-card-hover)] text-[var(--sx-text-muted)] hover:bg-[var(--sx-card-hover)]'
                     }`}
                   >
                     {p}
@@ -352,7 +352,7 @@ export function FichaModal({
 
           {/* Próxima acción */}
           <div>
-            <div className="mb-3 text-[11px] font-bold uppercase tracking-wide text-white/40">Próxima acción</div>
+            <div className="mb-3 text-[11px] font-bold uppercase tracking-wide text-[var(--sx-text-dim)]">Próxima acción</div>
             <div className="grid grid-cols-3 gap-3">
               <div className="col-span-2"><Label>¿Qué hay que hacer?</Label><input className={inputCls} value={form.proxima_accion} onChange={(e) => setField('proxima_accion', e.target.value)} placeholder="Enviar propuesta económica" /></div>
               <div><Label>¿Para cuándo?</Label><input type="date" className={inputCls} value={form.proxima_accion_fecha} onChange={(e) => setField('proxima_accion_fecha', e.target.value)} /></div>
@@ -361,23 +361,23 @@ export function FichaModal({
 
           {/* Bitácora */}
           <div>
-            <div className="mb-3 text-[11px] font-bold uppercase tracking-wide text-white/40">Bitácora de interacciones</div>
+            <div className="mb-3 text-[11px] font-bold uppercase tracking-wide text-[var(--sx-text-dim)]">Bitácora de interacciones</div>
             <div className="flex flex-col gap-2.5">
               <button
                 type="button"
                 onClick={() => setShowIntForm((s) => !s)}
-                className="flex w-full items-center gap-2 rounded-lg border border-dashed border-white/15 bg-white/[0.02] px-3.5 py-2.5 text-xs font-semibold text-white/50 transition hover:border-[#1aab99] hover:text-white"
+                className="flex w-full items-center gap-2 rounded-lg border border-dashed border-[var(--sx-border-strong)] bg-[var(--sx-card-hover)] px-3.5 py-2.5 text-xs font-semibold text-[var(--sx-text-muted)] transition hover:border-[#1aab99] hover:text-[var(--sx-text)]"
               >
                 <Plus className="h-3.5 w-3.5" /> Agregar interacción
               </button>
 
               {showIntForm && (
-                <div className="flex flex-col gap-2.5 rounded-lg border border-white/[0.13] bg-[#141416] p-3.5">
+                <div className="flex flex-col gap-2.5 rounded-lg border border-[var(--sx-border-strong)] bg-[var(--sx-input)] p-3.5">
                   <div className="grid grid-cols-2 gap-2.5">
                     <div>
                       <Label>Tipo</Label>
                       <select className={`${inputCls} cursor-pointer`} value={intTipo} onChange={(e) => setIntTipo(e.target.value as Interaccion['tipo'])}>
-                        {TIPOS_INTERACCION.map((t) => <option key={t.value} value={t.value} className="bg-[#1c1c1e]">{t.label}</option>)}
+                        {TIPOS_INTERACCION.map((t) => <option key={t.value} value={t.value} className="bg-[var(--sx-card)]">{t.label}</option>)}
                       </select>
                     </div>
                     <div><Label>Fecha</Label><input type="date" className={inputCls} value={intFecha} onChange={(e) => setIntFecha(e.target.value)} /></div>
@@ -385,7 +385,7 @@ export function FichaModal({
                   <div><Label>Resumen *</Label><input className={inputCls} value={intResumen} onChange={(e) => setIntResumen(e.target.value)} placeholder="Breve descripción de la interacción" /></div>
                   <div><Label>Detalle (opcional)</Label><textarea className={`${inputCls} min-h-[60px] resize-y`} value={intDetalle} onChange={(e) => setIntDetalle(e.target.value)} placeholder="Más contexto…" /></div>
                   <div className="flex justify-end gap-2">
-                    <button type="button" onClick={() => setShowIntForm(false)} className="rounded-lg border border-white/10 px-3.5 py-2 text-xs font-semibold text-white/60 transition hover:bg-white/[0.06] hover:text-white">Cancelar</button>
+                    <button type="button" onClick={() => setShowIntForm(false)} className="rounded-lg border border-[var(--sx-border)] px-3.5 py-2 text-xs font-semibold text-[var(--sx-text-muted)] transition hover:bg-[var(--sx-card-hover)] hover:text-[var(--sx-text)]">Cancelar</button>
                     <button type="button" onClick={guardarInteraccion} className="flex items-center gap-1.5 rounded-lg bg-gradient-to-br from-[#1aab99] to-[#3533cd] px-3.5 py-2 text-xs font-bold text-white transition hover:opacity-90">Guardar</button>
                   </div>
                 </div>
@@ -393,24 +393,24 @@ export function FichaModal({
 
               <div className="flex flex-col gap-2">
                 {interacciones.length === 0 && (
-                  <div className="py-3 text-center text-xs text-white/30">Sin interacciones registradas</div>
+                  <div className="py-3 text-center text-xs text-[var(--sx-text-faint)]">Sin interacciones registradas</div>
                 )}
                 {interacciones.map((it) => {
                   const Icon = TIPO_ICON[it.tipo] ?? FileText;
                   return (
-                    <div key={it.id} className="flex gap-3 rounded-lg border border-white/[0.08] bg-white/[0.02] p-3">
-                      <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-white/[0.06] text-white/50">
+                    <div key={it.id} className="flex gap-3 rounded-lg border border-[var(--sx-border)] bg-[var(--sx-card-hover)] p-3">
+                      <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-[var(--sx-card-hover)] text-[var(--sx-text-muted)]">
                         <Icon className="h-3.5 w-3.5" />
                       </div>
                       <div className="min-w-0 flex-1">
                         <div className="mb-0.5 flex items-center gap-2">
                           <span className="text-[11px] font-bold capitalize text-[#1aab99]">{it.tipo}</span>
-                          <span className="text-[10px] text-white/30">{formatFecha(it.fecha)}</span>
+                          <span className="text-[10px] text-[var(--sx-text-faint)]">{formatFecha(it.fecha)}</span>
                         </div>
-                        <div className="text-xs font-medium text-white">{it.resumen}</div>
-                        {it.detalle && <div className="mt-0.5 text-[11px] text-white/40">{it.detalle}</div>}
+                        <div className="text-xs font-medium text-[var(--sx-text)]">{it.resumen}</div>
+                        {it.detalle && <div className="mt-0.5 text-[11px] text-[var(--sx-text-dim)]">{it.detalle}</div>}
                       </div>
-                      <button onClick={() => eliminarInteraccion(it.id)} className="flex-shrink-0 self-start rounded-md p-1 text-white/30 transition hover:bg-red-500/15 hover:text-red-400">
+                      <button onClick={() => eliminarInteraccion(it.id)} className="flex-shrink-0 self-start rounded-md p-1 text-[var(--sx-text-faint)] transition hover:bg-red-500/15 hover:text-red-400">
                         <Trash2 className="h-3.5 w-3.5" />
                       </button>
                     </div>
@@ -422,14 +422,14 @@ export function FichaModal({
         </div>
 
         {/* Footer */}
-        <div className="flex flex-shrink-0 items-center gap-2.5 border-t border-white/[0.08] px-6 py-4">
+        <div className="flex flex-shrink-0 items-center gap-2.5 border-t border-[var(--sx-border)] px-6 py-4">
           {idRef.current && etapa !== 'cuenta_activa' && (
             <button onClick={descartar} disabled={busy} className="rounded-lg bg-red-500 px-4 py-2 text-xs font-bold text-white transition hover:opacity-85 disabled:opacity-50">
               Descartar
             </button>
           )}
           <div className="flex-1" />
-          <button onClick={onClose} className="rounded-lg border border-white/10 px-4 py-2 text-xs font-semibold text-white/60 transition hover:bg-white/[0.06] hover:text-white">
+          <button onClick={onClose} className="rounded-lg border border-[var(--sx-border)] px-4 py-2 text-xs font-semibold text-[var(--sx-text-muted)] transition hover:bg-[var(--sx-card-hover)] hover:text-[var(--sx-text)]">
             Cerrar
           </button>
           {idRef.current && etapa === 'en_propuesta' && (
@@ -443,11 +443,11 @@ export function FichaModal({
       {/* Confirm dialog anidado */}
       {confirm && (
         <div className="fixed inset-0 z-[1100] flex items-center justify-center bg-black/80 backdrop-blur-sm" onClick={(e) => { if (e.target === e.currentTarget) setConfirm(null); }}>
-          <div className="w-[90%] max-w-sm rounded-2xl border border-white/[0.13] bg-[#1c1c1e] p-7 shadow-2xl">
-            <div className="mb-2.5 text-base font-extrabold text-white">{confirm.title}</div>
-            <div className="mb-5 text-sm leading-relaxed text-white/60">{confirm.body}</div>
+          <div className="w-[90%] max-w-sm rounded-2xl border border-[var(--sx-border-strong)] bg-[var(--sx-card)] p-7 shadow-2xl">
+            <div className="mb-2.5 text-base font-extrabold text-[var(--sx-text)]">{confirm.title}</div>
+            <div className="mb-5 text-sm leading-relaxed text-[var(--sx-text-muted)]">{confirm.body}</div>
             <div className="flex justify-end gap-2.5">
-              <button onClick={() => setConfirm(null)} className="rounded-lg border border-white/10 px-4 py-2 text-xs font-semibold text-white/60 transition hover:bg-white/[0.06] hover:text-white">Cancelar</button>
+              <button onClick={() => setConfirm(null)} className="rounded-lg border border-[var(--sx-border)] px-4 py-2 text-xs font-semibold text-[var(--sx-text-muted)] transition hover:bg-[var(--sx-card-hover)] hover:text-[var(--sx-text)]">Cancelar</button>
               <button
                 onClick={() => { const fn = confirm.onConfirm; setConfirm(null); fn(); }}
                 className={`rounded-lg px-4 py-2 text-xs font-bold text-white transition hover:opacity-90 ${confirm.danger ? 'bg-red-500' : 'bg-gradient-to-br from-[#1aab99] to-[#3533cd]'}`}

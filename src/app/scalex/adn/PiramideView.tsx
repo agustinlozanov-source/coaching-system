@@ -132,7 +132,7 @@ export function PiramideView({
   if (loading) {
     return (
       <div className="flex items-center justify-center py-20">
-        <Loader2 className="h-8 w-8 animate-spin text-white/40" />
+        <Loader2 className="h-8 w-8 animate-spin text-[var(--sx-text-dim)]" />
       </div>
     );
   }
@@ -151,13 +151,13 @@ export function PiramideView({
         <div className="flex items-center gap-3">
           <button
             onClick={onBack}
-            className="flex h-9 w-9 items-center justify-center rounded-lg border border-white/10 text-white/60 transition hover:bg-white/[0.06] hover:text-white"
+            className="flex h-9 w-9 items-center justify-center rounded-lg border border-[var(--sx-border)] text-[var(--sx-text-muted)] transition hover:bg-[var(--sx-card-hover)] hover:text-[var(--sx-text)]"
           >
             <ArrowLeft className="h-4 w-4" />
           </button>
           <div>
             <p className="text-xs font-semibold uppercase tracking-wide text-[#1aab99]">ADN · Paso 0</p>
-            <h1 className="text-2xl font-bold text-white">Diagnóstico de Pirámide</h1>
+            <h1 className="text-2xl font-bold text-[var(--sx-text)]">Diagnóstico de Pirámide</h1>
           </div>
         </div>
         <SaveIndicator state={saveState} />
@@ -167,10 +167,10 @@ export function PiramideView({
         {/* Columna izquierda — tesis */}
         <div>
           <div className="mb-4 flex items-center gap-3">
-            <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-white/[0.06]">
+            <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-[var(--sx-card-hover)]">
               <div className="h-full rounded-full bg-gradient-to-r from-pink-500 to-purple-600 transition-all duration-500" style={{ width: `${(respondidas / total) * 100}%` }} />
             </div>
-            <span className="whitespace-nowrap text-xs font-semibold text-white/40">{respondidas} / {total}</span>
+            <span className="whitespace-nowrap text-xs font-semibold text-[var(--sx-text-dim)]">{respondidas} / {total}</span>
           </div>
 
           <div className="flex flex-col gap-4">
@@ -179,23 +179,23 @@ export function PiramideView({
               return (
                 <div
                   key={tesis.numero}
-                  className={`rounded-2xl border bg-[#1c1c1e] p-5 transition ${saved.tipo ? 'border-pink-500/30' : 'border-white/[0.08]'}`}
+                  className={`rounded-2xl border bg-[var(--sx-card)] p-5 transition ${saved.tipo ? 'border-pink-500/30' : 'border-[var(--sx-border)]'}`}
                 >
                   <div className="mb-1.5 text-[10px] font-bold uppercase tracking-wide text-pink-400">
                     Tesis {tesis.numero} · {tesis.angulo}
                   </div>
-                  <div className="mb-2.5 text-[15px] font-bold text-white">{tesis.titulo}</div>
-                  <div className="mb-4 rounded-lg border-l-2 border-pink-500 bg-white/[0.03] p-3 text-[13px] leading-relaxed text-white/60">
+                  <div className="mb-2.5 text-[15px] font-bold text-[var(--sx-text)]">{tesis.titulo}</div>
+                  <div className="mb-4 rounded-lg border-l-2 border-pink-500 bg-[var(--sx-card-hover)] p-3 text-[13px] leading-relaxed text-[var(--sx-text-muted)]">
                     {tesis.detonante}
                   </div>
 
-                  <div className="mb-1.5 text-[11px] font-semibold uppercase tracking-wide text-white/30">Notas del consultor</div>
+                  <div className="mb-1.5 text-[11px] font-semibold uppercase tracking-wide text-[var(--sx-text-faint)]">Notas del consultor</div>
                   <textarea
                     value={saved.notas}
                     onChange={(e) => cambiarNotas(tesis.numero, e.target.value)}
                     placeholder="Escribe aquí tus notas de la conversación…"
                     rows={2}
-                    className="mb-3 w-full resize-y rounded-lg border border-white/10 bg-[#141416] px-3 py-2 text-sm text-white outline-none transition placeholder:text-white/25 focus:border-[#1aab99] focus:ring-2 focus:ring-[#1aab99]/25"
+                    className="mb-3 w-full resize-y rounded-lg border border-[var(--sx-border)] bg-[var(--sx-input)] px-3 py-2 text-sm text-[var(--sx-text)] outline-none transition placeholder:text-[var(--sx-text-faint)] focus:border-[#1aab99] focus:ring-2 focus:ring-[#1aab99]/25"
                   />
 
                   <div className="flex flex-col gap-2">
@@ -205,7 +205,7 @@ export function PiramideView({
                         <label
                           key={r.tipo}
                           className={`flex cursor-pointer items-start gap-2.5 rounded-lg border p-2.5 transition ${
-                            selected ? 'border-pink-500/50 bg-pink-500/[0.08]' : 'border-white/10 bg-white/[0.02] hover:border-pink-500/30'
+                            selected ? 'border-pink-500/50 bg-pink-500/[0.08]' : 'border-[var(--sx-border)] bg-[var(--sx-card-hover)] hover:border-pink-500/30'
                           }`}
                         >
                           <input
@@ -215,10 +215,10 @@ export function PiramideView({
                             checked={selected}
                             onChange={() => seleccionarRespuesta(tesis.numero, r.tipo)}
                           />
-                          <span className={`flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-md text-[11px] font-extrabold ${selected ? 'bg-pink-500 text-white' : 'bg-white/[0.06] text-white/40'}`}>
+                          <span className={`flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-md text-[11px] font-extrabold ${selected ? 'bg-pink-500 text-white' : 'bg-[var(--sx-card-hover)] text-[var(--sx-text-dim)]'}`}>
                             {r.tipo}
                           </span>
-                          <span className="pt-0.5 text-[12.5px] leading-relaxed text-white/65">{r.descripcion}</span>
+                          <span className="pt-0.5 text-[12.5px] leading-relaxed text-[var(--sx-text-muted)]">{r.descripcion}</span>
                         </label>
                       );
                     })}
@@ -231,24 +231,24 @@ export function PiramideView({
 
         {/* Columna derecha — panel */}
         <div className="flex flex-col gap-4">
-          <div className="rounded-2xl border border-white/[0.08] bg-[#1c1c1e] p-4">
-            <div className="mb-3 flex items-center gap-2 text-sm font-bold text-white">
+          <div className="rounded-2xl border border-[var(--sx-border)] bg-[var(--sx-card)] p-4">
+            <div className="mb-3 flex items-center gap-2 text-sm font-bold text-[var(--sx-text)]">
               <BarChart2 className="h-4 w-4 text-pink-400" /> Puntaje acumulado
             </div>
             <div className="flex flex-col items-center gap-2">
               <ScoreRing puntaje={puntaje} max={80} color={piramidePreview?.color ?? '#ec4899'} />
-              <div className="text-sm font-bold text-white">{respondidas === 0 ? '—' : piramidePreview?.nombre ?? 'Calculando…'}</div>
-              <div className="text-[11px] text-white/40">{piramidePreview ? `${piramidePreview.rango} puntos` : 'Responde las tesis para calcular'}</div>
+              <div className="text-sm font-bold text-[var(--sx-text)]">{respondidas === 0 ? '—' : piramidePreview?.nombre ?? 'Calculando…'}</div>
+              <div className="text-[11px] text-[var(--sx-text-dim)]">{piramidePreview ? `${piramidePreview.rango} puntos` : 'Responde las tesis para calcular'}</div>
             </div>
           </div>
 
-          <div className="rounded-2xl border border-white/[0.08] bg-[#1c1c1e] p-4">
-            <div className="mb-3 flex items-center gap-2 text-sm font-bold text-white">
+          <div className="rounded-2xl border border-[var(--sx-border)] bg-[var(--sx-card)] p-4">
+            <div className="mb-3 flex items-center gap-2 text-sm font-bold text-[var(--sx-text)]">
               <Grid3x3 className="h-4 w-4 text-pink-400" /> Mapa de tesis
             </div>
             <div className="grid grid-cols-10 gap-1">
               {TESIS_PASO_0.map((t) => (
-                <div key={t.numero} className={`aspect-square rounded ${respuestas[t.numero]?.tipo ? 'bg-pink-500' : 'border border-white/10 bg-white/[0.03]'}`} />
+                <div key={t.numero} className={`aspect-square rounded ${respuestas[t.numero]?.tipo ? 'bg-pink-500' : 'border border-[var(--sx-border)] bg-[var(--sx-card-hover)]'}`} />
               ))}
             </div>
           </div>
@@ -261,24 +261,24 @@ export function PiramideView({
               >
                 {puntajeGuardado ?? ''} puntos · {piramideFinal.rango}
               </div>
-              <div className="mb-2 text-base font-extrabold text-white">{piramideFinal.nombre}</div>
-              <p className="mb-3 text-[12.5px] leading-relaxed text-white/60">{piramideFinal.descripcion_larga}</p>
+              <div className="mb-2 text-base font-extrabold text-[var(--sx-text)]">{piramideFinal.nombre}</div>
+              <p className="mb-3 text-[12.5px] leading-relaxed text-[var(--sx-text-muted)]">{piramideFinal.descripcion_larga}</p>
               <ul className="mb-3 flex flex-col gap-1.5">
                 {piramideFinal.indicadores.map((ind) => (
-                  <li key={ind} className="flex gap-1.5 text-xs text-white/45">
+                  <li key={ind} className="flex gap-1.5 text-xs text-[var(--sx-text-dim)]">
                     <span className="text-pink-400">·</span> {ind}
                   </li>
                 ))}
               </ul>
-              <div className="rounded-lg border-l-2 border-pink-500 bg-white/[0.04] p-3 text-xs leading-relaxed text-white/60">
+              <div className="rounded-lg border-l-2 border-pink-500 bg-[var(--sx-card-hover)] p-3 text-xs leading-relaxed text-[var(--sx-text-muted)]">
                 {piramideFinal.proximo_paso}
               </div>
             </div>
           )}
 
           {completado && (
-            <div className="rounded-2xl border border-white/[0.08] bg-[#1c1c1e] p-4">
-              <div className="mb-3 flex items-center gap-2 text-sm font-bold text-white">
+            <div className="rounded-2xl border border-[var(--sx-border)] bg-[var(--sx-card)] p-4">
+              <div className="mb-3 flex items-center gap-2 text-sm font-bold text-[var(--sx-text)]">
                 <CalendarCheck className="h-4 w-4 text-pink-400" /> Agenda 7 / 30 / 90
               </div>
               <AgendasForStep sesionId={sesionId} paso="paso_0" />
@@ -309,7 +309,7 @@ function ScoreRing({ puntaje, max, color }: { puntaje: number; max: number; colo
   return (
     <div className="relative h-[100px] w-[100px]">
       <svg viewBox="0 0 100 100" width="100" height="100" className="-rotate-90">
-        <circle cx="50" cy="50" r={r} fill="none" stroke="rgba(255,255,255,0.08)" strokeWidth="8" />
+        <circle cx="50" cy="50" r={r} fill="none" stroke="var(--sx-border-strong)" strokeWidth="8" />
         <circle
           cx="50" cy="50" r={r} fill="none" stroke={color} strokeWidth="8"
           strokeDasharray={c} strokeDashoffset={offset} strokeLinecap="round"
@@ -317,8 +317,8 @@ function ScoreRing({ puntaje, max, color }: { puntaje: number; max: number; colo
         />
       </svg>
       <div className="absolute inset-0 flex flex-col items-center justify-center">
-        <span className="text-xl font-extrabold text-white">{puntaje}</span>
-        <span className="text-[10px] text-white/30">/{max}</span>
+        <span className="text-xl font-extrabold text-[var(--sx-text)]">{puntaje}</span>
+        <span className="text-[10px] text-[var(--sx-text-faint)]">/{max}</span>
       </div>
     </div>
   );

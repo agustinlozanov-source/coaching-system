@@ -49,13 +49,13 @@ async function readFunctionError(error: any): Promise<string> {
 
 /* ── UI helpers (dark-glow) ─────────────────────────────────────────────── */
 const inputCls =
-  'w-full rounded-lg border border-white/10 bg-[#141416] px-3 py-2 text-sm text-white outline-none transition placeholder:text-white/25 focus:border-[#1aab99] focus:ring-2 focus:ring-[#1aab99]/25';
+  'w-full rounded-lg border border-[var(--sx-border)] bg-[var(--sx-input)] px-3 py-2 text-sm text-[var(--sx-text)] outline-none transition placeholder:text-[var(--sx-text-faint)] focus:border-[#1aab99] focus:ring-2 focus:ring-[#1aab99]/25';
 function Field({ label, children, hint, className }: { label: string; children: React.ReactNode; hint?: string; className?: string }) {
   return (
     <div className={className}>
-      <div className="mb-1.5 text-xs font-semibold uppercase tracking-wide text-white/40">{label}</div>
+      <div className="mb-1.5 text-xs font-semibold uppercase tracking-wide text-[var(--sx-text-dim)]">{label}</div>
       {children}
-      {hint && <div className="mt-1 text-[11px] text-white/30">{hint}</div>}
+      {hint && <div className="mt-1 text-[11px] text-[var(--sx-text-faint)]">{hint}</div>}
     </div>
   );
 }
@@ -123,7 +123,7 @@ export function ConfiguracionApp() {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-20">
-        <Loader2 className="h-8 w-8 animate-spin text-white/40" />
+        <Loader2 className="h-8 w-8 animate-spin text-[var(--sx-text-dim)]" />
       </div>
     );
   }
@@ -141,13 +141,13 @@ export function ConfiguracionApp() {
       <div className="mb-6 flex items-center justify-between">
         <div>
           <p className="text-xs font-semibold uppercase tracking-wide text-[#1aab99]">Ajustes</p>
-          <h1 className="text-2xl font-bold text-white">Configuración</h1>
+          <h1 className="text-2xl font-bold text-[var(--sx-text)]">Configuración</h1>
         </div>
-        <div className="text-sm text-white/40">{nombreUsuario}</div>
+        <div className="text-sm text-[var(--sx-text-dim)]">{nombreUsuario}</div>
       </div>
 
       {/* Tabs */}
-      <div className="mb-6 flex gap-1 border-b border-white/10">
+      <div className="mb-6 flex gap-1 border-b border-[var(--sx-border)]">
         {tabs.map((t) => {
           const Icon = t.icon;
           const active = tab === t.id;
@@ -156,7 +156,7 @@ export function ConfiguracionApp() {
               key={t.id}
               onClick={() => setTab(t.id)}
               className={`-mb-px flex items-center gap-2 border-b-2 px-4 py-3 text-sm font-semibold transition ${
-                active ? 'border-[#1aab99] text-white' : 'border-transparent text-white/40 hover:text-white/70'
+                active ? 'border-[#1aab99] text-[var(--sx-text)]' : 'border-transparent text-[var(--sx-text-dim)] hover:text-[var(--sx-text-muted)]'
               }`}
             >
               <Icon className="h-4 w-4" />
@@ -192,7 +192,7 @@ export function ConfiguracionApp() {
         {toasts.map((t) => (
           <div
             key={t.id}
-            className={`flex max-w-[340px] items-center gap-2.5 rounded-xl border bg-[#242426] px-4 py-3 text-sm font-medium text-white shadow-2xl ${
+            className={`flex max-w-[340px] items-center gap-2.5 rounded-xl border bg-[var(--sx-card-hover)] px-4 py-3 text-sm font-medium text-[var(--sx-text)] shadow-2xl ${
               t.type === 'success' ? 'border-[#1aab99]' : 'border-red-500/60'
             }`}
           >
@@ -241,7 +241,7 @@ function OrgsTab({ onNuevaOrg }: { onNuevaOrg: () => void }) {
   return (
     <div>
       <div className="mb-4 flex items-center justify-between">
-        <h2 className="text-sm font-bold text-white">Organizaciones</h2>
+        <h2 className="text-sm font-bold text-[var(--sx-text)]">Organizaciones</h2>
         <button
           onClick={onNuevaOrg}
           className="flex items-center gap-1.5 rounded-lg bg-gradient-to-br from-[#1aab99] to-[#3533cd] px-3.5 py-2 text-xs font-bold text-white transition hover:opacity-90"
@@ -250,12 +250,12 @@ function OrgsTab({ onNuevaOrg }: { onNuevaOrg: () => void }) {
         </button>
       </div>
 
-      <div className="overflow-auto rounded-2xl border border-white/[0.08] bg-[#1c1c1e]">
+      <div className="overflow-auto rounded-2xl border border-[var(--sx-border)] bg-[var(--sx-card)]">
         <table className="w-full border-collapse text-left">
           <thead>
-            <tr className="border-b border-white/[0.08] bg-white/[0.03]">
+            <tr className="border-b border-[var(--sx-border)] bg-[var(--sx-card-hover)]">
               {['Empresa', 'Dueño', 'Email', 'Ciudad', 'Sector', 'Creada', ''].map((h) => (
-                <th key={h} className="whitespace-nowrap px-4 py-2.5 text-[11px] font-bold uppercase tracking-wide text-white/40">{h}</th>
+                <th key={h} className="whitespace-nowrap px-4 py-2.5 text-[11px] font-bold uppercase tracking-wide text-[var(--sx-text-dim)]">{h}</th>
               ))}
             </tr>
           </thead>
@@ -264,46 +264,46 @@ function OrgsTab({ onNuevaOrg }: { onNuevaOrg: () => void }) {
               <tr><td colSpan={7} className="p-8 text-center text-sm text-red-400">Error: {error}</td></tr>
             )}
             {!error && orgs === null && (
-              <tr><td colSpan={7} className="p-8 text-center text-sm text-white/40">Cargando organizaciones…</td></tr>
+              <tr><td colSpan={7} className="p-8 text-center text-sm text-[var(--sx-text-dim)]">Cargando organizaciones…</td></tr>
             )}
             {!error && orgs !== null && orgs.length === 0 && (
-              <tr><td colSpan={7} className="p-8 text-center text-sm text-white/40">Sin organizaciones registradas</td></tr>
+              <tr><td colSpan={7} className="p-8 text-center text-sm text-[var(--sx-text-dim)]">Sin organizaciones registradas</td></tr>
             )}
             {orgs?.map((org) => (
               <Fragment key={org.id}>
-                <tr className="border-b border-white/[0.06] transition hover:bg-white/[0.03]">
-                  <td className="px-4 py-3 text-sm font-semibold text-white">{org.nombre || '—'}</td>
-                  <td className="px-4 py-3 text-sm text-white/70">{org.dueno_nombre || '—'}</td>
-                  <td className="px-4 py-3 text-xs text-white/50">{org.dueno_email || '—'}</td>
-                  <td className="px-4 py-3 text-sm text-white/50">{org.ciudad || '—'}</td>
-                  <td className="px-4 py-3 text-sm text-white/50">{org.sector || '—'}</td>
-                  <td className="px-4 py-3 text-[11px] text-white/40">{formatFecha(org.created_at)}</td>
+                <tr className="border-b border-[var(--sx-border)] transition hover:bg-[var(--sx-card-hover)]">
+                  <td className="px-4 py-3 text-sm font-semibold text-[var(--sx-text)]">{org.nombre || '—'}</td>
+                  <td className="px-4 py-3 text-sm text-[var(--sx-text-muted)]">{org.dueno_nombre || '—'}</td>
+                  <td className="px-4 py-3 text-xs text-[var(--sx-text-muted)]">{org.dueno_email || '—'}</td>
+                  <td className="px-4 py-3 text-sm text-[var(--sx-text-muted)]">{org.ciudad || '—'}</td>
+                  <td className="px-4 py-3 text-sm text-[var(--sx-text-muted)]">{org.sector || '—'}</td>
+                  <td className="px-4 py-3 text-[11px] text-[var(--sx-text-dim)]">{formatFecha(org.created_at)}</td>
                   <td className="px-4 py-3">
                     <button
                       onClick={() => toggleEquipo(org.id)}
-                      className="flex items-center gap-1.5 rounded-lg border border-white/10 px-2.5 py-1.5 text-[11px] font-semibold text-white/60 transition hover:bg-white/[0.06] hover:text-white"
+                      className="flex items-center gap-1.5 rounded-lg border border-[var(--sx-border)] px-2.5 py-1.5 text-[11px] font-semibold text-[var(--sx-text-muted)] transition hover:bg-[var(--sx-card-hover)] hover:text-[var(--sx-text)]"
                     >
                       <Users className="h-3.5 w-3.5" /> Equipo
                     </button>
                   </td>
                 </tr>
                 {expanded === org.id && (
-                  <tr className="border-b border-white/[0.06] bg-white/[0.02]">
+                  <tr className="border-b border-[var(--sx-border)] bg-[var(--sx-card-hover)]">
                     <td colSpan={7} className="px-5 py-4">
-                      <div className="mb-2.5 text-[11px] font-bold uppercase tracking-wide text-white/40">Equipo de {org.nombre}</div>
+                      <div className="mb-2.5 text-[11px] font-bold uppercase tracking-wide text-[var(--sx-text-dim)]">Equipo de {org.nombre}</div>
                       <div className="flex flex-wrap gap-2">
-                        {equipos[org.id] === 'loading' && <span className="text-xs text-white/40">Cargando…</span>}
+                        {equipos[org.id] === 'loading' && <span className="text-xs text-[var(--sx-text-dim)]">Cargando…</span>}
                         {Array.isArray(equipos[org.id]) && (equipos[org.id] as EquipoMiembro[]).length === 0 && (
-                          <span className="text-xs text-white/40">Sin miembros registrados</span>
+                          <span className="text-xs text-[var(--sx-text-dim)]">Sin miembros registrados</span>
                         )}
                         {Array.isArray(equipos[org.id]) && (equipos[org.id] as EquipoMiembro[]).map((m) => (
-                          <div key={m.user_id} className="flex items-center gap-2 rounded-lg border border-white/10 bg-[#141416] px-3 py-1.5">
+                          <div key={m.user_id} className="flex items-center gap-2 rounded-lg border border-[var(--sx-border)] bg-[var(--sx-input)] px-3 py-1.5">
                             <span className="flex h-[26px] w-[26px] flex-shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-[#1aab99] to-[#3533cd] text-[9px] font-extrabold text-white">
                               {getIniciales(m.nombre, m.apellido)}
                             </span>
                             <div>
-                              <div className="text-xs font-semibold text-white">{[m.nombre, m.apellido].filter(Boolean).join(' ') || m.email}</div>
-                              <div className="text-[11px] text-white/40">{m.cargo || m.rol_en_org || ''}</div>
+                              <div className="text-xs font-semibold text-[var(--sx-text)]">{[m.nombre, m.apellido].filter(Boolean).join(' ') || m.email}</div>
+                              <div className="text-[11px] text-[var(--sx-text-dim)]">{m.cargo || m.rol_en_org || ''}</div>
                             </div>
                           </div>
                         ))}
@@ -355,8 +355,8 @@ function EquipoTab({
     <div>
       <div className="mb-4 flex items-center justify-between">
         <div>
-          <h2 className="text-sm font-bold text-white">Mi Equipo</h2>
-          <p className="mt-0.5 text-xs text-white/40">{orgNombre}</p>
+          <h2 className="text-sm font-bold text-[var(--sx-text)]">Mi Equipo</h2>
+          <p className="mt-0.5 text-xs text-[var(--sx-text-dim)]">{orgNombre}</p>
         </div>
         <button
           onClick={onNuevoColab}
@@ -367,9 +367,9 @@ function EquipoTab({
       </div>
 
       {error && <div className="rounded-xl border border-red-500/30 bg-red-500/10 p-4 text-sm text-red-400">Error: {error}</div>}
-      {!error && equipo === null && <div className="p-8 text-center text-sm text-white/40">Cargando equipo…</div>}
+      {!error && equipo === null && <div className="p-8 text-center text-sm text-[var(--sx-text-dim)]">Cargando equipo…</div>}
       {!error && equipo !== null && equipo.length === 0 && (
-        <div className="rounded-2xl border border-white/[0.08] bg-[#1c1c1e] p-8 text-center text-sm text-white/40">Sin miembros en el equipo</div>
+        <div className="rounded-2xl border border-[var(--sx-border)] bg-[var(--sx-card)] p-8 text-center text-sm text-[var(--sx-text-dim)]">Sin miembros en el equipo</div>
       )}
 
       {equipo && equipo.length > 0 && (
@@ -378,14 +378,14 @@ function EquipoTab({
             const nombre = [m.nombre, m.apellido].filter(Boolean).join(' ') || m.email || '—';
             const esDuenoCard = m.rol_en_org === 'dueno' || m.rol_en_org === 'owner';
             return (
-              <div key={m.user_id} className="flex items-center gap-3.5 rounded-2xl border border-white/[0.08] bg-[#1c1c1e] p-4 transition hover:border-white/20 hover:bg-[#242426]">
+              <div key={m.user_id} className="flex items-center gap-3.5 rounded-2xl border border-[var(--sx-border)] bg-[var(--sx-card)] p-4 transition hover:border-[var(--sx-border-strong)] hover:bg-[var(--sx-card-hover)]">
                 <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-[#1aab99] to-[#3533cd] text-xs font-extrabold text-white">
                   {getIniciales(m.nombre, m.apellido)}
                 </div>
                 <div className="min-w-0 flex-1">
-                  <div className="truncate text-sm font-bold text-white">{nombre}</div>
-                  <div className="truncate text-xs text-white/40">{m.cargo || m.email || ''}</div>
-                  <span className={`mt-1 inline-block rounded-full px-2 py-0.5 text-[10px] font-bold ${esDuenoCard ? 'bg-[#1aab99]/15 text-[#1aab99]' : 'bg-white/[0.06] text-white/40'}`}>
+                  <div className="truncate text-sm font-bold text-[var(--sx-text)]">{nombre}</div>
+                  <div className="truncate text-xs text-[var(--sx-text-dim)]">{m.cargo || m.email || ''}</div>
+                  <span className={`mt-1 inline-block rounded-full px-2 py-0.5 text-[10px] font-bold ${esDuenoCard ? 'bg-[#1aab99]/15 text-[#1aab99]' : 'bg-[var(--sx-card-hover)] text-[var(--sx-text-dim)]'}`}>
                     {esDuenoCard ? 'Dueño' : 'Colaborador'}
                   </span>
                 </div>
@@ -393,7 +393,7 @@ function EquipoTab({
                   <button
                     title="Quitar del equipo"
                     onClick={() => quitarMiembro(m.user_id, nombre)}
-                    className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-lg text-white/30 transition hover:bg-red-500/15 hover:text-red-400"
+                    className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-lg text-[var(--sx-text-faint)] transition hover:bg-red-500/15 hover:text-red-400"
                   >
                     <UserMinus className="h-3.5 w-3.5" />
                   </button>
@@ -413,24 +413,24 @@ function EquipoTab({
 function CuentaTab() {
   return (
     <div>
-      <h2 className="mb-4 text-sm font-bold text-white">Mi cuenta</h2>
-      <div className="max-w-[480px] rounded-2xl border border-white/[0.08] bg-[#1c1c1e] p-6">
-        <div className="mb-4 text-sm font-bold text-white">Perfil y acceso</div>
+      <h2 className="mb-4 text-sm font-bold text-[var(--sx-text)]">Mi cuenta</h2>
+      <div className="max-w-[480px] rounded-2xl border border-[var(--sx-border)] bg-[var(--sx-card)] p-6">
+        <div className="mb-4 text-sm font-bold text-[var(--sx-text)]">Perfil y acceso</div>
         <Link
           href="/scalex/perfil"
-          className="mb-2.5 flex items-center gap-3 rounded-lg border border-white/10 bg-white/[0.02] px-4 py-3 text-sm text-white/70 transition hover:border-white/20 hover:bg-white/[0.06] hover:text-white"
+          className="mb-2.5 flex items-center gap-3 rounded-lg border border-[var(--sx-border)] bg-[var(--sx-card-hover)] px-4 py-3 text-sm text-[var(--sx-text-muted)] transition hover:border-[var(--sx-border-strong)] hover:bg-[var(--sx-card-hover)] hover:text-[var(--sx-text)]"
         >
           <UserCircle className="h-4 w-4 flex-shrink-0 text-[#1aab99]" />
           <div>
             <div>Editar mi perfil</div>
-            <div className="mt-0.5 text-[11px] text-white/40">Nombre, foto, información de contacto</div>
+            <div className="mt-0.5 text-[11px] text-[var(--sx-text-dim)]">Nombre, foto, información de contacto</div>
           </div>
-          <ChevronRight className="ml-auto h-3.5 w-3.5 flex-shrink-0 text-white/30" />
+          <ChevronRight className="ml-auto h-3.5 w-3.5 flex-shrink-0 text-[var(--sx-text-faint)]" />
         </Link>
-        <div className="flex items-center gap-2.5 rounded-lg border border-dashed border-white/10 bg-white/[0.02] px-4 py-3 text-xs text-white/30">
+        <div className="flex items-center gap-2.5 rounded-lg border border-dashed border-[var(--sx-border)] bg-[var(--sx-card-hover)] px-4 py-3 text-xs text-[var(--sx-text-faint)]">
           <Lock className="h-3.5 w-3.5 flex-shrink-0" />
           <div>
-            <div className="font-semibold text-white/40">Cambiar contraseña</div>
+            <div className="font-semibold text-[var(--sx-text-dim)]">Cambiar contraseña</div>
             <div>Disponible próximamente</div>
           </div>
         </div>
@@ -481,7 +481,7 @@ function NuevaOrgModal({ onClose, onCreated }: { onClose: () => void; onCreated:
   return (
     <ModalShell title="Nueva organización con dueño" onClose={onClose}>
       <div>
-        <div className="mb-2.5 text-[11px] font-bold uppercase tracking-wide text-white/40">Empresa</div>
+        <div className="mb-2.5 text-[11px] font-bold uppercase tracking-wide text-[var(--sx-text-dim)]">Empresa</div>
         <div className="grid gap-3 sm:grid-cols-2">
           <Field label="Nombre de la empresa *" className="sm:col-span-2">
             <TextInput value={orgNombre} onChange={(e) => setOrgNombre(e.target.value)} placeholder="Empresa Ejemplo SA de CV" />
@@ -491,7 +491,7 @@ function NuevaOrgModal({ onClose, onCreated }: { onClose: () => void; onCreated:
         </div>
       </div>
       <div>
-        <div className="mb-2.5 text-[11px] font-bold uppercase tracking-wide text-white/40">Dueño / Director</div>
+        <div className="mb-2.5 text-[11px] font-bold uppercase tracking-wide text-[var(--sx-text-dim)]">Dueño / Director</div>
         <div className="grid gap-3 sm:grid-cols-2">
           <Field label="Nombre *"><TextInput value={nombre} onChange={(e) => setNombre(e.target.value)} placeholder="Carlos" /></Field>
           <Field label="Apellido"><TextInput value={apellido} onChange={(e) => setApellido(e.target.value)} placeholder="López" /></Field>
@@ -567,10 +567,10 @@ function ModalShell({ title, onClose, children }: { title: string; onClose: () =
       className="fixed inset-0 z-[1000] flex items-center justify-center bg-black/75 p-5 backdrop-blur-sm"
       onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
     >
-      <div className="flex max-h-[90vh] w-full max-w-[560px] flex-col overflow-hidden rounded-2xl border border-white/[0.13] bg-[#1c1c1e] shadow-2xl">
-        <div className="flex flex-shrink-0 items-center gap-3.5 border-b border-white/10 px-6 py-5">
-          <div className="flex-1 text-base font-extrabold text-white">{title}</div>
-          <button onClick={onClose} className="flex h-8 w-8 items-center justify-center rounded-lg border border-white/10 bg-white/[0.04] text-white/60 transition hover:bg-white/[0.08] hover:text-white">
+      <div className="flex max-h-[90vh] w-full max-w-[560px] flex-col overflow-hidden rounded-2xl border border-[var(--sx-border-strong)] bg-[var(--sx-card)] shadow-2xl">
+        <div className="flex flex-shrink-0 items-center gap-3.5 border-b border-[var(--sx-border)] px-6 py-5">
+          <div className="flex-1 text-base font-extrabold text-[var(--sx-text)]">{title}</div>
+          <button onClick={onClose} className="flex h-8 w-8 items-center justify-center rounded-lg border border-[var(--sx-border)] bg-[var(--sx-card-hover)] text-[var(--sx-text-muted)] transition hover:bg-[var(--sx-card-hover)] hover:text-[var(--sx-text)]">
             <X className="h-4 w-4" />
           </button>
         </div>
@@ -581,8 +581,8 @@ function ModalShell({ title, onClose, children }: { title: string; onClose: () =
 }
 function ModalFooter({ onClose, onSubmit, submitting, icon: Icon, label }: { onClose: () => void; onSubmit: () => void; submitting: boolean; icon: any; label: string }) {
   return (
-    <div className="-mx-6 -mb-6 flex flex-shrink-0 justify-end gap-2.5 border-t border-white/10 px-6 py-4">
-      <button onClick={onClose} className="rounded-lg border border-white/10 bg-white/[0.04] px-4 py-2 text-sm font-medium text-white/70 transition hover:bg-white/[0.08] hover:text-white">
+    <div className="-mx-6 -mb-6 flex flex-shrink-0 justify-end gap-2.5 border-t border-[var(--sx-border)] px-6 py-4">
+      <button onClick={onClose} className="rounded-lg border border-[var(--sx-border)] bg-[var(--sx-card-hover)] px-4 py-2 text-sm font-medium text-[var(--sx-text-muted)] transition hover:bg-[var(--sx-card-hover)] hover:text-[var(--sx-text)]">
         Cancelar
       </button>
       <button

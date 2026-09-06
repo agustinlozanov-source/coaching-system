@@ -55,18 +55,18 @@ function formatDeltaMin(deltaMin?: number | null) {
   return `${deltaMin} min`;
 }
 function deltaClass(deltaMin?: number | null) {
-  if (deltaMin == null) return 'bg-white/[0.06] text-white/40';
+  if (deltaMin == null) return 'bg-[var(--sx-card-hover)] text-[var(--sx-text-dim)]';
   if (deltaMin < -1) return 'bg-[#3533cd]/15 text-[#8b8bf0]';
   if (deltaMin <= 1) return 'bg-emerald-500/15 text-emerald-400';
   return 'bg-amber-500/15 text-amber-400';
 }
 
 const inputCls =
-  'w-full rounded-lg border border-white/10 bg-[#141416] px-3 py-2 text-sm text-white outline-none transition placeholder:text-white/25 focus:border-[#1aab99] focus:ring-2 focus:ring-[#1aab99]/25';
+  'w-full rounded-lg border border-[var(--sx-border)] bg-[var(--sx-input)] px-3 py-2 text-sm text-[var(--sx-text)] outline-none transition placeholder:text-[var(--sx-text-faint)] focus:border-[#1aab99] focus:ring-2 focus:ring-[#1aab99]/25';
 
 function SaveBadge({ status }: { status: SaveStatus }) {
   const map: Record<SaveStatus, { cls: string; text: string }> = {
-    empty: { cls: 'bg-white/[0.06] text-white/40', text: 'Sin guardar' },
+    empty: { cls: 'bg-[var(--sx-card-hover)] text-[var(--sx-text-dim)]', text: 'Sin guardar' },
     saving: { cls: 'bg-amber-500/15 text-amber-400', text: 'Escribiendo…' },
     saved: { cls: 'bg-emerald-500/15 text-emerald-400', text: 'Guardado' },
     error: { cls: 'bg-red-500/15 text-red-400', text: 'Error' },
@@ -82,13 +82,13 @@ function SaveBadge({ status }: { status: SaveStatus }) {
 
 function RolCard({ label, icon: Icon, persona }: { label: string; icon: any; persona: RitmoCirculoPersona | undefined }) {
   return (
-    <div className="flex flex-1 min-w-[160px] items-center gap-3 rounded-xl border border-white/[0.08] bg-[#1c1c1e] p-3.5">
-      <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg bg-white/[0.06] text-white/50">
+    <div className="flex flex-1 min-w-[160px] items-center gap-3 rounded-xl border border-[var(--sx-border)] bg-[var(--sx-card)] p-3.5">
+      <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg bg-[var(--sx-card-hover)] text-[var(--sx-text-muted)]">
         <Icon className="h-4 w-4" />
       </div>
       <div className="min-w-0">
-        <div className="text-[10px] font-bold uppercase tracking-wide text-white/40">{label}</div>
-        <div className="truncate text-sm font-bold text-white">{persona?.nombre || '— sin asignar —'}</div>
+        <div className="text-[10px] font-bold uppercase tracking-wide text-[var(--sx-text-dim)]">{label}</div>
+        <div className="truncate text-sm font-bold text-[var(--sx-text)]">{persona?.nombre || '— sin asignar —'}</div>
       </div>
     </div>
   );
@@ -96,7 +96,7 @@ function RolCard({ label, icon: Icon, persona }: { label: string; icon: any; per
 
 function DayChip({ icon: Icon, text, cls }: { icon: any; text: string; cls?: string }) {
   return (
-    <span className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[11.5px] font-bold ${cls ?? 'bg-white/[0.06] text-white/50'}`}>
+    <span className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[11.5px] font-bold ${cls ?? 'bg-[var(--sx-card-hover)] text-[var(--sx-text-muted)]'}`}>
       <Icon className="h-3 w-3" /> {text}
     </span>
   );
@@ -104,10 +104,10 @@ function DayChip({ icon: Icon, text, cls }: { icon: any; text: string; cls?: str
 
 function StripSemana({ strip, strikes }: { strip: StripDia[]; strikes: StrikesRecientes | null }) {
   if (!strip.length) {
-    return <div className="py-4 text-center text-xs text-white/30">Sin datos de la semana</div>;
+    return <div className="py-4 text-center text-xs text-[var(--sx-text-faint)]">Sin datos de la semana</div>;
   }
   const total = (strikes?.strikes_7d as number) ?? 0;
-  const summaryCls = total === 0 ? 'border-white/10 bg-white/[0.04] text-white/50'
+  const summaryCls = total === 0 ? 'border-[var(--sx-border)] bg-[var(--sx-card-hover)] text-[var(--sx-text-muted)]'
     : total <= 2 ? 'border-amber-500/30 bg-amber-500/10 text-amber-400'
       : 'border-red-500/30 bg-red-500/10 text-red-400';
   const summaryMsg = total === 0 ? '0 strikes en los últimos 7 días — el latido sostenido'
@@ -115,29 +115,29 @@ function StripSemana({ strip, strikes }: { strip: StripDia[]; strikes: StrikesRe
       : total === 2 ? '2 strikes esta semana · 1 más y el sistema marca alerta'
         : `${total} strikes en 7 días · algo de fondo está mal`;
   return (
-    <div className="mt-7 border-t border-white/[0.08] pt-5">
-      <div className="mb-3 flex items-center gap-2 text-xs font-bold uppercase tracking-wide text-white/40">
+    <div className="mt-7 border-t border-[var(--sx-border)] pt-5">
+      <div className="mb-3 flex items-center gap-2 text-xs font-bold uppercase tracking-wide text-[var(--sx-text-dim)]">
         <Activity className="h-3.5 w-3.5 text-[#1aab99]" /> Esta semana
       </div>
       <div className="grid grid-cols-7 gap-2">
         {strip.map((d, i) => {
           const date = new Date(d.fecha + 'T12:00:00');
           const label = DIAS_LABELS[d.dia_iso] || '—';
-          let cls = 'border-white/[0.08] bg-[#1c1c1e]';
-          let statusCls = 'text-white/40';
+          let cls = 'border-[var(--sx-border)] bg-[var(--sx-card)]';
+          let statusCls = 'text-[var(--sx-text-dim)]';
           let txt = '—';
           switch (d.estado_dia) {
-            case 'hecho': cls = 'border-emerald-500/50 bg-[#1c1c1e]'; statusCls = 'text-emerald-400'; txt = 'Hecho'; break;
+            case 'hecho': cls = 'border-emerald-500/50 bg-[var(--sx-card)]'; statusCls = 'text-emerald-400'; txt = 'Hecho'; break;
             case 'strike': cls = 'border-red-500/50 bg-red-500/10'; statusCls = 'text-red-400'; txt = 'Strike'; break;
             case 'en_curso': cls = 'border-amber-500/50 bg-amber-500/10'; statusCls = 'text-amber-400'; txt = 'En curso'; break;
             case 'hoy': cls = 'border-[#1aab99]/60 bg-[#1aab99]/10'; statusCls = 'text-[#1aab99]'; txt = 'Hoy'; break;
-            case 'no_laborable': cls = 'border-white/[0.08] bg-[#1c1c1e] opacity-40'; statusCls = 'text-white/30'; txt = 'Libre'; break;
+            case 'no_laborable': cls = 'border-[var(--sx-border)] bg-[var(--sx-card)] opacity-40'; statusCls = 'text-[var(--sx-text-faint)]'; txt = 'Libre'; break;
             default: txt = '—';
           }
           return (
             <div key={i} className={`rounded-lg border p-2.5 text-center ${cls}`}>
-              <div className="text-[10px] font-bold uppercase tracking-wide text-white/40">{label}</div>
-              <div className="my-1 text-lg font-extrabold text-white">{date.getDate()}</div>
+              <div className="text-[10px] font-bold uppercase tracking-wide text-[var(--sx-text-dim)]">{label}</div>
+              <div className="my-1 text-lg font-extrabold text-[var(--sx-text)]">{date.getDate()}</div>
               <div className={`text-[9.5px] font-bold uppercase tracking-wide ${statusCls}`}>{txt}</div>
             </div>
           );
@@ -431,37 +431,37 @@ export function PulsoView({ orgId }: { orgId: string | null }) {
   /* ══════════════════════ RENDER ══════════════════════ */
 
   if (view === 'loading') {
-    return <div className="flex items-center justify-center py-20"><Loader2 className="h-8 w-8 animate-spin text-white/40" /></div>;
+    return <div className="flex items-center justify-center py-20"><Loader2 className="h-8 w-8 animate-spin text-[var(--sx-text-dim)]" /></div>;
   }
 
   const AdminMenu = config && (
     <div className="relative">
       <button onClick={() => setAdminOpen((v) => !v)}
-        className="flex items-center gap-1.5 rounded-full border border-white/10 bg-white/[0.04] px-3 py-1.5 text-xs font-semibold text-white/60 hover:bg-white/[0.08] hover:text-white">
+        className="flex items-center gap-1.5 rounded-full border border-[var(--sx-border)] bg-[var(--sx-card-hover)] px-3 py-1.5 text-xs font-semibold text-[var(--sx-text-muted)] hover:bg-[var(--sx-card-hover)] hover:text-[var(--sx-text)]">
         <Settings className="h-3.5 w-3.5" /> Config
       </button>
       {adminOpen && (
         <>
           <div className="fixed inset-0 z-40" onClick={() => setAdminOpen(false)} />
-          <div className="absolute right-0 top-11 z-50 w-80 rounded-2xl border border-white/10 bg-[#1c1c1e] p-3 shadow-2xl">
-            <p className="mb-2 px-2 text-[11px] leading-relaxed text-white/40">
+          <div className="absolute right-0 top-11 z-50 w-80 rounded-2xl border border-[var(--sx-border)] bg-[var(--sx-card)] p-3 shadow-2xl">
+            <p className="mb-2 px-2 text-[11px] leading-relaxed text-[var(--sx-text-dim)]">
               Atajos para probar el Pulso sin las restricciones de tiempo real.
             </p>
             <button onClick={onAdminSaltar} className="mb-1.5 w-full rounded-xl border border-[#1aab99]/40 bg-[#1aab99]/10 p-3 text-left text-[#1aab99] transition hover:bg-[#1aab99]/15">
               <div className="flex items-center gap-1.5 text-[13px] font-bold"><Zap className="h-3.5 w-3.5" /> Saltar a la hora actual</div>
-              <div className="mt-0.5 text-[11px] text-white/50">Activa el botón Play de inmediato.</div>
+              <div className="mt-0.5 text-[11px] text-[var(--sx-text-muted)]">Activa el botón Play de inmediato.</div>
             </button>
-            <button onClick={onAdminCambiarHora} className="mb-1.5 w-full rounded-xl border border-white/10 bg-white/[0.03] p-3 text-left text-white transition hover:bg-white/[0.06]">
+            <button onClick={onAdminCambiarHora} className="mb-1.5 w-full rounded-xl border border-[var(--sx-border)] bg-[var(--sx-card-hover)] p-3 text-left text-[var(--sx-text)] transition hover:bg-[var(--sx-card-hover)]">
               <div className="flex items-center gap-1.5 text-[13px] font-bold"><Clock className="h-3.5 w-3.5" /> Cambiar la hora de hoy</div>
-              <div className="mt-0.5 text-[11px] text-white/40">Pide una hora HH:MM y actualiza el Pulso.</div>
+              <div className="mt-0.5 text-[11px] text-[var(--sx-text-dim)]">Pide una hora HH:MM y actualiza el Pulso.</div>
             </button>
-            <button onClick={onAdminResetPulso} className="mb-1.5 w-full rounded-xl border border-white/10 bg-white/[0.03] p-3 text-left text-white transition hover:bg-white/[0.06]">
+            <button onClick={onAdminResetPulso} className="mb-1.5 w-full rounded-xl border border-[var(--sx-border)] bg-[var(--sx-card-hover)] p-3 text-left text-[var(--sx-text)] transition hover:bg-[var(--sx-card-hover)]">
               <div className="flex items-center gap-1.5 text-[13px] font-bold"><RotateCcw className="h-3.5 w-3.5" /> Reiniciar el Pulso de hoy</div>
-              <div className="mt-0.5 text-[11px] text-white/40">Conserva config y círculo.</div>
+              <div className="mt-0.5 text-[11px] text-[var(--sx-text-dim)]">Conserva config y círculo.</div>
             </button>
             <button onClick={onAdminResetTodo} className="w-full rounded-xl border border-red-500/30 bg-red-500/10 p-3 text-left text-red-400 transition hover:bg-red-500/15">
               <div className="flex items-center gap-1.5 text-[13px] font-bold"><AlertTriangle className="h-3.5 w-3.5" /> Reconfigurar todo</div>
-              <div className="mt-0.5 text-[11px] text-white/60">Vuelves al onboarding completo.</div>
+              <div className="mt-0.5 text-[11px] text-[var(--sx-text-muted)]">Vuelves al onboarding completo.</div>
             </button>
           </div>
         </>
@@ -473,89 +473,89 @@ export function PulsoView({ orgId }: { orgId: string | null }) {
   if (view === 'onboarding') {
     return (
       <div className="flex justify-center py-6">
-        <div className="w-full max-w-2xl rounded-2xl border border-white/[0.08] bg-[#1c1c1e] p-9">
+        <div className="w-full max-w-2xl rounded-2xl border border-[var(--sx-border)] bg-[var(--sx-card)] p-9">
           <div className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-[#1aab99] to-[#3533cd] text-white shadow-lg shadow-[#1aab99]/20">
             <Activity className="h-7 w-7" />
           </div>
           <p className="mb-2 text-center text-xs font-semibold uppercase tracking-wide text-[#1aab99]">Bienvenido al Pulso</p>
-          <h2 className="mb-4 text-center text-2xl font-extrabold text-white">Define el latido de tu empresa</h2>
-          <p className="mb-6 text-center text-sm leading-relaxed text-white/60">
+          <h2 className="mb-4 text-center text-2xl font-extrabold text-[var(--sx-text)]">Define el latido de tu empresa</h2>
+          <p className="mb-6 text-center text-sm leading-relaxed text-[var(--sx-text-muted)]">
             El Pulso es la reunión diaria que sostiene la semana. Breve, fija, inexorable.
-            No es para castigo — es para <strong className="text-white">encontrar el enfoque del día</strong> antes de que el día te lo robe.
+            No es para castigo — es para <strong className="text-[var(--sx-text)]">encontrar el enfoque del día</strong> antes de que el día te lo robe.
           </p>
-          <div className="mb-6 rounded-r-lg border-l-2 border-amber-400 bg-gradient-to-r from-amber-500/[0.06] to-transparent p-4 text-sm italic leading-relaxed text-white/60">
+          <div className="mb-6 rounded-r-lg border-l-2 border-amber-400 bg-gradient-to-r from-amber-500/[0.06] to-transparent p-4 text-sm italic leading-relaxed text-[var(--sx-text-muted)]">
             "Reunirse diariamente ya es un reto. Con estructura, es un reto mayor. Con estructura, resultados y cultura, ya es todo un concepto. ¿Para qué hacerlo más complejo?"
           </div>
 
           {/* Hora pactada */}
-          <div className="mb-4 rounded-xl border border-white/10 bg-[#141416] p-5">
-            <div className="mb-2 flex items-center gap-2 text-sm font-bold text-white"><Clock className="h-4 w-4 text-[#1aab99]" /> Hora pactada</div>
-            <p className="mb-3 text-xs leading-relaxed text-white/40">
-              Una hora rara, específica, fija. <strong className="text-white/70">7:55, 6:43, 8:17.</strong> La rareza la vuelve memorable; la fijeza la vuelve sagrada.
+          <div className="mb-4 rounded-xl border border-[var(--sx-border)] bg-[var(--sx-input)] p-5">
+            <div className="mb-2 flex items-center gap-2 text-sm font-bold text-[var(--sx-text)]"><Clock className="h-4 w-4 text-[#1aab99]" /> Hora pactada</div>
+            <p className="mb-3 text-xs leading-relaxed text-[var(--sx-text-dim)]">
+              Una hora rara, específica, fija. <strong className="text-[var(--sx-text-muted)]">7:55, 6:43, 8:17.</strong> La rareza la vuelve memorable; la fijeza la vuelve sagrada.
             </p>
             <input type="time" value={onbHora} onChange={(e) => setOnbHora(e.target.value)}
-              className="w-full rounded-lg border border-white/10 bg-[#1c1c1e] px-4 py-3 text-center font-mono text-2xl font-extrabold text-white outline-none focus:border-[#1aab99]" />
-            <p className="mt-2 text-xs italic text-white/40">El Pulso siempre será a esta hora. Si la cambias después, todo el equipo lo verá.</p>
+              className="w-full rounded-lg border border-[var(--sx-border)] bg-[var(--sx-card)] px-4 py-3 text-center font-mono text-2xl font-extrabold text-[var(--sx-text)] outline-none focus:border-[#1aab99]" />
+            <p className="mt-2 text-xs italic text-[var(--sx-text-dim)]">El Pulso siempre será a esta hora. Si la cambias después, todo el equipo lo verá.</p>
           </div>
 
           {/* Días con Pulso */}
-          <div className="mb-4 rounded-xl border border-white/10 bg-[#141416] p-5">
-            <div className="mb-2 flex items-center gap-2 text-sm font-bold text-white"><CalendarDays className="h-4 w-4 text-[#1aab99]" /> Días con Pulso</div>
-            <p className="mb-3 text-xs leading-relaxed text-white/40">Marca los días en que tu equipo se reúne. Los demás días no esperarán Pulso ni contarán como strike.</p>
+          <div className="mb-4 rounded-xl border border-[var(--sx-border)] bg-[var(--sx-input)] p-5">
+            <div className="mb-2 flex items-center gap-2 text-sm font-bold text-[var(--sx-text)]"><CalendarDays className="h-4 w-4 text-[#1aab99]" /> Días con Pulso</div>
+            <p className="mb-3 text-xs leading-relaxed text-[var(--sx-text-dim)]">Marca los días en que tu equipo se reúne. Los demás días no esperarán Pulso ni contarán como strike.</p>
             <div className="flex flex-wrap gap-1.5">
               {DIAS_CHIPS.map((d) => (
                 <button key={d.v} onClick={() => toggleDia(d.v)}
                   className={`rounded-full border px-3.5 py-2 text-xs font-bold transition ${
-                    onbDias.includes(d.v) ? 'border-[#1aab99] bg-[#1aab99] text-white' : 'border-white/15 bg-[#1c1c1e] text-white/40 hover:border-[#1aab99]/50'
+                    onbDias.includes(d.v) ? 'border-[#1aab99] bg-[#1aab99] text-white' : 'border-[var(--sx-border-strong)] bg-[var(--sx-card)] text-[var(--sx-text-dim)] hover:border-[#1aab99]/50'
                   }`}>{d.l}</button>
               ))}
             </div>
-            <p className="mt-2 text-xs italic text-white/40">Default: lunes a viernes. Tu empresa decide.</p>
+            <p className="mt-2 text-xs italic text-[var(--sx-text-dim)]">Default: lunes a viernes. Tu empresa decide.</p>
           </div>
 
           {/* Círculo */}
-          <div className="mb-4 rounded-xl border border-white/10 bg-[#141416] p-5">
-            <div className="mb-2 flex items-center gap-2 text-sm font-bold text-white"><Users className="h-4 w-4 text-[#1aab99]" /> El círculo del Pulso</div>
-            <p className="mb-3 text-xs leading-relaxed text-white/40">
-              Las personas que asisten al Pulso. Líder + círculo cercano. Los <strong className="text-white/70">3 roles rotativos</strong> (dirige · apunta · facilita el tiempo) se asignan automáticamente cada día.
+          <div className="mb-4 rounded-xl border border-[var(--sx-border)] bg-[var(--sx-input)] p-5">
+            <div className="mb-2 flex items-center gap-2 text-sm font-bold text-[var(--sx-text)]"><Users className="h-4 w-4 text-[#1aab99]" /> El círculo del Pulso</div>
+            <p className="mb-3 text-xs leading-relaxed text-[var(--sx-text-dim)]">
+              Las personas que asisten al Pulso. Líder + círculo cercano. Los <strong className="text-[var(--sx-text-muted)]">3 roles rotativos</strong> (dirige · apunta · facilita el tiempo) se asignan automáticamente cada día.
             </p>
             <div className="flex flex-col gap-2">
               {onbCirculo.map((row, i) => (
                 <div key={i} className="flex items-center gap-2">
-                  <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-white/[0.06] text-white/40"><User className="h-3.5 w-3.5" /></div>
+                  <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-[var(--sx-card-hover)] text-[var(--sx-text-dim)]"><User className="h-3.5 w-3.5" /></div>
                   <input value={row.nombre} onChange={(e) => updateCirculoRow(i, 'nombre', e.target.value)} placeholder="Nombre" className={inputCls} />
                   <input value={row.rol_descripcion} onChange={(e) => updateCirculoRow(i, 'rol_descripcion', e.target.value)} placeholder="Rol (opcional)" className={inputCls} />
-                  <button onClick={() => removeCirculoRow(i)} className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg border border-white/10 text-white/30 hover:border-red-500/50 hover:text-red-400">
+                  <button onClick={() => removeCirculoRow(i)} className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg border border-[var(--sx-border)] text-[var(--sx-text-faint)] hover:border-red-500/50 hover:text-red-400">
                     <X className="h-3.5 w-3.5" />
                   </button>
                 </div>
               ))}
             </div>
             <button onClick={addCirculoRow}
-              className="mt-2.5 flex w-full items-center justify-center gap-1.5 rounded-lg border border-dashed border-white/15 py-2.5 text-xs text-white/40 hover:border-[#1aab99]/50 hover:text-[#1aab99]">
+              className="mt-2.5 flex w-full items-center justify-center gap-1.5 rounded-lg border border-dashed border-[var(--sx-border-strong)] py-2.5 text-xs text-[var(--sx-text-dim)] hover:border-[#1aab99]/50 hover:text-[#1aab99]">
               <Plus className="h-3.5 w-3.5" /> Agregar otra persona al círculo
             </button>
-            <p className="mt-2 text-xs italic text-white/40">Mínimo 3 personas para que la rotación de los 3 roles tenga sentido.</p>
+            <p className="mt-2 text-xs italic text-[var(--sx-text-dim)]">Mínimo 3 personas para que la rotación de los 3 roles tenga sentido.</p>
           </div>
 
           {/* Zona horaria + ventana */}
-          <div className="mb-6 rounded-xl border border-white/10 bg-[#141416] p-5">
-            <div className="mb-2 flex items-center gap-2 text-sm font-bold text-white"><Globe className="h-4 w-4 text-[#1aab99]" /> Zona horaria y ventana del Play</div>
+          <div className="mb-6 rounded-xl border border-[var(--sx-border)] bg-[var(--sx-input)] p-5">
+            <div className="mb-2 flex items-center gap-2 text-sm font-bold text-[var(--sx-text)]"><Globe className="h-4 w-4 text-[#1aab99]" /> Zona horaria y ventana del Play</div>
             <div className="grid grid-cols-2 gap-3.5">
               <div>
-                <label className="mb-1.5 block text-xs text-white/40">Zona horaria</label>
+                <label className="mb-1.5 block text-xs text-[var(--sx-text-dim)]">Zona horaria</label>
                 <select value={onbTz} onChange={(e) => setOnbTz(e.target.value)} className={inputCls}>
                   {TIMEZONES.map((t) => <option key={t.v} value={t.v}>{t.l}</option>)}
                 </select>
               </div>
               <div>
-                <label className="mb-1.5 block text-xs text-white/40">Min antes para activar Play</label>
+                <label className="mb-1.5 block text-xs text-[var(--sx-text-dim)]">Min antes para activar Play</label>
                 <input type="number" min={0} max={60} value={onbVentana} onChange={(e) => setOnbVentana(parseInt(e.target.value, 10) || 0)} className={inputCls} />
               </div>
             </div>
           </div>
 
-          <div className="mb-6 flex items-start gap-2.5 rounded-xl border border-amber-500/30 bg-amber-500/10 p-3 text-xs text-white/60">
+          <div className="mb-6 flex items-start gap-2.5 rounded-xl border border-amber-500/30 bg-amber-500/10 p-3 text-xs text-[var(--sx-text-muted)]">
             <AlertTriangle className="mt-0.5 h-4 w-4 flex-shrink-0 text-amber-400" />
             <span><strong className="text-amber-400">El Pulso no es para castigo.</strong> Si un día no se hizo, el sistema marca strike del sistema — no del líder. Tres strikes seguidos significa que algo está mal de fondo: páralo y revisa.</span>
           </div>
@@ -603,14 +603,14 @@ export function PulsoView({ orgId }: { orgId: string | null }) {
       <div>
         {dayHeader}
         <div className="flex min-h-[45vh] items-center justify-center py-10">
-          <div className="max-w-md rounded-2xl border border-white/[0.08] bg-[#1c1c1e] p-9 text-center">
-            <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-white/[0.06] text-white/40"><Moon className="h-6 w-6" /></div>
-            <h2 className="mb-2.5 text-xl font-extrabold text-white">Hoy no hay Pulso</h2>
-            <p className="mb-5 text-sm leading-relaxed text-white/50">
-              Configuraste que tu empresa no tiene Pulso hoy. <strong className="text-white/70">No es strike.</strong> Sin Pulso, sin obligación.
+          <div className="max-w-md rounded-2xl border border-[var(--sx-border)] bg-[var(--sx-card)] p-9 text-center">
+            <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-[var(--sx-card-hover)] text-[var(--sx-text-dim)]"><Moon className="h-6 w-6" /></div>
+            <h2 className="mb-2.5 text-xl font-extrabold text-[var(--sx-text)]">Hoy no hay Pulso</h2>
+            <p className="mb-5 text-sm leading-relaxed text-[var(--sx-text-muted)]">
+              Configuraste que tu empresa no tiene Pulso hoy. <strong className="text-[var(--sx-text-muted)]">No es strike.</strong> Sin Pulso, sin obligación.
             </p>
-            <div className="inline-flex items-center gap-1.5 rounded-full bg-white/[0.06] px-4 py-2 text-xs text-white/60">
-              <Clock className="h-3.5 w-3.5 text-[#1aab99]" /> Siguiente Pulso: <strong className="text-white">{proximoTxt}</strong>
+            <div className="inline-flex items-center gap-1.5 rounded-full bg-[var(--sx-card-hover)] px-4 py-2 text-xs text-[var(--sx-text-muted)]">
+              <Clock className="h-3.5 w-3.5 text-[#1aab99]" /> Siguiente Pulso: <strong className="text-[var(--sx-text)]">{proximoTxt}</strong>
             </div>
           </div>
         </div>
@@ -628,15 +628,15 @@ export function PulsoView({ orgId }: { orgId: string | null }) {
     let cuentaTxt: React.ReactNode;
     let btnDisabled = true;
     if (segundosHasta > ventanaSeg) {
-      cuentaTxt = <>Faltan <strong className="text-white">{Math.ceil(segundosHasta / 60)} min</strong> · son las {horaAhora}</>;
+      cuentaTxt = <>Faltan <strong className="text-[var(--sx-text)]">{Math.ceil(segundosHasta / 60)} min</strong> · son las {horaAhora}</>;
     } else if (segundosHasta > 0) {
-      cuentaTxt = <>Listos · faltan <strong className="text-white">{Math.ceil(segundosHasta / 60)} min</strong> · son las {horaAhora}</>;
+      cuentaTxt = <>Listos · faltan <strong className="text-[var(--sx-text)]">{Math.ceil(segundosHasta / 60)} min</strong> · son las {horaAhora}</>;
       btnDisabled = false;
     } else {
       const minTarde = Math.floor(-segundosHasta / 60);
       cuentaTxt = minTarde === 0
-        ? <><strong className="text-white">Es la hora</strong> · son las {horaAhora}</>
-        : <>Pasaron <strong className="text-white">{minTarde} min</strong> de la hora pactada · son las {horaAhora}</>;
+        ? <><strong className="text-[var(--sx-text)]">Es la hora</strong> · son las {horaAhora}</>
+        : <>Pasaron <strong className="text-[var(--sx-text)]">{minTarde} min</strong> de la hora pactada · son las {horaAhora}</>;
       btnDisabled = false;
     }
     const dirige = circulo.find((p) => p.id === pulsoHoy.rol_dirige_id);
@@ -646,18 +646,18 @@ export function PulsoView({ orgId }: { orgId: string | null }) {
     return (
       <div>
         {dayHeader}
-        <div className="relative mb-6 overflow-hidden rounded-2xl border border-white/[0.08] bg-[#1c1c1e] p-10 text-center">
+        <div className="relative mb-6 overflow-hidden rounded-2xl border border-[var(--sx-border)] bg-[var(--sx-card)] p-10 text-center">
           <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-[#1aab99]">Hora pactada del Pulso</p>
           <div className="mb-1.5 bg-gradient-to-br from-[#1aab99] to-[#3533cd] bg-clip-text text-6xl font-black tracking-tight text-transparent">
             {formatHHMM(pulsoHoy.hora_pactada)}
           </div>
-          <p className="mb-6 text-xs text-white/40">hora rara, fija, inexorable</p>
-          <p className="mb-6 text-sm text-white/60">{cuentaTxt}</p>
+          <p className="mb-6 text-xs text-[var(--sx-text-dim)]">hora rara, fija, inexorable</p>
+          <p className="mb-6 text-sm text-[var(--sx-text-muted)]">{cuentaTxt}</p>
           <button onClick={onStartPulso} disabled={btnDisabled || busy}
             className="mx-auto flex items-center justify-center gap-2 rounded-xl bg-gradient-to-br from-[#1aab99] to-[#3533cd] px-9 py-4 text-base font-bold text-white transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40">
             {busy ? <Loader2 className="h-5 w-5 animate-spin" /> : <Play className="h-5 w-5" />} Empezar el Pulso
           </button>
-          <p className="mt-3 text-xs text-white/30">El botón se activa minutos antes de la hora pactada</p>
+          <p className="mt-3 text-xs text-[var(--sx-text-faint)]">El botón se activa minutos antes de la hora pactada</p>
         </div>
 
         <div className="mb-6 flex flex-wrap gap-2.5">
@@ -690,16 +690,16 @@ export function PulsoView({ orgId }: { orgId: string | null }) {
             <Activity className="h-5 w-5" />
           </div>
           <div className="min-w-[200px] flex-1">
-            <div className="mb-1 text-lg font-extrabold text-white">Pulso en curso</div>
-            <div className="flex flex-wrap items-center gap-3.5 text-xs text-white/60">
-              <span className="inline-flex items-center gap-1.5"><Clock className="h-3.5 w-3.5 text-emerald-400" /> Pactado <strong className="text-white">{formatHHMM(pulsoHoy.hora_pactada)}</strong></span>
-              <span className="inline-flex items-center gap-1.5"><PlayCircle className="h-3.5 w-3.5 text-emerald-400" /> Inició <strong className="text-white">{horaInicio}</strong></span>
+            <div className="mb-1 text-lg font-extrabold text-[var(--sx-text)]">Pulso en curso</div>
+            <div className="flex flex-wrap items-center gap-3.5 text-xs text-[var(--sx-text-muted)]">
+              <span className="inline-flex items-center gap-1.5"><Clock className="h-3.5 w-3.5 text-emerald-400" /> Pactado <strong className="text-[var(--sx-text)]">{formatHHMM(pulsoHoy.hora_pactada)}</strong></span>
+              <span className="inline-flex items-center gap-1.5"><PlayCircle className="h-3.5 w-3.5 text-emerald-400" /> Inició <strong className="text-[var(--sx-text)]">{horaInicio}</strong></span>
               {pulsoHoy.delta_minutos != null && (
                 <span className={`rounded-full px-2.5 py-1 text-[11px] font-extrabold ${deltaClass(pulsoHoy.delta_minutos)}`}>{formatDeltaMin(pulsoHoy.delta_minutos)}</span>
               )}
             </div>
           </div>
-          <div className="min-w-[100px] flex-shrink-0 rounded-2xl bg-white/[0.06] px-4 py-1 text-center font-mono text-2xl font-extrabold text-white">
+          <div className="min-w-[100px] flex-shrink-0 rounded-2xl bg-[var(--sx-card-hover)] px-4 py-1 text-center font-mono text-2xl font-extrabold text-[var(--sx-text)]">
             {formatDuracion(cronoSeg)}
           </div>
         </div>
@@ -712,64 +712,64 @@ export function PulsoView({ orgId }: { orgId: string | null }) {
 
         <div className="flex flex-col gap-3.5">
           {/* Bloque 1 */}
-          <div className="rounded-2xl border border-white/[0.08] bg-[#1c1c1e] p-5">
+          <div className="rounded-2xl border border-[var(--sx-border)] bg-[var(--sx-card)] p-5">
             <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
               <div className="flex items-center gap-3">
                 <span className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-md bg-gradient-to-br from-[#1aab99] to-[#3533cd] text-sm font-extrabold text-white">1</span>
-                <div><div className="text-[15px] font-extrabold text-white">Lo que avanzó</div><div className="text-xs text-white/40">¿Qué progreso real hubo desde ayer?</div></div>
+                <div><div className="text-[15px] font-extrabold text-[var(--sx-text)]">Lo que avanzó</div><div className="text-xs text-[var(--sx-text-dim)]">¿Qué progreso real hubo desde ayer?</div></div>
               </div>
               <SaveBadge status={saveStatus.avanzo ?? 'empty'} />
             </div>
             <textarea defaultValue={pulsoHoy.lo_que_avanzo ?? ''} onChange={(e) => scheduleBloqueSave('avanzo', 'lo_que_avanzo', e.target.value)}
               placeholder="Ej: Diana cerró Madero. Mario terminó el onboarding del cliente nuevo."
-              className="min-h-[80px] w-full resize-y rounded-lg border border-white/10 bg-[#141416] px-3.5 py-3 text-[13.5px] leading-relaxed text-white outline-none focus:border-[#1aab99]" />
+              className="min-h-[80px] w-full resize-y rounded-lg border border-[var(--sx-border)] bg-[var(--sx-input)] px-3.5 py-3 text-[13.5px] leading-relaxed text-[var(--sx-text)] outline-none focus:border-[#1aab99]" />
           </div>
 
           {/* Bloque 2: número */}
-          <div className="rounded-2xl border border-white/[0.08] bg-[#1c1c1e] p-5">
+          <div className="rounded-2xl border border-[var(--sx-border)] bg-[var(--sx-card)] p-5">
             <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
               <div className="flex items-center gap-3">
                 <span className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-md bg-gradient-to-br from-[#1aab99] to-[#3533cd] text-sm font-extrabold text-white">2</span>
-                <div><div className="text-[15px] font-extrabold text-white">El número de hoy</div><div className="text-xs text-white/40">UN solo número que mida si hoy nos acerca al objetivo semanal</div></div>
+                <div><div className="text-[15px] font-extrabold text-[var(--sx-text)]">El número de hoy</div><div className="text-xs text-[var(--sx-text-dim)]">UN solo número que mida si hoy nos acerca al objetivo semanal</div></div>
               </div>
               <SaveBadge status={saveStatus.numero ?? 'empty'} />
             </div>
             <input type="text" defaultValue={pulsoHoy.numero_de_hoy ?? ''} onChange={(e) => scheduleBloqueSave('numero', 'numero_de_hoy', e.target.value)}
               placeholder="ej: 14 leads · $45,000 · 3 cierres"
-              className="w-full rounded-lg border border-white/10 bg-[#141416] px-4 py-3.5 text-2xl font-black tracking-tight text-white outline-none focus:border-[#1aab99]" />
+              className="w-full rounded-lg border border-[var(--sx-border)] bg-[var(--sx-input)] px-4 py-3.5 text-2xl font-black tracking-tight text-[var(--sx-text)] outline-none focus:border-[#1aab99]" />
             {semanaActual?.objetivo && (
-              <div className="mt-2.5 flex items-center gap-2 text-xs text-white/40">
-                <Target className="h-3.5 w-3.5 text-[#8b8bf0]" /> <span>Objetivo semanal: <strong className="text-white/70">{semanaActual.objetivo}</strong></span>
+              <div className="mt-2.5 flex items-center gap-2 text-xs text-[var(--sx-text-dim)]">
+                <Target className="h-3.5 w-3.5 text-[#8b8bf0]" /> <span>Objetivo semanal: <strong className="text-[var(--sx-text-muted)]">{semanaActual.objetivo}</strong></span>
               </div>
             )}
           </div>
 
           {/* Bloque 3: lo que traba + impulsos */}
-          <div className="rounded-2xl border border-white/[0.08] bg-[#1c1c1e] p-5">
+          <div className="rounded-2xl border border-[var(--sx-border)] bg-[var(--sx-card)] p-5">
             <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
               <div className="flex items-center gap-3">
                 <span className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-md bg-gradient-to-br from-[#1aab99] to-[#3533cd] text-sm font-extrabold text-white">3</span>
-                <div><div className="text-[15px] font-extrabold text-white">Lo que traba</div><div className="text-xs text-white/40">El obstáculo, no la persona. ¿Qué impide avanzar hoy?</div></div>
+                <div><div className="text-[15px] font-extrabold text-[var(--sx-text)]">Lo que traba</div><div className="text-xs text-[var(--sx-text-dim)]">El obstáculo, no la persona. ¿Qué impide avanzar hoy?</div></div>
               </div>
               <SaveBadge status={saveStatus.traba ?? 'empty'} />
             </div>
             <textarea defaultValue={pulsoHoy.lo_que_traba ?? ''} onChange={(e) => scheduleBloqueSave('traba', 'lo_que_traba', e.target.value)}
               placeholder="Ej: El CRM se cayó anoche. Diana sin acceso a leads históricos."
-              className="min-h-[80px] w-full resize-y rounded-lg border border-white/10 bg-[#141416] px-3.5 py-3 text-[13.5px] leading-relaxed text-white outline-none focus:border-[#1aab99]" />
+              className="min-h-[80px] w-full resize-y rounded-lg border border-[var(--sx-border)] bg-[var(--sx-input)] px-3.5 py-3 text-[13.5px] leading-relaxed text-[var(--sx-text)] outline-none focus:border-[#1aab99]" />
 
             <div className="mt-3.5 rounded-xl border border-dashed border-amber-400/50 bg-gradient-to-r from-amber-500/[0.06] to-transparent p-4">
               <div className="mb-2.5 flex flex-wrap items-center justify-between gap-2">
                 <span className="inline-flex items-center gap-1.5 text-xs font-extrabold text-amber-400"><Zap className="h-3.5 w-3.5" /> Impulsos del día</span>
-                <span className="text-[11px] text-white/40">Tareas catalizadoras — irán a tu semana en ámbar</span>
+                <span className="text-[11px] text-[var(--sx-text-dim)]">Tareas catalizadoras — irán a tu semana en ámbar</span>
               </div>
               <div className="mb-2.5 flex flex-col gap-2">
-                {impulsos.length === 0 && <div className="text-[11.5px] italic text-white/30">Aún no hay impulsos. Los acuerdos catalizadores del Pulso aparecen aquí.</div>}
+                {impulsos.length === 0 && <div className="text-[11.5px] italic text-[var(--sx-text-faint)]">Aún no hay impulsos. Los acuerdos catalizadores del Pulso aparecen aquí.</div>}
                 {impulsos.map((imp) => (
-                  <div key={imp.id} className="flex items-center gap-2.5 rounded-lg border border-white/[0.08] bg-[#141416] p-2.5">
+                  <div key={imp.id} className="flex items-center gap-2.5 rounded-lg border border-[var(--sx-border)] bg-[var(--sx-input)] p-2.5">
                     <Zap className="h-3.5 w-3.5 flex-shrink-0 text-amber-400" />
-                    <span className="flex-1 text-sm text-white">{imp.titulo}</span>
-                    <span className="whitespace-nowrap text-[11px] text-white/30">{imp.responsable ? `${imp.responsable} · ` : ''}{imp.fecha_objetivo ? fechaCorta(imp.fecha_objetivo) : 'hoy'}</span>
-                    <button onClick={() => onEliminarImpulso(imp.id)} className="flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-md border border-white/10 text-white/30 hover:border-red-500/50 hover:text-red-400">
+                    <span className="flex-1 text-sm text-[var(--sx-text)]">{imp.titulo}</span>
+                    <span className="whitespace-nowrap text-[11px] text-[var(--sx-text-faint)]">{imp.responsable ? `${imp.responsable} · ` : ''}{imp.fecha_objetivo ? fechaCorta(imp.fecha_objetivo) : 'hoy'}</span>
+                    <button onClick={() => onEliminarImpulso(imp.id)} className="flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-md border border-[var(--sx-border)] text-[var(--sx-text-faint)] hover:border-red-500/50 hover:text-red-400">
                       <X className="h-3 w-3" />
                     </button>
                   </div>
@@ -779,10 +779,10 @@ export function PulsoView({ orgId }: { orgId: string | null }) {
                 <input value={impulsoInput} onChange={(e) => setImpulsoInput(e.target.value)}
                   onKeyDown={(e) => { if (e.key === 'Enter') onAgregarImpulso(); }}
                   placeholder="Agregar un impulso del día…"
-                  className="rounded-lg border border-dashed border-white/15 bg-[#141416] px-3 py-2 text-xs text-white outline-none focus:border-amber-400" />
+                  className="rounded-lg border border-dashed border-[var(--sx-border-strong)] bg-[var(--sx-input)] px-3 py-2 text-xs text-[var(--sx-text)] outline-none focus:border-amber-400" />
                 <input value={impulsoResponsable} onChange={(e) => setImpulsoResponsable(e.target.value)}
                   placeholder="Responsable"
-                  className="rounded-lg border border-dashed border-white/15 bg-[#141416] px-3 py-2 text-xs text-white outline-none focus:border-amber-400" />
+                  className="rounded-lg border border-dashed border-[var(--sx-border-strong)] bg-[var(--sx-input)] px-3 py-2 text-xs text-[var(--sx-text)] outline-none focus:border-amber-400" />
                 <button onClick={onAgregarImpulso} className="flex items-center gap-1.5 rounded-lg bg-amber-500 px-3 py-2 text-xs font-bold text-white hover:opacity-90">
                   <Plus className="h-3.5 w-3.5" /> Agregar
                 </button>
@@ -791,10 +791,10 @@ export function PulsoView({ orgId }: { orgId: string | null }) {
           </div>
         </div>
 
-        <div className="mt-4 flex flex-wrap items-center gap-4 rounded-2xl border border-white/[0.08] bg-[#1c1c1e] p-5">
+        <div className="mt-4 flex flex-wrap items-center gap-4 rounded-2xl border border-[var(--sx-border)] bg-[var(--sx-card)] p-5">
           <div className="min-w-[220px] flex-1">
-            <div className="mb-0.5 text-sm font-bold text-white">Cierra el Pulso cuando terminen</div>
-            <div className="text-xs leading-relaxed text-white/40">Esto sella el Pulso de hoy y los impulsos del día se quedan vinculados a tu Ritual Semanal.</div>
+            <div className="mb-0.5 text-sm font-bold text-[var(--sx-text)]">Cierra el Pulso cuando terminen</div>
+            <div className="text-xs leading-relaxed text-[var(--sx-text-dim)]">Esto sella el Pulso de hoy y los impulsos del día se quedan vinculados a tu Ritual Semanal.</div>
           </div>
           <button onClick={onCerrarPulso} disabled={busy}
             className="flex items-center gap-2 rounded-xl bg-gradient-to-br from-[#1aab99] to-[#3533cd] px-4 py-2.5 text-sm font-bold text-white transition hover:opacity-90 disabled:opacity-50">
@@ -820,21 +820,21 @@ export function PulsoView({ orgId }: { orgId: string | null }) {
         <div className="mb-5 flex flex-wrap items-center gap-4 rounded-2xl border border-emerald-500/40 bg-gradient-to-br from-emerald-500/[0.07] to-transparent p-4">
           <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-emerald-500/15 text-emerald-400"><CheckCircle2 className="h-4 w-4" /></div>
           <div className="min-w-[200px] flex-1">
-            <div className="text-sm font-extrabold text-white">Pulso cerrado · duró {dur}</div>
-            <div className="text-xs text-white/40">Inició {horaInicio} ({formatDeltaMin(pulsoHoy.delta_minutos)} de la hora pactada)</div>
+            <div className="text-sm font-extrabold text-[var(--sx-text)]">Pulso cerrado · duró {dur}</div>
+            <div className="text-xs text-[var(--sx-text-dim)]">Inició {horaInicio} ({formatDeltaMin(pulsoHoy.delta_minutos)} de la hora pactada)</div>
           </div>
           <div className="flex items-center gap-5">
             <div className="text-center">
-              <div className="text-xl font-extrabold text-white">{impulsos.length}</div>
-              <div className="text-[10px] font-bold uppercase tracking-wide text-white/40">Impulsos</div>
+              <div className="text-xl font-extrabold text-[var(--sx-text)]">{impulsos.length}</div>
+              <div className="text-[10px] font-bold uppercase tracking-wide text-[var(--sx-text-dim)]">Impulsos</div>
             </div>
             <div className="text-center">
-              <div className="text-xl font-extrabold text-white">{pulsoHoy.numero_de_hoy || '—'}</div>
-              <div className="text-[10px] font-bold uppercase tracking-wide text-white/40">Número de hoy</div>
+              <div className="text-xl font-extrabold text-[var(--sx-text)]">{pulsoHoy.numero_de_hoy || '—'}</div>
+              <div className="text-[10px] font-bold uppercase tracking-wide text-[var(--sx-text-dim)]">Número de hoy</div>
             </div>
           </div>
           {puedeReabrir && (
-            <button onClick={onReabrirPulso} className="flex items-center gap-1.5 rounded-lg border border-white/10 px-3 py-1.5 text-xs font-semibold text-white/60 hover:bg-white/[0.06] hover:text-white">
+            <button onClick={onReabrirPulso} className="flex items-center gap-1.5 rounded-lg border border-[var(--sx-border)] px-3 py-1.5 text-xs font-semibold text-[var(--sx-text-muted)] hover:bg-[var(--sx-card-hover)] hover:text-[var(--sx-text)]">
               <RotateCcw className="h-3.5 w-3.5" /> Reabrir
             </button>
           )}
@@ -846,18 +846,18 @@ export function PulsoView({ orgId }: { orgId: string | null }) {
             { n: 2, t: 'El número de hoy', v: pulsoHoy.numero_de_hoy, isNum: true },
             { n: 3, t: 'Lo que traba', v: pulsoHoy.lo_que_traba },
           ].map((b) => (
-            <div key={b.n} className="rounded-xl border border-white/[0.08] bg-[#1c1c1e] p-4">
+            <div key={b.n} className="rounded-xl border border-[var(--sx-border)] bg-[var(--sx-card)] p-4">
               <div className="mb-2 flex items-center gap-2.5">
                 <span className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-md bg-gradient-to-br from-[#1aab99] to-[#3533cd] text-[11px] font-extrabold text-white">{b.n}</span>
-                <span className="text-[13px] font-bold text-white">{b.t}</span>
+                <span className="text-[13px] font-bold text-[var(--sx-text)]">{b.t}</span>
               </div>
               {b.isNum ? (
-                <div className="flex items-baseline gap-2 pl-8 text-2xl font-black text-white">
+                <div className="flex items-baseline gap-2 pl-8 text-2xl font-black text-[var(--sx-text)]">
                   {b.v || '—'}
-                  {semanaActual?.objetivo && <span className="text-xs font-medium text-white/40">objetivo: {semanaActual.objetivo}</span>}
+                  {semanaActual?.objetivo && <span className="text-xs font-medium text-[var(--sx-text-dim)]">objetivo: {semanaActual.objetivo}</span>}
                 </div>
               ) : (
-                <div className="whitespace-pre-wrap pl-8 text-sm leading-relaxed text-white/70">{b.v || '— sin notas —'}</div>
+                <div className="whitespace-pre-wrap pl-8 text-sm leading-relaxed text-[var(--sx-text-muted)]">{b.v || '— sin notas —'}</div>
               )}
             </div>
           ))}

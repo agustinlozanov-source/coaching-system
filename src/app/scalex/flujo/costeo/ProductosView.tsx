@@ -257,18 +257,18 @@ export function ProductosView({ orgId, profile, onBack }: { orgId: string; profi
     }
   }
 
-  if (loading) return <div className="flex items-center justify-center py-20"><Loader2 className="h-8 w-8 animate-spin text-white/40" /></div>;
+  if (loading) return <div className="flex items-center justify-center py-20"><Loader2 className="h-8 w-8 animate-spin text-[var(--sx-text-dim)]" /></div>;
 
   return (
     <div>
       <div className="mb-6 flex items-center justify-between gap-3">
         <div className="flex items-center gap-3">
-          <button onClick={onBack} className="flex h-9 w-9 items-center justify-center rounded-lg border border-white/10 text-white/60 transition hover:bg-white/[0.06] hover:text-white">
+          <button onClick={onBack} className="flex h-9 w-9 items-center justify-center rounded-lg border border-[var(--sx-border)] text-[var(--sx-text-muted)] transition hover:bg-[var(--sx-card-hover)] hover:text-[var(--sx-text)]">
             <ArrowLeft className="h-4 w-4" />
           </button>
           <div>
             <p className="text-xs font-semibold uppercase tracking-wide text-[#1aab99]">Costeo · Paso 4</p>
-            <h1 className="text-2xl font-bold text-white">Productos</h1>
+            <h1 className="text-2xl font-bold text-[var(--sx-text)]">Productos</h1>
           </div>
         </div>
         <button onClick={openCreate} className="flex items-center gap-2 rounded-xl bg-gradient-to-br from-[#1aab99] to-[#3533cd] px-4 py-2.5 text-sm font-bold text-white transition hover:opacity-90">
@@ -283,32 +283,32 @@ export function ProductosView({ orgId, profile, onBack }: { orgId: string; profi
       )}
 
       <div className="mb-5 grid grid-cols-2 gap-3 sm:grid-cols-4">
-        <div className="rounded-xl border border-white/[0.08] bg-[#1c1c1e] p-3.5">
-          <div className="text-[11px] font-semibold uppercase tracking-wide text-white/40">Margen prom.</div>
-          <div className="mt-1 text-xl font-extrabold text-white">{fmtNum(kpis.promedio, 1)}%</div>
+        <div className="rounded-xl border border-[var(--sx-border)] bg-[var(--sx-card)] p-3.5">
+          <div className="text-[11px] font-semibold uppercase tracking-wide text-[var(--sx-text-dim)]">Margen prom.</div>
+          <div className="mt-1 text-xl font-extrabold text-[var(--sx-text)]">{fmtNum(kpis.promedio, 1)}%</div>
         </div>
-        <div className="rounded-xl border border-white/[0.08] bg-[#1c1c1e] p-3.5">
-          <div className="text-[11px] font-semibold uppercase tracking-wide text-white/40">Rentables</div>
+        <div className="rounded-xl border border-[var(--sx-border)] bg-[var(--sx-card)] p-3.5">
+          <div className="text-[11px] font-semibold uppercase tracking-wide text-[var(--sx-text-dim)]">Rentables</div>
           <div className="mt-1 text-xl font-extrabold text-emerald-400">{kpis.rentables}</div>
         </div>
-        <div className="rounded-xl border border-white/[0.08] bg-[#1c1c1e] p-3.5">
-          <div className="text-[11px] font-semibold uppercase tracking-wide text-white/40">En alerta</div>
+        <div className="rounded-xl border border-[var(--sx-border)] bg-[var(--sx-card)] p-3.5">
+          <div className="text-[11px] font-semibold uppercase tracking-wide text-[var(--sx-text-dim)]">En alerta</div>
           <div className="mt-1 text-xl font-extrabold text-amber-400">{kpis.alerta}</div>
         </div>
-        <div className="rounded-xl border border-white/[0.08] bg-[#1c1c1e] p-3.5">
-          <div className="text-[11px] font-semibold uppercase tracking-wide text-white/40">Con pérdida</div>
+        <div className="rounded-xl border border-[var(--sx-border)] bg-[var(--sx-card)] p-3.5">
+          <div className="text-[11px] font-semibold uppercase tracking-wide text-[var(--sx-text-dim)]">Con pérdida</div>
           <div className="mt-1 text-xl font-extrabold text-red-400">{kpis.perdida}</div>
         </div>
       </div>
 
       <div className="mb-4 flex flex-wrap items-center gap-3">
         <div className="relative flex-1 min-w-[220px]">
-          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-white/30" />
+          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--sx-text-faint)]" />
           <TextInput value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Buscar producto, SKU..." className="pl-9" />
         </div>
         <div className="flex flex-wrap gap-2">
           {FILTERS.map((f) => (
-            <button key={f.id} onClick={() => setFilterMargin(f.id)} className={`rounded-full px-3 py-1.5 text-xs font-semibold transition ${filterMargin === f.id ? 'bg-[#1aab99]/15 text-[#1aab99]' : 'bg-white/[0.06] text-white/50 hover:text-white'}`}>
+            <button key={f.id} onClick={() => setFilterMargin(f.id)} className={`rounded-full px-3 py-1.5 text-xs font-semibold transition ${filterMargin === f.id ? 'bg-[#1aab99]/15 text-[#1aab99]' : 'bg-[var(--sx-card-hover)] text-[var(--sx-text-muted)] hover:text-[var(--sx-text)]'}`}>
               {f.label}
             </button>
           ))}
@@ -328,19 +328,19 @@ export function ProductosView({ orgId, profile, onBack }: { orgId: string; profi
             const utilidad = b ? b.utilidad : 0;
             const margenPct = b ? b.margen_pct : 0;
             return (
-              <div key={p.id} className="flex flex-wrap items-center gap-4 rounded-2xl border border-white/[0.08] bg-[#1c1c1e] p-4">
+              <div key={p.id} className="flex flex-wrap items-center gap-4 rounded-2xl border border-[var(--sx-border)] bg-[var(--sx-card)] p-4">
                 <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-[#1aab99]/20 to-[#3533cd]/20 text-[#1aab99]">
                   <ShoppingBag className="h-4.5 w-4.5" />
                 </div>
                 <div className="min-w-0 flex-1">
-                  <div className="truncate font-bold text-white">{p.nombre}</div>
-                  <div className="text-xs text-white/40">{p.categoria || ''}{p.categoria && p.sku ? ' · ' : ''}{p.sku ? `SKU: ${p.sku}` : ''}</div>
+                  <div className="truncate font-bold text-[var(--sx-text)]">{p.nombre}</div>
+                  <div className="text-xs text-[var(--sx-text-dim)]">{p.categoria || ''}{p.categoria && p.sku ? ' · ' : ''}{p.sku ? `SKU: ${p.sku}` : ''}</div>
                 </div>
                 <div className="flex flex-wrap gap-5 text-right">
-                  <div><div className="text-[10px] uppercase text-white/40">Precio</div><div className="font-bold text-white">{fmtMoney(p.precio_venta)}</div></div>
-                  <div><div className="text-[10px] uppercase text-white/40">Costo</div><div className="font-semibold text-white/70">{fmtMoney(costoTotal)}</div></div>
-                  <div><div className="text-[10px] uppercase text-white/40">Utilidad</div><div className={`font-semibold ${utilidad >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>{fmtMoney(utilidad)}</div></div>
-                  <div><div className="mb-0.5 text-[10px] uppercase text-white/40">Margen</div><MarginPill pct={margenPct} cls={getMarginClass(margenPct)} /></div>
+                  <div><div className="text-[10px] uppercase text-[var(--sx-text-dim)]">Precio</div><div className="font-bold text-[var(--sx-text)]">{fmtMoney(p.precio_venta)}</div></div>
+                  <div><div className="text-[10px] uppercase text-[var(--sx-text-dim)]">Costo</div><div className="font-semibold text-[var(--sx-text-muted)]">{fmtMoney(costoTotal)}</div></div>
+                  <div><div className="text-[10px] uppercase text-[var(--sx-text-dim)]">Utilidad</div><div className={`font-semibold ${utilidad >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>{fmtMoney(utilidad)}</div></div>
+                  <div><div className="mb-0.5 text-[10px] uppercase text-[var(--sx-text-dim)]">Margen</div><MarginPill pct={margenPct} cls={getMarginClass(margenPct)} /></div>
                 </div>
                 <div className="flex gap-1.5">
                   <IconBtn title="Editar" onClick={() => openEdit(p)}><Edit2 className="h-3.5 w-3.5" /></IconBtn>
@@ -366,7 +366,7 @@ export function ProductosView({ orgId, profile, onBack }: { orgId: string; profi
           <div>
             <Label>Recursos directos</Label>
             <div className="flex flex-col gap-2">
-              {builderRecursos.length === 0 && <div className="rounded-lg border border-dashed border-white/10 p-3 text-xs text-white/40">Aún no agregaste recursos directos.</div>}
+              {builderRecursos.length === 0 && <div className="rounded-lg border border-dashed border-[var(--sx-border)] p-3 text-xs text-[var(--sx-text-dim)]">Aún no agregaste recursos directos.</div>}
               {builderRecursos.map((r, idx) => {
                 const hint = hintTiempo(r.cantidad, r.unidad);
                 const costoTotal = costoUnitRecurso(r.recurso_id) * (r.cantidad || 0);
@@ -390,13 +390,13 @@ export function ProductosView({ orgId, profile, onBack }: { orgId: string; profi
                       onChange={(e) => setBuilderRecursos((prev) => prev.map((x, i) => (i === idx ? { ...x, cantidad: parseAmount(e.target.value) } : x)))}
                     />
                     <Select className="w-28 flex-shrink-0" value={r.unidad} onChange={(e) => setBuilderRecursos((prev) => prev.map((x, i) => (i === idx ? { ...x, unidad: e.target.value } : x)))}><UnidadOptions /></Select>
-                    <div className="w-20 flex-shrink-0 text-right text-xs font-semibold text-white/70">{fmtMoney(costoTotal)}</div>
-                    <button onClick={() => setBuilderRecursos((prev) => prev.filter((_, i) => i !== idx))} className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg text-white/30 hover:bg-white/[0.06] hover:text-red-400"><X className="h-3.5 w-3.5" /></button>
-                    {hint && <div className="w-full text-xs text-white/30">{hint}</div>}
+                    <div className="w-20 flex-shrink-0 text-right text-xs font-semibold text-[var(--sx-text-muted)]">{fmtMoney(costoTotal)}</div>
+                    <button onClick={() => setBuilderRecursos((prev) => prev.filter((_, i) => i !== idx))} className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg text-[var(--sx-text-faint)] hover:bg-[var(--sx-card-hover)] hover:text-red-400"><X className="h-3.5 w-3.5" /></button>
+                    {hint && <div className="w-full text-xs text-[var(--sx-text-faint)]">{hint}</div>}
                   </div>
                 );
               })}
-              <button onClick={() => setBuilderRecursos((prev) => [...prev, { recurso_id: '', cantidad: 0, unidad: 'unidad' }])} className="flex items-center justify-center gap-1.5 rounded-lg border border-dashed border-white/15 py-2 text-xs font-semibold text-white/50 hover:border-white/30 hover:text-white">
+              <button onClick={() => setBuilderRecursos((prev) => [...prev, { recurso_id: '', cantidad: 0, unidad: 'unidad' }])} className="flex items-center justify-center gap-1.5 rounded-lg border border-dashed border-[var(--sx-border-strong)] py-2 text-xs font-semibold text-[var(--sx-text-muted)] hover:border-[var(--sx-border-strong)] hover:text-[var(--sx-text)]">
                 <Plus className="h-3.5 w-3.5" /> Agregar recurso
               </button>
             </div>
@@ -405,7 +405,7 @@ export function ProductosView({ orgId, profile, onBack }: { orgId: string; profi
           <div>
             <Label>Componentes</Label>
             <div className="flex flex-col gap-2">
-              {builderComps.length === 0 && <div className="rounded-lg border border-dashed border-white/10 p-3 text-xs text-white/40">Agrega componentes ya creados (sub-recetas, módulos reutilizables).</div>}
+              {builderComps.length === 0 && <div className="rounded-lg border border-dashed border-[var(--sx-border)] p-3 text-xs text-[var(--sx-text-dim)]">Agrega componentes ya creados (sub-recetas, módulos reutilizables).</div>}
               {builderComps.map((s, idx) => {
                 const hint = hintTiempo(s.cantidad, s.unidad);
                 const costoTotal = costoUnitComponente(s.componente_id) * (s.cantidad || 0);
@@ -429,13 +429,13 @@ export function ProductosView({ orgId, profile, onBack }: { orgId: string; profi
                       onChange={(e) => setBuilderComps((prev) => prev.map((x, i) => (i === idx ? { ...x, cantidad: parseAmount(e.target.value) } : x)))}
                     />
                     <Select className="w-28 flex-shrink-0" value={s.unidad} onChange={(e) => setBuilderComps((prev) => prev.map((x, i) => (i === idx ? { ...x, unidad: e.target.value } : x)))}><UnidadOptions /></Select>
-                    <div className="w-20 flex-shrink-0 text-right text-xs font-semibold text-white/70">{fmtMoney(costoTotal)}</div>
-                    <button onClick={() => setBuilderComps((prev) => prev.filter((_, i) => i !== idx))} className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg text-white/30 hover:bg-white/[0.06] hover:text-red-400"><X className="h-3.5 w-3.5" /></button>
-                    {hint && <div className="w-full text-xs text-white/30">{hint}</div>}
+                    <div className="w-20 flex-shrink-0 text-right text-xs font-semibold text-[var(--sx-text-muted)]">{fmtMoney(costoTotal)}</div>
+                    <button onClick={() => setBuilderComps((prev) => prev.filter((_, i) => i !== idx))} className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg text-[var(--sx-text-faint)] hover:bg-[var(--sx-card-hover)] hover:text-red-400"><X className="h-3.5 w-3.5" /></button>
+                    {hint && <div className="w-full text-xs text-[var(--sx-text-faint)]">{hint}</div>}
                   </div>
                 );
               })}
-              <button onClick={() => setBuilderComps((prev) => [...prev, { componente_id: '', cantidad: 0, unidad: 'unidad' }])} className="flex items-center justify-center gap-1.5 rounded-lg border border-dashed border-white/15 py-2 text-xs font-semibold text-white/50 hover:border-white/30 hover:text-white">
+              <button onClick={() => setBuilderComps((prev) => [...prev, { componente_id: '', cantidad: 0, unidad: 'unidad' }])} className="flex items-center justify-center gap-1.5 rounded-lg border border-dashed border-[var(--sx-border-strong)] py-2 text-xs font-semibold text-[var(--sx-text-muted)] hover:border-[var(--sx-border-strong)] hover:text-[var(--sx-text)]">
                 <Plus className="h-3.5 w-3.5" /> Agregar componente
               </button>
             </div>
@@ -446,15 +446,15 @@ export function ProductosView({ orgId, profile, onBack }: { orgId: string; profi
             <TextInput value={form.descripcion} onChange={(e) => setForm({ ...form, descripcion: e.target.value })} />
           </div>
 
-          <div className="grid grid-cols-2 gap-3 rounded-xl border border-white/10 bg-[#141416] p-4 sm:grid-cols-4">
-            <div><div className="text-[10px] uppercase text-white/40">Recursos</div><div className="font-bold text-white">{fmtMoney(preview.recursos)}</div></div>
-            <div><div className="text-[10px] uppercase text-white/40">Componentes</div><div className="font-bold text-white">{fmtMoney(preview.componentes)}</div></div>
-            <div><div className="text-[10px] uppercase text-white/40">Gastos fijos</div><div className="font-bold text-white">{fmtMoney(preview.gastosFijos)}</div></div>
-            <div><div className="text-[10px] uppercase text-white/40">Costo total</div><div className="font-bold text-white">{fmtMoney(preview.costoTotal)}</div></div>
+          <div className="grid grid-cols-2 gap-3 rounded-xl border border-[var(--sx-border)] bg-[var(--sx-input)] p-4 sm:grid-cols-4">
+            <div><div className="text-[10px] uppercase text-[var(--sx-text-dim)]">Recursos</div><div className="font-bold text-[var(--sx-text)]">{fmtMoney(preview.recursos)}</div></div>
+            <div><div className="text-[10px] uppercase text-[var(--sx-text-dim)]">Componentes</div><div className="font-bold text-[var(--sx-text)]">{fmtMoney(preview.componentes)}</div></div>
+            <div><div className="text-[10px] uppercase text-[var(--sx-text-dim)]">Gastos fijos</div><div className="font-bold text-[var(--sx-text)]">{fmtMoney(preview.gastosFijos)}</div></div>
+            <div><div className="text-[10px] uppercase text-[var(--sx-text-dim)]">Costo total</div><div className="font-bold text-[var(--sx-text)]">{fmtMoney(preview.costoTotal)}</div></div>
           </div>
-          <div className="flex items-center justify-between rounded-xl border border-white/10 bg-[#141416] px-4 py-3">
+          <div className="flex items-center justify-between rounded-xl border border-[var(--sx-border)] bg-[var(--sx-input)] px-4 py-3">
             <div>
-              <div className="text-xs text-white/40">Utilidad</div>
+              <div className="text-xs text-[var(--sx-text-dim)]">Utilidad</div>
               <div className={`text-lg font-extrabold ${preview.utilidad >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>{fmtMoney(preview.utilidad)}</div>
             </div>
             <MarginPill pct={preview.margenPct} cls={getMarginClass(preview.margenPct)} />

@@ -46,7 +46,7 @@ const fechaLabel = (iso?: string | null) => {
 const newDraftId = () => 'draft-' + Date.now() + '-' + Math.random().toString(36).slice(2, 7);
 
 const inputCls =
-  'w-full rounded-lg border border-white/10 bg-[#141416] px-3 py-2 text-sm text-white outline-none transition placeholder:text-white/25 focus:border-[#1aab99] focus:ring-2 focus:ring-[#1aab99]/25';
+  'w-full rounded-lg border border-[var(--sx-border)] bg-[var(--sx-input)] px-3 py-2 text-sm text-[var(--sx-text)] outline-none transition placeholder:text-[var(--sx-text-faint)] focus:border-[#1aab99] focus:ring-2 focus:ring-[#1aab99]/25';
 
 /* ══════════════════════════════════════════════════════════════════════════
    COMPONENTE PRINCIPAL
@@ -352,7 +352,7 @@ export function CajaView({ onBack }: { onBack: () => void }) {
   }
 
   if (loading) {
-    return <div className="flex items-center justify-center py-20"><Loader2 className="h-8 w-8 animate-spin text-white/40" /></div>;
+    return <div className="flex items-center justify-center py-20"><Loader2 className="h-8 w-8 animate-spin text-[var(--sx-text-dim)]" /></div>;
   }
 
   /* ── Gráfica: puntos ── */
@@ -384,12 +384,12 @@ export function CajaView({ onBack }: { onBack: () => void }) {
     <div>
       {/* Header */}
       <div className="mb-6 flex items-center gap-3">
-        <button onClick={onBack} className="flex h-9 w-9 items-center justify-center rounded-lg border border-white/10 text-white/60 transition hover:bg-white/[0.06] hover:text-white">
+        <button onClick={onBack} className="flex h-9 w-9 items-center justify-center rounded-lg border border-[var(--sx-border)] text-[var(--sx-text-muted)] transition hover:bg-[var(--sx-card-hover)] hover:text-[var(--sx-text)]">
           <ArrowLeft className="h-4 w-4" />
         </button>
         <div className="flex-1">
           <p className="text-xs font-semibold uppercase tracking-wide text-[#1aab99]">Pilar 5 · Flujo</p>
-          <h1 className="text-2xl font-bold text-white">Flujo de Caja Diario</h1>
+          <h1 className="text-2xl font-bold text-[var(--sx-text)]">Flujo de Caja Diario</h1>
         </div>
         <div className="flex items-center gap-2">
           {saveState !== 'idle' && (
@@ -401,7 +401,7 @@ export function CajaView({ onBack }: { onBack: () => void }) {
               {saveState === 'saving' ? 'Guardando…' : saveState === 'saved' ? 'Guardado' : 'Error al guardar'}
             </span>
           )}
-          <button onClick={abrirConfig} className="flex h-9 w-9 items-center justify-center rounded-lg border border-white/10 text-white/60 transition hover:bg-white/[0.06] hover:text-white" title="Configuración">
+          <button onClick={abrirConfig} className="flex h-9 w-9 items-center justify-center rounded-lg border border-[var(--sx-border)] text-[var(--sx-text-muted)] transition hover:bg-[var(--sx-card-hover)] hover:text-[var(--sx-text)]" title="Configuración">
             <Settings className="h-4 w-4" />
           </button>
         </div>
@@ -410,20 +410,20 @@ export function CajaView({ onBack }: { onBack: () => void }) {
       <div className="flex flex-col gap-6">
         {/* Stats bar */}
         <div className="grid gap-4 sm:grid-cols-3">
-          <div className="rounded-2xl border border-white/[0.08] bg-[#1c1c1e] p-5">
-            <div className="mb-2 flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-white/40"><Wallet className="h-3.5 w-3.5" /> Saldo hoy</div>
-            <div className="text-2xl font-extrabold text-white">{fmt(stats?.saldo_hoy)}</div>
+          <div className="rounded-2xl border border-[var(--sx-border)] bg-[var(--sx-card)] p-5">
+            <div className="mb-2 flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-[var(--sx-text-dim)]"><Wallet className="h-3.5 w-3.5" /> Saldo hoy</div>
+            <div className="text-2xl font-extrabold text-[var(--sx-text)]">{fmt(stats?.saldo_hoy)}</div>
           </div>
-          <div className="rounded-2xl border border-white/[0.08] bg-[#1c1c1e] p-5">
-            <div className="mb-2 flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-white/40"><TrendingUp className="h-3.5 w-3.5" /> Promedio 7 días</div>
-            <div className="text-2xl font-extrabold text-white">{fmt(stats?.promedio_7_dias)}</div>
+          <div className="rounded-2xl border border-[var(--sx-border)] bg-[var(--sx-card)] p-5">
+            <div className="mb-2 flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-[var(--sx-text-dim)]"><TrendingUp className="h-3.5 w-3.5" /> Promedio 7 días</div>
+            <div className="text-2xl font-extrabold text-[var(--sx-text)]">{fmt(stats?.promedio_7_dias)}</div>
           </div>
-          <div className="rounded-2xl border border-white/[0.08] bg-[#1c1c1e] p-5">
-            <div className="mb-2 flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-white/40"><Activity className="h-3.5 w-3.5" /> Tendencia</div>
-            <div className={`text-2xl font-extrabold ${tendPct != null ? (tendPct >= 0 ? 'text-emerald-400' : 'text-red-400') : 'text-white'}`}>
+          <div className="rounded-2xl border border-[var(--sx-border)] bg-[var(--sx-card)] p-5">
+            <div className="mb-2 flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-[var(--sx-text-dim)]"><Activity className="h-3.5 w-3.5" /> Tendencia</div>
+            <div className={`text-2xl font-extrabold ${tendPct != null ? (tendPct >= 0 ? 'text-emerald-400' : 'text-red-400') : 'text-[var(--sx-text)]'}`}>
               {tendPct != null ? `${tendPct >= 0 ? '↗ +' : '↘ '}${tendPct.toFixed(1)}%` : '—'}
             </div>
-            {tendPct != null && <div className="mt-1 text-xs text-white/40">vs 7 días anteriores</div>}
+            {tendPct != null && <div className="mt-1 text-xs text-[var(--sx-text-dim)]">vs 7 días anteriores</div>}
           </div>
         </div>
 
@@ -434,7 +434,7 @@ export function CajaView({ onBack }: { onBack: () => void }) {
               <div className={`text-sm font-bold ${alertBanner === 'alerta' ? 'text-red-400' : 'text-amber-400'}`}>
                 {alertBanner === 'alerta' ? 'Alerta financiera' : 'Atención'}
               </div>
-              <p className="text-xs text-white/50">
+              <p className="text-xs text-[var(--sx-text-muted)]">
                 {alertBanner === 'alerta'
                   ? `Tu saldo está por debajo del mínimo recomendado (${fmt(stats?.umbral_alerta)}).`
                   : 'Tu saldo cayó más del 20% en la última semana.'}
@@ -444,18 +444,18 @@ export function CajaView({ onBack }: { onBack: () => void }) {
         )}
 
         {/* Formulario */}
-        <div className="rounded-2xl border border-white/[0.08] bg-[#1c1c1e] p-5">
-          <div className="mb-4 flex items-center gap-2 text-sm font-bold text-white"><Calendar className="h-4 w-4 text-[#1aab99]" /> Captura del día</div>
+        <div className="rounded-2xl border border-[var(--sx-border)] bg-[var(--sx-card)] p-5">
+          <div className="mb-4 flex items-center gap-2 text-sm font-bold text-[var(--sx-text)]"><Calendar className="h-4 w-4 text-[#1aab99]" /> Captura del día</div>
 
           <div className="mb-4 grid gap-4 sm:grid-cols-[200px_1fr]">
             <div>
-              <div className="mb-1.5 text-xs font-semibold uppercase tracking-wide text-white/40">Fecha</div>
+              <div className="mb-1.5 text-xs font-semibold uppercase tracking-wide text-[var(--sx-text-dim)]">Fecha</div>
               <input type="date" value={fecha} max={fechaHoy()} onChange={(e) => onFechaChange(e.target.value)} className={inputCls} />
             </div>
             <div>
-              <div className="mb-1.5 text-xs font-semibold uppercase tracking-wide text-white/40">Saldo inicial</div>
-              <input type="text" readOnly value={saldoInicial ? saldoInicial.toLocaleString('es-MX', { maximumFractionDigits: 0 }) : ''} placeholder="0" className={`${inputCls} cursor-default text-white/60`} />
-              <div className="mt-1 text-[11px] text-white/30">{saldoInicialHint}</div>
+              <div className="mb-1.5 text-xs font-semibold uppercase tracking-wide text-[var(--sx-text-dim)]">Saldo inicial</div>
+              <input type="text" readOnly value={saldoInicial ? saldoInicial.toLocaleString('es-MX', { maximumFractionDigits: 0 }) : ''} placeholder="0" className={`${inputCls} cursor-default text-[var(--sx-text-muted)]`} />
+              <div className="mt-1 text-[11px] text-[var(--sx-text-faint)]">{saldoInicialHint}</div>
             </div>
           </div>
 
@@ -480,13 +480,13 @@ export function CajaView({ onBack }: { onBack: () => void }) {
             onEdit={(id, f, v) => editarComponente('egr', id, f, v)}
           />
 
-          <div className="mb-4 flex items-center justify-between rounded-xl border border-white/10 bg-[#141416] px-4 py-3">
-            <span className="text-sm font-bold text-white/70">Saldo final calculado</span>
+          <div className="mb-4 flex items-center justify-between rounded-xl border border-[var(--sx-border)] bg-[var(--sx-input)] px-4 py-3">
+            <span className="text-sm font-bold text-[var(--sx-text-muted)]">Saldo final calculado</span>
             <span className={`text-xl font-extrabold ${saldoFinalCalc >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>{fmt(saldoFinalCalc)}</span>
           </div>
 
           <div className="mb-4">
-            <div className="mb-1.5 text-xs font-semibold uppercase tracking-wide text-white/40">Notas del día (opcional)</div>
+            <div className="mb-1.5 text-xs font-semibold uppercase tracking-wide text-[var(--sx-text-dim)]">Notas del día (opcional)</div>
             <textarea value={notas} onChange={(e) => setNotas(e.target.value)} placeholder="¿Algo relevante hoy? Pagos pendientes, cobros esperados..." className={`${inputCls} min-h-[72px] resize-y`} />
           </div>
 
@@ -501,12 +501,12 @@ export function CajaView({ onBack }: { onBack: () => void }) {
         </div>
 
         {/* Gráfica */}
-        <div className="rounded-2xl border border-white/[0.08] bg-[#1c1c1e] p-5">
-          <div className="mb-4 flex items-center gap-2 text-sm font-bold text-white"><TrendingUp className="h-4 w-4 text-[#1aab99]" /> Tendencia 30 días</div>
+        <div className="rounded-2xl border border-[var(--sx-border)] bg-[var(--sx-card)] p-5">
+          <div className="mb-4 flex items-center gap-2 text-sm font-bold text-[var(--sx-text)]"><TrendingUp className="h-4 w-4 text-[#1aab99]" /> Tendencia 30 días</div>
           <div ref={graficaWrapRef} className="relative h-[200px] w-full">
             {pts.length < 2 ? (
-              <div className="flex h-full items-center justify-center text-center text-sm text-white/25">
-                <div><BarChart2 className="mx-auto mb-2 h-7 w-7 text-white/20" />Captura más días para ver la tendencia</div>
+              <div className="flex h-full items-center justify-center text-center text-sm text-[var(--sx-text-faint)]">
+                <div><BarChart2 className="mx-auto mb-2 h-7 w-7 text-[var(--sx-text-faint)]" />Captura más días para ver la tendencia</div>
               </div>
             ) : (
               <svg width={W} height={H} viewBox={`0 0 ${W} ${H}`} className="h-full w-full">
@@ -522,8 +522,8 @@ export function CajaView({ onBack }: { onBack: () => void }) {
                   const label = v >= 1e6 ? (v / 1e6).toFixed(1) + 'M' : v >= 1e3 ? (v / 1e3).toFixed(0) + 'k' : v.toFixed(0);
                   return (
                     <g key={t}>
-                      <line x1={pad.left} y1={y} x2={W - pad.right} y2={y} stroke="rgba(255,255,255,0.08)" strokeDasharray="4,4" />
-                      <text x={pad.left - 6} y={y + 4} textAnchor="end" fontSize={10} fill="rgba(255,255,255,0.4)">{label}</text>
+                      <line x1={pad.left} y1={y} x2={W - pad.right} y2={y} stroke="var(--sx-border)" strokeDasharray="4,4" />
+                      <text x={pad.left - 6} y={y + 4} textAnchor="end" fontSize={10} fill="var(--sx-text-dim)">{label}</text>
                     </g>
                   );
                 })}
@@ -538,11 +538,11 @@ export function CajaView({ onBack }: { onBack: () => void }) {
                 {pts.map((d, i) => {
                   if (!(i % step === 0 || i === pts.length - 1)) return null;
                   const [, m, dd] = d.fecha.split('-');
-                  return <text key={d.fecha} x={xOf(i)} y={H - 8} textAnchor="middle" fontSize={10} fill="rgba(255,255,255,0.4)">{parseInt(dd, 10)} {MESES[parseInt(m, 10) - 1]}</text>;
+                  return <text key={d.fecha} x={xOf(i)} y={H - 8} textAnchor="middle" fontSize={10} fill="var(--sx-text-dim)">{parseInt(dd, 10)} {MESES[parseInt(m, 10) - 1]}</text>;
                 })}
                 {pts.map((d, i) => (
                   <circle key={d.fecha} cx={xOf(i)} cy={yOf(d.saldo_final as number)} r={4}
-                    fill={lineColor} stroke="#1c1c1e" strokeWidth={2}
+                    fill={lineColor} stroke="var(--sx-card)" strokeWidth={2}
                     opacity={hoverIdx === i ? 1 : 0} style={{ cursor: 'crosshair' }}
                     onMouseEnter={() => setHoverIdx(i)}
                     onMouseMove={(e) => {
@@ -556,12 +556,12 @@ export function CajaView({ onBack }: { onBack: () => void }) {
               </svg>
             )}
             {hoverIdx != null && pts[hoverIdx] && (
-              <div className="pointer-events-none absolute z-10 whitespace-nowrap rounded-lg border border-white/10 bg-[#242426] px-3 py-2 text-xs leading-relaxed text-white shadow-xl"
+              <div className="pointer-events-none absolute z-10 whitespace-nowrap rounded-lg border border-[var(--sx-border)] bg-[var(--sx-card-hover)] px-3 py-2 text-xs leading-relaxed text-[var(--sx-text)] shadow-xl"
                 style={{ left: hoverPos.x, top: hoverPos.y }}>
                 <strong>{fechaLabel(pts[hoverIdx].fecha)}</strong><br />
                 Saldo: <strong>{fmt(pts[hoverIdx].saldo_final)}</strong><br />
                 Ingresos: {fmt(pts[hoverIdx].ingresos_total)} · Egresos: {fmt(pts[hoverIdx].egresos_total)}
-                {pts[hoverIdx].notas && <><br /><em className="text-white/40">{pts[hoverIdx].notas}</em></>}
+                {pts[hoverIdx].notas && <><br /><em className="text-[var(--sx-text-dim)]">{pts[hoverIdx].notas}</em></>}
               </div>
             )}
           </div>
@@ -569,43 +569,43 @@ export function CajaView({ onBack }: { onBack: () => void }) {
 
         {/* Historial */}
         <div>
-          <button onClick={() => setHistorialOpen((o) => !o)} className="flex w-full items-center gap-2 rounded-xl border border-white/10 bg-white/[0.03] px-5 py-3.5 text-sm font-bold text-white/60 transition hover:bg-white/[0.06] hover:text-white">
+          <button onClick={() => setHistorialOpen((o) => !o)} className="flex w-full items-center gap-2 rounded-xl border border-[var(--sx-border)] bg-[var(--sx-card-hover)] px-5 py-3.5 text-sm font-bold text-[var(--sx-text-muted)] transition hover:bg-[var(--sx-card-hover)] hover:text-[var(--sx-text)]">
             <Activity className="h-4 w-4" /> Ver historial completo
             <ChevronDown className={`ml-auto h-4 w-4 transition-transform ${historialOpen ? 'rotate-180' : ''}`} />
           </button>
           {historialOpen && (
-            <div className="mt-2 overflow-hidden rounded-xl border border-white/10">
+            <div className="mt-2 overflow-hidden rounded-xl border border-[var(--sx-border)]">
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead>
-                    <tr className="bg-white/[0.03]">
+                    <tr className="bg-[var(--sx-card-hover)]">
                       {['Fecha', 'Saldo inicial', 'Ingresos', 'Egresos', 'Saldo final', 'Notas'].map((h) => (
-                        <th key={h} className="whitespace-nowrap border-b border-white/10 px-3.5 py-2.5 text-left text-[11px] font-bold uppercase tracking-wide text-white/40">{h}</th>
+                        <th key={h} className="whitespace-nowrap border-b border-[var(--sx-border)] px-3.5 py-2.5 text-left text-[11px] font-bold uppercase tracking-wide text-[var(--sx-text-dim)]">{h}</th>
                       ))}
                     </tr>
                   </thead>
                   <tbody>
                     {historial.slice(historialPage * 30, (historialPage + 1) * 30).map((d) => (
-                      <tr key={d.fecha} onClick={() => abrirDesdeHistorial(d)} className="cursor-pointer border-b border-white/[0.06] last:border-0 hover:bg-white/[0.04]">
-                        <td className="whitespace-nowrap px-3.5 py-2.5 font-semibold text-white">{fechaLabel(d.fecha)}</td>
-                        <td className="px-3.5 py-2.5 text-white/60">{fmt(d.saldo_inicial)}</td>
+                      <tr key={d.fecha} onClick={() => abrirDesdeHistorial(d)} className="cursor-pointer border-b border-[var(--sx-border)] last:border-0 hover:bg-[var(--sx-card-hover)]">
+                        <td className="whitespace-nowrap px-3.5 py-2.5 font-semibold text-[var(--sx-text)]">{fechaLabel(d.fecha)}</td>
+                        <td className="px-3.5 py-2.5 text-[var(--sx-text-muted)]">{fmt(d.saldo_inicial)}</td>
                         <td className="px-3.5 py-2.5 font-semibold text-emerald-400">{fmt(d.ingresos_total)}</td>
                         <td className="px-3.5 py-2.5 font-semibold text-red-400">{fmt(d.egresos_total)}</td>
-                        <td className="px-3.5 py-2.5 font-extrabold text-white">{fmt(d.saldo_final)}</td>
-                        <td className="max-w-[160px] truncate px-3.5 py-2.5 text-xs text-white/30">{d.notas || '—'}</td>
+                        <td className="px-3.5 py-2.5 font-extrabold text-[var(--sx-text)]">{fmt(d.saldo_final)}</td>
+                        <td className="max-w-[160px] truncate px-3.5 py-2.5 text-xs text-[var(--sx-text-faint)]">{d.notas || '—'}</td>
                       </tr>
                     ))}
                     {historial.length === 0 && (
-                      <tr><td colSpan={6} className="px-3.5 py-6 text-center text-sm text-white/30">Sin registros aún.</td></tr>
+                      <tr><td colSpan={6} className="px-3.5 py-6 text-center text-sm text-[var(--sx-text-faint)]">Sin registros aún.</td></tr>
                     )}
                   </tbody>
                 </table>
               </div>
               {historial.length > 0 && (
-                <div className="flex items-center gap-2 border-t border-white/10 px-3.5 py-2.5">
-                  <button disabled={historialPage === 0} onClick={() => setHistorialPage((p) => p - 1)} className="rounded-md border border-white/10 px-3 py-1 text-xs font-semibold text-white/60 disabled:opacity-30">‹ Anterior</button>
-                  <span className="flex-1 text-xs text-white/40">Mostrando {historialPage * 30 + 1}–{Math.min((historialPage + 1) * 30, historial.length)} de {historial.length}</span>
-                  <button disabled={(historialPage + 1) * 30 >= historial.length} onClick={() => setHistorialPage((p) => p + 1)} className="rounded-md border border-white/10 px-3 py-1 text-xs font-semibold text-white/60 disabled:opacity-30">Siguiente ›</button>
+                <div className="flex items-center gap-2 border-t border-[var(--sx-border)] px-3.5 py-2.5">
+                  <button disabled={historialPage === 0} onClick={() => setHistorialPage((p) => p - 1)} className="rounded-md border border-[var(--sx-border)] px-3 py-1 text-xs font-semibold text-[var(--sx-text-muted)] disabled:opacity-30">‹ Anterior</button>
+                  <span className="flex-1 text-xs text-[var(--sx-text-dim)]">Mostrando {historialPage * 30 + 1}–{Math.min((historialPage + 1) * 30, historial.length)} de {historial.length}</span>
+                  <button disabled={(historialPage + 1) * 30 >= historial.length} onClick={() => setHistorialPage((p) => p + 1)} className="rounded-md border border-[var(--sx-border)] px-3 py-1 text-xs font-semibold text-[var(--sx-text-muted)] disabled:opacity-30">Siguiente ›</button>
                 </div>
               )}
             </div>
@@ -616,12 +616,12 @@ export function CajaView({ onBack }: { onBack: () => void }) {
       {/* MODAL SETUP */}
       {showSetup && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
-          <div className="w-full max-w-[440px] rounded-2xl border border-white/10 bg-[#1c1c1e] p-8">
+          <div className="w-full max-w-[440px] rounded-2xl border border-[var(--sx-border)] bg-[var(--sx-card)] p-8">
             <div className="mb-5 flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-[#1aab99] to-[#3533cd]"><Wallet className="h-6 w-6 text-white" /></div>
-            <h2 className="mb-2 text-xl font-extrabold text-white">Bienvenido al Flujo de Caja</h2>
-            <p className="mb-6 text-sm leading-relaxed text-white/50">Para empezar, necesitamos saber cuánto tienes hoy en bancos y caja. Esto será tu saldo inicial y el punto de partida de tu historial financiero diario.</p>
+            <h2 className="mb-2 text-xl font-extrabold text-[var(--sx-text)]">Bienvenido al Flujo de Caja</h2>
+            <p className="mb-6 text-sm leading-relaxed text-[var(--sx-text-muted)]">Para empezar, necesitamos saber cuánto tienes hoy en bancos y caja. Esto será tu saldo inicial y el punto de partida de tu historial financiero diario.</p>
             <div className="mb-2">
-              <div className="mb-1.5 text-xs font-semibold uppercase tracking-wide text-white/40">Saldo inicial hoy</div>
+              <div className="mb-1.5 text-xs font-semibold uppercase tracking-wide text-[var(--sx-text-dim)]">Saldo inicial hoy</div>
               <input type="number" min={0} value={setupSaldo} onChange={(e) => setSetupSaldo(e.target.value)} placeholder="0" className={`${inputCls} text-lg`} />
             </div>
             <div className="mt-6 flex gap-2.5">
@@ -637,20 +637,20 @@ export function CajaView({ onBack }: { onBack: () => void }) {
       {/* MODAL CONFIG */}
       {showConfig && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
-          <div className="w-full max-w-[440px] rounded-2xl border border-white/10 bg-[#1c1c1e] p-8">
-            <h2 className="mb-2 text-xl font-extrabold text-white">Configuración</h2>
-            <p className="mb-4 text-sm text-white/50">Ajusta el umbral de alerta y el saldo inicial de la cadena.</p>
+          <div className="w-full max-w-[440px] rounded-2xl border border-[var(--sx-border)] bg-[var(--sx-card)] p-8">
+            <h2 className="mb-2 text-xl font-extrabold text-[var(--sx-text)]">Configuración</h2>
+            <p className="mb-4 text-sm text-[var(--sx-text-muted)]">Ajusta el umbral de alerta y el saldo inicial de la cadena.</p>
 
             <div className="mb-4">
-              <div className="mb-2 text-xs font-semibold uppercase tracking-wide text-white/40">Umbral de alerta</div>
+              <div className="mb-2 text-xs font-semibold uppercase tracking-wide text-[var(--sx-text-dim)]">Umbral de alerta</div>
               <div className="flex flex-col gap-2">
                 {[{ v: false, l: 'Automático (GFM del último diagnóstico)' }, { v: true, l: 'Manual' }].map((opt) => (
                   <label key={String(opt.v)} onClick={() => setUmbralManual(opt.v)}
-                    className={`flex cursor-pointer items-center gap-2.5 rounded-lg border px-3.5 py-3 text-sm transition ${umbralManual === opt.v ? 'border-[#1aab99] bg-[#1aab99]/10' : 'border-white/10 hover:bg-white/[0.03]'}`}>
-                    <span className={`flex h-4 w-4 items-center justify-center rounded-full border-2 ${umbralManual === opt.v ? 'border-[#1aab99] bg-[#1aab99]' : 'border-white/20'}`}>
+                    className={`flex cursor-pointer items-center gap-2.5 rounded-lg border px-3.5 py-3 text-sm transition ${umbralManual === opt.v ? 'border-[#1aab99] bg-[#1aab99]/10' : 'border-[var(--sx-border)] hover:bg-[var(--sx-card-hover)]'}`}>
+                    <span className={`flex h-4 w-4 items-center justify-center rounded-full border-2 ${umbralManual === opt.v ? 'border-[#1aab99] bg-[#1aab99]' : 'border-[var(--sx-border-strong)]'}`}>
                       {umbralManual === opt.v && <span className="h-1.5 w-1.5 rounded-full bg-white" />}
                     </span>
-                    <span className="font-semibold text-white">{opt.l}</span>
+                    <span className="font-semibold text-[var(--sx-text)]">{opt.l}</span>
                   </label>
                 ))}
               </div>
@@ -660,20 +660,20 @@ export function CajaView({ onBack }: { onBack: () => void }) {
             </div>
 
             <div className="mb-2">
-              <div className="mb-1.5 text-xs font-semibold uppercase tracking-wide text-white/40">Saldo inicial de la cadena</div>
+              <div className="mb-1.5 text-xs font-semibold uppercase tracking-wide text-[var(--sx-text-dim)]">Saldo inicial de la cadena</div>
               <input type="number" value={configSaldoInicial} onChange={(e) => setConfigSaldoInicial(e.target.value)} placeholder="0" min={0} className={`${inputCls} mb-2`} />
               <button onClick={recalcularCadena} disabled={recalculando}
-                className="flex items-center gap-1.5 rounded-lg border border-white/10 px-3 py-1.5 text-xs font-semibold text-white/60 transition hover:bg-white/[0.06] hover:text-white disabled:opacity-40">
+                className="flex items-center gap-1.5 rounded-lg border border-[var(--sx-border)] px-3 py-1.5 text-xs font-semibold text-[var(--sx-text-muted)] transition hover:bg-[var(--sx-card-hover)] hover:text-[var(--sx-text)] disabled:opacity-40">
                 <RefreshCw className={`h-3.5 w-3.5 ${recalculando ? 'animate-spin' : ''}`} /> {recalculando ? 'Recalculando…' : 'Recalcular cadena desde el inicio'}
               </button>
-              <div className="mt-1.5 text-[11px] text-white/30">Recalcula todos los saldos en cascada desde la primera entrada.</div>
+              <div className="mt-1.5 text-[11px] text-[var(--sx-text-faint)]">Recalcula todos los saldos en cascada desde la primera entrada.</div>
             </div>
 
             <div className="mt-6 flex flex-wrap gap-2.5">
               <button onClick={guardarConfig} className="flex items-center gap-2 rounded-xl bg-gradient-to-br from-[#1aab99] to-[#3533cd] px-5 py-2.5 text-sm font-bold text-white transition hover:opacity-90">
                 <Check className="h-4 w-4" /> Guardar configuración
               </button>
-              <button onClick={() => setShowConfig(false)} className="rounded-xl border border-white/10 px-5 py-2.5 text-sm font-semibold text-white/60 transition hover:bg-white/[0.06] hover:text-white">Cancelar</button>
+              <button onClick={() => setShowConfig(false)} className="rounded-xl border border-[var(--sx-border)] px-5 py-2.5 text-sm font-semibold text-[var(--sx-text-muted)] transition hover:bg-[var(--sx-card-hover)] hover:text-[var(--sx-text)]">Cancelar</button>
             </div>
           </div>
         </div>
@@ -692,16 +692,16 @@ function FlujoGroup({
   onAdd: () => void; onRemove: (id: string) => void; onEdit: (id: string, field: 'label' | 'monto', value: string) => void;
 }) {
   return (
-    <div className="mb-4 rounded-xl border border-white/10 bg-white/[0.02] p-4">
+    <div className="mb-4 rounded-xl border border-[var(--sx-border)] bg-[var(--sx-card-hover)] p-4">
       <div className="mb-3 flex items-center gap-2.5">
         <span className={`flex-1 text-sm font-bold ${color}`}>{label}</span>
-        <button onClick={onToggle} className="flex items-center gap-1.5 rounded-md border border-white/10 px-2.5 py-1.5 text-[11px] font-bold text-white/60 transition hover:bg-white/[0.06] hover:text-white">
+        <button onClick={onToggle} className="flex items-center gap-1.5 rounded-md border border-[var(--sx-border)] px-2.5 py-1.5 text-[11px] font-bold text-[var(--sx-text-muted)] transition hover:bg-[var(--sx-card-hover)] hover:text-[var(--sx-text)]">
           {desglosado ? <X className="h-3 w-3" /> : <Plus className="h-3 w-3" />} {desglosado ? 'Colapsar' : 'Desglosar'}
         </button>
       </div>
       {!desglosado ? (
         <div className="relative">
-          <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-sm font-semibold text-white/40">$</span>
+          <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-sm font-semibold text-[var(--sx-text-dim)]">$</span>
           <input type="number" min={0} value={main} onChange={(e) => onMainChange(e.target.value)} placeholder="0" className={`${inputCls} pl-6`} />
         </div>
       ) : (
@@ -710,12 +710,12 @@ function FlujoGroup({
             <div key={c.id} className="flex items-center gap-2">
               <input value={c.label} onChange={(e) => onEdit(c.id, 'label', e.target.value)} placeholder="Descripción" className={`${inputCls} flex-[2] text-sm`} />
               <input type="number" min={0} value={c.monto as unknown as string} onChange={(e) => onEdit(c.id, 'monto', e.target.value)} placeholder="0" className={`${inputCls} w-32 flex-shrink-0 text-sm`} />
-              <button onClick={() => onRemove(c.id)} className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-md border border-white/10 text-white/30 transition hover:border-red-500/30 hover:bg-red-500/10 hover:text-red-400">
+              <button onClick={() => onRemove(c.id)} className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-md border border-[var(--sx-border)] text-[var(--sx-text-faint)] transition hover:border-red-500/30 hover:bg-red-500/10 hover:text-red-400">
                 <X className="h-3.5 w-3.5" />
               </button>
             </div>
           ))}
-          <button onClick={onAdd} className="mt-1 flex w-full items-center justify-center gap-1.5 rounded-lg border border-dashed border-white/15 py-2 text-xs font-semibold text-white/40 transition hover:border-[#1aab99] hover:text-[#1aab99]">
+          <button onClick={onAdd} className="mt-1 flex w-full items-center justify-center gap-1.5 rounded-lg border border-dashed border-[var(--sx-border-strong)] py-2 text-xs font-semibold text-[var(--sx-text-dim)] transition hover:border-[#1aab99] hover:text-[#1aab99]">
             <Plus className="h-3.5 w-3.5" /> Agregar componente
           </button>
         </div>

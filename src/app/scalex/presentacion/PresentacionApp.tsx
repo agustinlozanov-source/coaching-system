@@ -131,7 +131,7 @@ export function PresentacionApp() {
   if (loading) {
     return (
       <div className="flex h-full min-h-[70vh] items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-white/40" />
+        <Loader2 className="h-8 w-8 animate-spin text-[var(--sx-text-dim)]" />
       </div>
     );
   }
@@ -139,16 +139,16 @@ export function PresentacionApp() {
   const isCertified = perfil?.cert_vigente === true && !!perfil?.nivel_consultor;
   if (!isCertified) {
     return (
-      <div className="flex h-full min-h-[70vh] flex-col items-center justify-center gap-5 rounded-2xl bg-[#07070a] p-10 text-center">
+      <div className="flex h-full min-h-[70vh] flex-col items-center justify-center gap-5 rounded-2xl bg-[var(--sx-card)] p-10 text-center">
         <div className="flex h-[72px] w-[72px] items-center justify-center rounded-full bg-red-500/10 text-red-400">
           <ShieldOff className="h-8 w-8" />
         </div>
-        <h2 className="text-2xl font-extrabold text-white">Acceso restringido</h2>
-        <p className="max-w-md text-sm leading-relaxed text-white/50">
+        <h2 className="text-2xl font-extrabold text-[var(--sx-text)]">Acceso restringido</h2>
+        <p className="max-w-md text-sm leading-relaxed text-[var(--sx-text-muted)]">
           El Modo Presentación está disponible únicamente para consultores con certificación vigente.
           Habla con tu administrador para que te asigne tu certificación.
         </p>
-        <Link href="/scalex" className="mt-2 rounded-full border border-white/10 bg-white/[0.04] px-7 py-3 text-sm font-semibold text-white/70 transition hover:bg-white/[0.08] hover:text-white">
+        <Link href="/scalex" className="mt-2 rounded-full border border-[var(--sx-border)] bg-[var(--sx-card-hover)] px-7 py-3 text-sm font-semibold text-[var(--sx-text-muted)] transition hover:bg-[var(--sx-card-hover)] hover:text-[var(--sx-text)]">
           ← Volver al Dashboard
         </Link>
       </div>

@@ -23,12 +23,12 @@ export function ProspectoCard({
       onDragStart={onDragStart}
       onDragEnd={onDragEnd}
       onClick={onOpen}
-      className="cursor-pointer rounded-xl border border-white/10 bg-[#1c1c1e] p-3.5 transition hover:-translate-y-0.5 hover:border-white/20 hover:bg-[#242426] hover:shadow-lg"
+      className="cursor-pointer rounded-xl border border-[var(--sx-border)] bg-[var(--sx-card)] p-3.5 transition hover:-translate-y-0.5 hover:border-[var(--sx-border-strong)] hover:bg-[var(--sx-card-hover)] hover:shadow-lg"
     >
-      <div className="mb-0.5 truncate text-[13px] font-bold text-white">
+      <div className="mb-0.5 truncate text-[13px] font-bold text-[var(--sx-text)]">
         {prospecto.empresa_nombre || '—'}
       </div>
-      <div className="mb-2 truncate text-[11px] text-white/40">
+      <div className="mb-2 truncate text-[11px] text-[var(--sx-text-dim)]">
         {prospecto.contacto_nombre}
         {prospecto.contacto_puesto ? ` · ${prospecto.contacto_puesto}` : ''}
       </div>
@@ -50,11 +50,11 @@ export function ProspectoCard({
         </div>
       )}
 
-      <div className="flex items-center justify-between gap-2 border-t border-white/[0.06] pt-2">
+      <div className="flex items-center justify-between gap-2 border-t border-[var(--sx-border)] pt-2">
         {prospecto.proxima_accion ? (
           <span
             className={`flex min-w-0 items-center gap-1 truncate text-[10px] ${
-              vencida ? 'text-amber-400' : 'text-white/50'
+              vencida ? 'text-amber-400' : 'text-[var(--sx-text-muted)]'
             }`}
           >
             {vencida ? (
@@ -68,11 +68,11 @@ export function ProspectoCard({
             </span>
           </span>
         ) : (
-          <span className="flex items-center gap-1 text-[10px] text-white/30">
+          <span className="flex items-center gap-1 text-[10px] text-[var(--sx-text-faint)]">
             <Minus className="h-2.5 w-2.5" /> Sin acción
           </span>
         )}
-        <span className="flex flex-shrink-0 items-center gap-1 text-[10px] text-white/30">
+        <span className="flex flex-shrink-0 items-center gap-1 text-[10px] text-[var(--sx-text-faint)]">
           <MessageSquare className="h-2.5 w-2.5" /> {prospecto.interacciones_count ?? 0}
         </span>
       </div>

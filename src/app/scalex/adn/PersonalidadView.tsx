@@ -156,15 +156,15 @@ export function PersonalidadView({
     return (
       <div>
         <div className="mb-6 flex items-center gap-3">
-          <button onClick={onBack} className="flex h-9 w-9 items-center justify-center rounded-lg border border-white/10 text-white/60 transition hover:bg-white/[0.06] hover:text-white">
+          <button onClick={onBack} className="flex h-9 w-9 items-center justify-center rounded-lg border border-[var(--sx-border)] text-[var(--sx-text-muted)] transition hover:bg-[var(--sx-card-hover)] hover:text-[var(--sx-text)]">
             <ArrowLeft className="h-4 w-4" />
           </button>
           <div>
             <p className="text-xs font-semibold uppercase tracking-wide text-[#1aab99]">ADN · Paso 1</p>
-            <h1 className="text-2xl font-bold text-white">Perfil de Personalidad</h1>
+            <h1 className="text-2xl font-bold text-[var(--sx-text)]">Perfil de Personalidad</h1>
           </div>
         </div>
-        <div className="rounded-2xl border border-white/[0.08] bg-[#1c1c1e] p-10 text-center text-white/50">
+        <div className="rounded-2xl border border-[var(--sx-border)] bg-[var(--sx-card)] p-10 text-center text-[var(--sx-text-muted)]">
           Completa primero el Paso 0 · Diagnóstico de Pirámide.
         </div>
       </div>
@@ -174,7 +174,7 @@ export function PersonalidadView({
   if (loading) {
     return (
       <div className="flex items-center justify-center py-20">
-        <Loader2 className="h-8 w-8 animate-spin text-white/40" />
+        <Loader2 className="h-8 w-8 animate-spin text-[var(--sx-text-dim)]" />
       </div>
     );
   }
@@ -197,12 +197,12 @@ export function PersonalidadView({
     <div>
       <div className="mb-6 flex items-center justify-between gap-3">
         <div className="flex items-center gap-3">
-          <button onClick={onBack} className="flex h-9 w-9 items-center justify-center rounded-lg border border-white/10 text-white/60 transition hover:bg-white/[0.06] hover:text-white">
+          <button onClick={onBack} className="flex h-9 w-9 items-center justify-center rounded-lg border border-[var(--sx-border)] text-[var(--sx-text-muted)] transition hover:bg-[var(--sx-card-hover)] hover:text-[var(--sx-text)]">
             <ArrowLeft className="h-4 w-4" />
           </button>
           <div>
             <p className="text-xs font-semibold uppercase tracking-wide text-[#1aab99]">ADN · Paso 1</p>
-            <h1 className="text-2xl font-bold text-white">Perfil de Personalidad</h1>
+            <h1 className="text-2xl font-bold text-[var(--sx-text)]">Perfil de Personalidad</h1>
           </div>
         </div>
         <SaveIndicator state={saveState} />
@@ -212,10 +212,10 @@ export function PersonalidadView({
         {/* Columna izquierda — preguntas */}
         <div>
           <div className="mb-4 flex items-center gap-3">
-            <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-white/[0.06]">
+            <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-[var(--sx-card-hover)]">
               <div className="h-full rounded-full bg-gradient-to-r from-pink-500 to-purple-600 transition-all duration-500" style={{ width: `${(respondidas / total) * 100}%` }} />
             </div>
-            <span className="whitespace-nowrap text-xs font-semibold text-white/40">{respondidas} / {total}</span>
+            <span className="whitespace-nowrap text-xs font-semibold text-[var(--sx-text-dim)]">{respondidas} / {total}</span>
           </div>
 
           <div className="flex flex-col gap-4">
@@ -226,26 +226,26 @@ export function PersonalidadView({
               return (
                 <div key={pregunta.numero}>
                   {showDim && (
-                    <div className="mb-2 mt-2 text-[11px] font-bold uppercase tracking-wide text-white/30">
+                    <div className="mb-2 mt-2 text-[11px] font-bold uppercase tracking-wide text-[var(--sx-text-faint)]">
                       {DIMENSIONES[pregunta.dimension] || pregunta.dimension}
                     </div>
                   )}
                   <div
-                    className={`rounded-2xl border bg-[#1c1c1e] p-5 transition ${saved.tipo ? 'border-purple-500/30' : 'border-white/[0.08]'}`}
+                    className={`rounded-2xl border bg-[var(--sx-card)] p-5 transition ${saved.tipo ? 'border-purple-500/30' : 'border-[var(--sx-border)]'}`}
                   >
                     <div className="mb-1.5 text-[10px] font-bold uppercase tracking-wide text-purple-400">Pregunta {pregunta.numero}</div>
-                    <div className="mb-2.5 text-[15px] font-bold text-white">{pregunta.titulo}</div>
-                    <div className="mb-4 rounded-lg border-l-2 border-purple-500 bg-white/[0.03] p-3 text-[13px] leading-relaxed text-white/60">
+                    <div className="mb-2.5 text-[15px] font-bold text-[var(--sx-text)]">{pregunta.titulo}</div>
+                    <div className="mb-4 rounded-lg border-l-2 border-purple-500 bg-[var(--sx-card-hover)] p-3 text-[13px] leading-relaxed text-[var(--sx-text-muted)]">
                       {pregunta.detonante}
                     </div>
 
-                    <div className="mb-1.5 text-[11px] font-semibold uppercase tracking-wide text-white/30">Notas del consultor</div>
+                    <div className="mb-1.5 text-[11px] font-semibold uppercase tracking-wide text-[var(--sx-text-faint)]">Notas del consultor</div>
                     <textarea
                       value={saved.notas}
                       onChange={(e) => cambiarNotas(pregunta.numero, e.target.value)}
                       placeholder="Anota lo relevante de la respuesta…"
                       rows={2}
-                      className="mb-3 w-full resize-y rounded-lg border border-white/10 bg-[#141416] px-3 py-2 text-sm text-white outline-none transition placeholder:text-white/25 focus:border-[#1aab99] focus:ring-2 focus:ring-[#1aab99]/25"
+                      className="mb-3 w-full resize-y rounded-lg border border-[var(--sx-border)] bg-[var(--sx-input)] px-3 py-2 text-sm text-[var(--sx-text)] outline-none transition placeholder:text-[var(--sx-text-faint)] focus:border-[#1aab99] focus:ring-2 focus:ring-[#1aab99]/25"
                     />
 
                     <div className="flex flex-col gap-2">
@@ -255,7 +255,7 @@ export function PersonalidadView({
                           <label
                             key={r.tipo}
                             className={`flex cursor-pointer items-start gap-2.5 rounded-lg border p-2.5 transition ${
-                              selected ? 'border-purple-500/50 bg-purple-500/[0.08]' : 'border-white/10 bg-white/[0.02] hover:border-purple-500/30'
+                              selected ? 'border-purple-500/50 bg-purple-500/[0.08]' : 'border-[var(--sx-border)] bg-[var(--sx-card-hover)] hover:border-purple-500/30'
                             }`}
                           >
                             <input
@@ -265,10 +265,10 @@ export function PersonalidadView({
                               checked={selected}
                               onChange={() => seleccionarRespuesta(pregunta.numero, r.tipo, r.pesos)}
                             />
-                            <span className={`flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-md text-[11px] font-extrabold ${selected ? 'bg-purple-500 text-white' : 'bg-white/[0.06] text-white/40'}`}>
+                            <span className={`flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-md text-[11px] font-extrabold ${selected ? 'bg-purple-500 text-white' : 'bg-[var(--sx-card-hover)] text-[var(--sx-text-dim)]'}`}>
                               {r.tipo}
                             </span>
-                            <span className="pt-0.5 text-[12.5px] leading-relaxed text-white/65">{r.descripcion}</span>
+                            <span className="pt-0.5 text-[12.5px] leading-relaxed text-[var(--sx-text-muted)]">{r.descripcion}</span>
                           </label>
                         );
                       })}
@@ -282,12 +282,12 @@ export function PersonalidadView({
 
         {/* Columna derecha — panel */}
         <div className="flex flex-col gap-4">
-          <div className="rounded-2xl border border-white/[0.08] bg-[#1c1c1e] p-4">
-            <div className="mb-3 flex items-center gap-2 text-sm font-bold text-white">
+          <div className="rounded-2xl border border-[var(--sx-border)] bg-[var(--sx-card)] p-4">
+            <div className="mb-3 flex items-center gap-2 text-sm font-bold text-[var(--sx-text)]">
               <Sparkles className="h-4 w-4 text-purple-400" /> Mix de rasgos
             </div>
             {respondidas === 0 ? (
-              <div className="py-2 text-center text-xs text-white/30">Responde preguntas para ver el mix</div>
+              <div className="py-2 text-center text-xs text-[var(--sx-text-faint)]">Responde preguntas para ver el mix</div>
             ) : (
               <div className="flex flex-col gap-2.5">
                 {ordenados.map((rasgo) => {
@@ -296,10 +296,10 @@ export function PersonalidadView({
                   return (
                     <div key={rasgo}>
                       <div className="mb-1 flex items-center justify-between text-xs">
-                        <span className="text-white/60">{NOMBRES_RASGO[rasgo]}</span>
+                        <span className="text-[var(--sx-text-muted)]">{NOMBRES_RASGO[rasgo]}</span>
                         <span className="font-bold" style={{ color }}>{pct}%</span>
                       </div>
-                      <div className="h-1.5 overflow-hidden rounded-full bg-white/[0.06]">
+                      <div className="h-1.5 overflow-hidden rounded-full bg-[var(--sx-card-hover)]">
                         <div className="h-full rounded-full transition-all duration-500" style={{ width: `${pct}%`, background: color }} />
                       </div>
                     </div>
@@ -311,9 +311,9 @@ export function PersonalidadView({
 
           {preview?.hibrido && !completado && (
             <div className="rounded-2xl border border-purple-500/25 bg-purple-500/[0.06] p-4 text-center">
-              <div className="text-[11px] font-semibold uppercase tracking-wide text-white/30">Vista previa del híbrido</div>
-              <div className="mt-1 text-base font-extrabold text-white">{preview.hibrido.nombre}</div>
-              <div className="mt-0.5 text-xs text-white/40">{capitalize(preview.rasgos_dominantes[0])} + {capitalize(preview.rasgos_dominantes[1])}</div>
+              <div className="text-[11px] font-semibold uppercase tracking-wide text-[var(--sx-text-faint)]">Vista previa del híbrido</div>
+              <div className="mt-1 text-base font-extrabold text-[var(--sx-text)]">{preview.hibrido.nombre}</div>
+              <div className="mt-0.5 text-xs text-[var(--sx-text-dim)]">{capitalize(preview.rasgos_dominantes[0])} + {capitalize(preview.rasgos_dominantes[1])}</div>
             </div>
           )}
 
@@ -323,20 +323,20 @@ export function PersonalidadView({
                 <Sparkles className="h-3 w-3" />
                 {capitalize(hibridoFinalEntry.rasgos_dominantes[0] || '')} + {capitalize(hibridoFinalEntry.rasgos_dominantes[1] || '')}
               </div>
-              <div className="mb-2 text-base font-extrabold text-white">{hibridoFinal.nombre}</div>
-              <p className="mb-3 text-[12.5px] leading-relaxed text-white/60">{hibridoFinal.esencia}</p>
+              <div className="mb-2 text-base font-extrabold text-[var(--sx-text)]">{hibridoFinal.nombre}</div>
+              <p className="mb-3 text-[12.5px] leading-relaxed text-[var(--sx-text-muted)]">{hibridoFinal.esencia}</p>
               <div className="mb-3 grid gap-2 sm:grid-cols-2">
-                <div className="rounded-lg bg-white/[0.04] p-3">
-                  <div className="mb-1 text-[10px] font-bold uppercase tracking-wide text-white/30">Fortaleza</div>
-                  <div className="text-xs leading-relaxed text-white/60">{hibridoFinal.fortaleza}</div>
+                <div className="rounded-lg bg-[var(--sx-card-hover)] p-3">
+                  <div className="mb-1 text-[10px] font-bold uppercase tracking-wide text-[var(--sx-text-faint)]">Fortaleza</div>
+                  <div className="text-xs leading-relaxed text-[var(--sx-text-muted)]">{hibridoFinal.fortaleza}</div>
                 </div>
-                <div className="rounded-lg bg-white/[0.04] p-3">
-                  <div className="mb-1 text-[10px] font-bold uppercase tracking-wide text-white/30">Tensión natural</div>
-                  <div className="text-xs leading-relaxed text-white/60">{hibridoFinal.debilidad}</div>
+                <div className="rounded-lg bg-[var(--sx-card-hover)] p-3">
+                  <div className="mb-1 text-[10px] font-bold uppercase tracking-wide text-[var(--sx-text-faint)]">Tensión natural</div>
+                  <div className="text-xs leading-relaxed text-[var(--sx-text-muted)]">{hibridoFinal.debilidad}</div>
                 </div>
               </div>
-              <div className="text-xs text-white/60">
-                <strong className="text-white/80">Rasgos a explorar:</strong>
+              <div className="text-xs text-[var(--sx-text-muted)]">
+                <strong className="text-[var(--sx-text-muted)]">Rasgos a explorar:</strong>
                 <ul className="mt-1.5 flex flex-col gap-1">
                   {hibridoFinal.rasgos_a_explorar.map((r) => (
                     <li key={r} className="flex gap-1.5"><span className="text-purple-400">·</span> {r}</li>
@@ -347,8 +347,8 @@ export function PersonalidadView({
           )}
 
           {completado && (
-            <div className="rounded-2xl border border-white/[0.08] bg-[#1c1c1e] p-4">
-              <div className="mb-3 flex items-center gap-2 text-sm font-bold text-white">
+            <div className="rounded-2xl border border-[var(--sx-border)] bg-[var(--sx-card)] p-4">
+              <div className="mb-3 flex items-center gap-2 text-sm font-bold text-[var(--sx-text)]">
                 <CalendarCheck className="h-4 w-4 text-purple-400" /> Agenda 7 / 30 / 90
               </div>
               <AgendasForStep sesionId={sesionId} paso="paso_1" />

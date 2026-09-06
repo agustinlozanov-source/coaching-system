@@ -117,41 +117,41 @@ export function GastosView({ orgId, profile, onBack }: { orgId: string; profile:
   const prorrateo = total / (unidades || 1);
 
   if (loading) {
-    return <div className="flex items-center justify-center py-20"><Loader2 className="h-8 w-8 animate-spin text-white/40" /></div>;
+    return <div className="flex items-center justify-center py-20"><Loader2 className="h-8 w-8 animate-spin text-[var(--sx-text-dim)]" /></div>;
   }
 
   return (
     <div>
       <div className="mb-6 flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <button onClick={onBack} className="flex h-9 w-9 items-center justify-center rounded-lg border border-white/10 text-white/60 transition hover:bg-white/[0.06] hover:text-white">
+          <button onClick={onBack} className="flex h-9 w-9 items-center justify-center rounded-lg border border-[var(--sx-border)] text-[var(--sx-text-muted)] transition hover:bg-[var(--sx-card-hover)] hover:text-[var(--sx-text)]">
             <ArrowLeft className="h-4 w-4" />
           </button>
           <div>
             <p className="text-xs font-semibold uppercase tracking-wide text-[#1aab99]">Costeo · Paso 1</p>
-            <h1 className="text-2xl font-bold text-white">Gastos Fijos</h1>
+            <h1 className="text-2xl font-bold text-[var(--sx-text)]">Gastos Fijos</h1>
           </div>
         </div>
         <SaveBadge status={status} />
       </div>
 
       <div className="grid gap-6 lg:grid-cols-[1fr_300px]">
-        <div className="rounded-2xl border border-white/[0.08] bg-[#1c1c1e] p-5">
+        <div className="rounded-2xl border border-[var(--sx-border)] bg-[var(--sx-card)] p-5">
           <div className="mb-4 flex items-center justify-between">
-            <h2 className="text-sm font-bold text-white">Conceptos mensuales</h2>
-            <span className="text-xs text-white/40">{conceptos.length} concepto{conceptos.length !== 1 ? 's' : ''}</span>
+            <h2 className="text-sm font-bold text-[var(--sx-text)]">Conceptos mensuales</h2>
+            <span className="text-xs text-[var(--sx-text-dim)]">{conceptos.length} concepto{conceptos.length !== 1 ? 's' : ''}</span>
           </div>
 
           {conceptos.length === 0 && (
-            <div className="py-6 text-center text-sm text-white/40">Sin conceptos todavía. Agrega el primero abajo.</div>
+            <div className="py-6 text-center text-sm text-[var(--sx-text-dim)]">Sin conceptos todavía. Agrega el primero abajo.</div>
           )}
 
           <div className="flex flex-col gap-2">
             {conceptos.map((c) => {
               const Icon = getIcon(c.nombre);
               return (
-                <div key={c.id} className="flex items-center gap-2 rounded-xl border border-white/[0.06] bg-[#141416] p-2.5">
-                  <Icon className="h-4 w-4 flex-shrink-0 text-white/40" />
+                <div key={c.id} className="flex items-center gap-2 rounded-xl border border-[var(--sx-border)] bg-[var(--sx-input)] p-2.5">
+                  <Icon className="h-4 w-4 flex-shrink-0 text-[var(--sx-text-dim)]" />
                   <TextInput
                     value={c.nombre}
                     placeholder="Concepto"
@@ -165,8 +165,8 @@ export function GastosView({ orgId, profile, onBack }: { orgId: string; profile:
                     onChange={(e) => updateConcepto(c.id, 'monto', e.target.value)}
                     className="w-28 flex-shrink-0 text-right"
                   />
-                  <span className="w-16 flex-shrink-0 text-xs text-white/40">{moneda}/mes</span>
-                  <button onClick={() => deleteConcepto(c.id)} className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-lg text-white/30 transition hover:bg-white/[0.06] hover:text-red-400">
+                  <span className="w-16 flex-shrink-0 text-xs text-[var(--sx-text-dim)]">{moneda}/mes</span>
+                  <button onClick={() => deleteConcepto(c.id)} className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-lg text-[var(--sx-text-faint)] transition hover:bg-[var(--sx-card-hover)] hover:text-red-400">
                     <X className="h-3.5 w-3.5" />
                   </button>
                 </div>
@@ -174,12 +174,12 @@ export function GastosView({ orgId, profile, onBack }: { orgId: string; profile:
             })}
           </div>
 
-          <button onClick={addConcepto} className="mt-3 flex w-full items-center justify-center gap-2 rounded-lg border border-dashed border-white/15 py-2.5 text-sm font-semibold text-white/50 transition hover:border-white/30 hover:text-white">
+          <button onClick={addConcepto} className="mt-3 flex w-full items-center justify-center gap-2 rounded-lg border border-dashed border-[var(--sx-border-strong)] py-2.5 text-sm font-semibold text-[var(--sx-text-muted)] transition hover:border-[var(--sx-border-strong)] hover:text-[var(--sx-text)]">
             <Plus className="h-4 w-4" /> Agregar concepto
           </button>
 
-          <div className="mt-5 border-t border-white/[0.06] pt-4">
-            <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-white/40">
+          <div className="mt-5 border-t border-[var(--sx-border)] pt-4">
+            <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-[var(--sx-text-dim)]">
               Unidades estimadas por mes (para prorratear)
             </label>
             <TextInput
@@ -191,16 +191,16 @@ export function GastosView({ orgId, profile, onBack }: { orgId: string; profile:
         </div>
 
         <div className="flex flex-col gap-4">
-          <div className="rounded-2xl border border-white/[0.08] bg-gradient-to-br from-[#1aab99]/10 to-[#3533cd]/10 p-5">
-            <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-white/40">
+          <div className="rounded-2xl border border-[var(--sx-border)] bg-gradient-to-br from-[#1aab99]/10 to-[#3533cd]/10 p-5">
+            <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-[var(--sx-text-dim)]">
               <Wallet className="h-3.5 w-3.5" /> Total gastos fijos / mes
             </div>
-            <div className="mt-1 text-3xl font-extrabold text-white">{fmtMoney(total, moneda, 0)}</div>
+            <div className="mt-1 text-3xl font-extrabold text-[var(--sx-text)]">{fmtMoney(total, moneda, 0)}</div>
           </div>
-          <div className="rounded-2xl border border-white/[0.08] bg-[#1c1c1e] p-5">
-            <div className="text-xs font-semibold uppercase tracking-wide text-white/40">Prorrateo por unidad</div>
-            <div className="mt-1 text-2xl font-extrabold text-white">{fmtMoney(prorrateo, moneda)}</div>
-            <p className="mt-1.5 text-xs leading-relaxed text-white/50">
+          <div className="rounded-2xl border border-[var(--sx-border)] bg-[var(--sx-card)] p-5">
+            <div className="text-xs font-semibold uppercase tracking-wide text-[var(--sx-text-dim)]">Prorrateo por unidad</div>
+            <div className="mt-1 text-2xl font-extrabold text-[var(--sx-text)]">{fmtMoney(prorrateo, moneda)}</div>
+            <p className="mt-1.5 text-xs leading-relaxed text-[var(--sx-text-muted)]">
               Este monto se suma automáticamente al costo de cada producto en el paso de Productos.
             </p>
           </div>

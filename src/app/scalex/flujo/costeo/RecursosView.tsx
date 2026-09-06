@@ -107,18 +107,18 @@ export function RecursosView({ orgId, profile, onBack }: { orgId: string; profil
   const costoUnit = (r: Recurso) => (r.cantidad_compra > 0 ? r.costo_compra / r.cantidad_compra : 0);
   const previewCostoUnit = (parseAmount(form.costo) / (parseAmount(form.cantidad) || 1));
 
-  if (loading) return <div className="flex items-center justify-center py-20"><Loader2 className="h-8 w-8 animate-spin text-white/40" /></div>;
+  if (loading) return <div className="flex items-center justify-center py-20"><Loader2 className="h-8 w-8 animate-spin text-[var(--sx-text-dim)]" /></div>;
 
   return (
     <div>
       <div className="mb-6 flex items-center justify-between gap-3">
         <div className="flex items-center gap-3">
-          <button onClick={onBack} className="flex h-9 w-9 items-center justify-center rounded-lg border border-white/10 text-white/60 transition hover:bg-white/[0.06] hover:text-white">
+          <button onClick={onBack} className="flex h-9 w-9 items-center justify-center rounded-lg border border-[var(--sx-border)] text-[var(--sx-text-muted)] transition hover:bg-[var(--sx-card-hover)] hover:text-[var(--sx-text)]">
             <ArrowLeft className="h-4 w-4" />
           </button>
           <div>
             <p className="text-xs font-semibold uppercase tracking-wide text-[#1aab99]">Costeo · Paso 2</p>
-            <h1 className="text-2xl font-bold text-white">Recursos</h1>
+            <h1 className="text-2xl font-bold text-[var(--sx-text)]">Recursos</h1>
           </div>
         </div>
         <button onClick={openCreate} className="flex items-center gap-2 rounded-xl bg-gradient-to-br from-[#1aab99] to-[#3533cd] px-4 py-2.5 text-sm font-bold text-white transition hover:opacity-90">
@@ -128,22 +128,22 @@ export function RecursosView({ orgId, profile, onBack }: { orgId: string; profil
 
       <div className="mb-4 flex flex-wrap items-center gap-3">
         <div className="relative flex-1 min-w-[220px]">
-          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-white/30" />
+          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--sx-text-faint)]" />
           <TextInput value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Buscar recurso, proveedor..." className="pl-9" />
         </div>
-        <label className="flex items-center gap-2 text-xs text-white/50">
+        <label className="flex items-center gap-2 text-xs text-[var(--sx-text-muted)]">
           <input type="checkbox" checked={showInactive} onChange={(e) => setShowInactive(e.target.checked)} className="h-3.5 w-3.5 accent-[#1aab99]" />
           Mostrar inactivos
         </label>
-        <span className="ml-auto text-xs text-white/40">{filtered.length} de {recursos.filter((r) => r.activo).length}</span>
+        <span className="ml-auto text-xs text-[var(--sx-text-dim)]">{filtered.length} de {recursos.filter((r) => r.activo).length}</span>
       </div>
 
       <div className="mb-5 flex flex-wrap gap-2">
-        <button onClick={() => setFilterCategoria('todos')} className={`rounded-full px-3 py-1.5 text-xs font-semibold transition ${filterCategoria === 'todos' ? 'bg-[#1aab99]/15 text-[#1aab99]' : 'bg-white/[0.06] text-white/50 hover:text-white'}`}>
+        <button onClick={() => setFilterCategoria('todos')} className={`rounded-full px-3 py-1.5 text-xs font-semibold transition ${filterCategoria === 'todos' ? 'bg-[#1aab99]/15 text-[#1aab99]' : 'bg-[var(--sx-card-hover)] text-[var(--sx-text-muted)] hover:text-[var(--sx-text)]'}`}>
           Todos
         </button>
         {categorias.map((c) => (
-          <button key={c} onClick={() => setFilterCategoria(c)} className={`rounded-full px-3 py-1.5 text-xs font-semibold transition ${filterCategoria === c ? 'bg-[#1aab99]/15 text-[#1aab99]' : 'bg-white/[0.06] text-white/50 hover:text-white'}`}>
+          <button key={c} onClick={() => setFilterCategoria(c)} className={`rounded-full px-3 py-1.5 text-xs font-semibold transition ${filterCategoria === c ? 'bg-[#1aab99]/15 text-[#1aab99]' : 'bg-[var(--sx-card-hover)] text-[var(--sx-text-muted)] hover:text-[var(--sx-text)]'}`}>
             {c}
           </button>
         ))}
@@ -155,10 +155,10 @@ export function RecursosView({ orgId, profile, onBack }: { orgId: string; profil
           desc={recursos.length === 0 ? 'Agrega el primero con el botón "Nuevo recurso".' : 'Prueba con otra búsqueda o quita filtros.'}
         />
       ) : (
-        <div className="overflow-x-auto rounded-2xl border border-white/[0.08] bg-[#1c1c1e]">
+        <div className="overflow-x-auto rounded-2xl border border-[var(--sx-border)] bg-[var(--sx-card)]">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-white/[0.06] text-left text-[11px] font-semibold uppercase tracking-wide text-white/40">
+              <tr className="border-b border-[var(--sx-border)] text-left text-[11px] font-semibold uppercase tracking-wide text-[var(--sx-text-dim)]">
                 <th className="px-4 py-3">Categoría</th>
                 <th className="px-4 py-3">Nombre</th>
                 <th className="px-4 py-3 text-right">Costo compra</th>
@@ -169,19 +169,19 @@ export function RecursosView({ orgId, profile, onBack }: { orgId: string; profil
             </thead>
             <tbody>
               {filtered.map((r) => (
-                <tr key={r.id} className={`border-b border-white/[0.04] last:border-0 ${r.activo ? '' : 'opacity-40'}`}>
+                <tr key={r.id} className={`border-b border-[var(--sx-border)] last:border-0 ${r.activo ? '' : 'opacity-40'}`}>
                   <td className="px-4 py-3">
-                    <span className="rounded-full bg-white/[0.06] px-2.5 py-1 text-[11px] font-semibold text-white/60">{r.categoria || 'Sin categoría'}</span>
+                    <span className="rounded-full bg-[var(--sx-card-hover)] px-2.5 py-1 text-[11px] font-semibold text-[var(--sx-text-muted)]">{r.categoria || 'Sin categoría'}</span>
                   </td>
                   <td className="px-4 py-3">
-                    <div className="font-semibold text-white">{r.nombre}</div>
-                    {r.proveedor && <div className="text-xs text-white/40">{r.proveedor}</div>}
+                    <div className="font-semibold text-[var(--sx-text)]">{r.nombre}</div>
+                    {r.proveedor && <div className="text-xs text-[var(--sx-text-dim)]">{r.proveedor}</div>}
                   </td>
-                  <td className="px-4 py-3 text-right text-white/80">{fmtMoney(r.costo_compra)}</td>
-                  <td className="px-4 py-3 text-right text-white/60">{fmtNum(r.cantidad_compra)} {r.unidad_compra}</td>
+                  <td className="px-4 py-3 text-right text-[var(--sx-text-muted)]">{fmtMoney(r.costo_compra)}</td>
+                  <td className="px-4 py-3 text-right text-[var(--sx-text-muted)]">{fmtNum(r.cantidad_compra)} {r.unidad_compra}</td>
                   <td className="px-4 py-3 text-right">
-                    <span className="font-bold text-white">{fmtMoney(costoUnit(r))}</span>
-                    <span className="ml-1 text-xs text-white/40">/ {r.unidad_compra}</span>
+                    <span className="font-bold text-[var(--sx-text)]">{fmtMoney(costoUnit(r))}</span>
+                    <span className="ml-1 text-xs text-[var(--sx-text-dim)]">/ {r.unidad_compra}</span>
                   </td>
                   <td className="px-4 py-3">
                     <div className="flex justify-end gap-1.5">
@@ -229,8 +229,8 @@ export function RecursosView({ orgId, profile, onBack }: { orgId: string; profil
               <Select value={form.unidad} onChange={(e) => setForm({ ...form, unidad: e.target.value })}><UnidadOptions /></Select>
             </div>
           </div>
-          <div className="rounded-lg border border-white/10 bg-[#141416] px-3 py-2 text-sm text-white/70">
-            Costo por unidad: <span className="font-bold text-white">{fmtMoney(previewCostoUnit)} / {form.unidad || 'unidad'}</span>
+          <div className="rounded-lg border border-[var(--sx-border)] bg-[var(--sx-input)] px-3 py-2 text-sm text-[var(--sx-text-muted)]">
+            Costo por unidad: <span className="font-bold text-[var(--sx-text)]">{fmtMoney(previewCostoUnit)} / {form.unidad || 'unidad'}</span>
           </div>
           <div>
             <Label>Proveedor</Label>

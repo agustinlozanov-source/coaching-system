@@ -50,11 +50,11 @@ function estimarRondas(desde: string, hasta: string) {
 }
 
 const inputCls =
-  'w-full rounded-lg border border-white/10 bg-[#141416] px-3 py-2 text-sm text-white outline-none transition placeholder:text-white/25 focus:border-[#1aab99] focus:ring-2 focus:ring-[#1aab99]/25';
+  'w-full rounded-lg border border-[var(--sx-border)] bg-[var(--sx-input)] px-3 py-2 text-sm text-[var(--sx-text)] outline-none transition placeholder:text-[var(--sx-text-faint)] focus:border-[#1aab99] focus:ring-2 focus:ring-[#1aab99]/25';
 
 function SaveBadge({ status, savedAt, mini }: { status: SaveStatus; savedAt?: string | null; mini?: boolean }) {
   const map: Record<SaveStatus, { cls: string; text: string }> = {
-    empty: { cls: 'bg-white/[0.06] text-white/40', text: 'Sin guardar' },
+    empty: { cls: 'bg-[var(--sx-card-hover)] text-[var(--sx-text-dim)]', text: 'Sin guardar' },
     saving: { cls: 'bg-amber-500/15 text-amber-400', text: 'Escribiendo…' },
     saved: { cls: 'bg-emerald-500/15 text-emerald-400', text: mini ? 'Guardado' : `Guardado · ${tiempoRelativo(savedAt)}` },
     error: { cls: 'bg-red-500/15 text-red-400', text: 'Error al guardar' },
@@ -319,7 +319,7 @@ export function SemanalView({ orgId }: { orgId: string | null }) {
   }
 
   if (view === 'loading') {
-    return <div className="flex items-center justify-center py-20"><Loader2 className="h-8 w-8 animate-spin text-white/40" /></div>;
+    return <div className="flex items-center justify-center py-20"><Loader2 className="h-8 w-8 animate-spin text-[var(--sx-text-dim)]" /></div>;
   }
 
   /* ══════════════════ ONBOARDING ══════════════════ */
@@ -327,52 +327,52 @@ export function SemanalView({ orgId }: { orgId: string | null }) {
     const rondas = estimarRondas(onbDesde, onbHasta);
     return (
       <div className="flex items-center justify-center py-10">
-        <div className="relative max-w-xl overflow-hidden rounded-2xl border border-white/[0.08] bg-[#1c1c1e] p-10 text-center">
+        <div className="relative max-w-xl overflow-hidden rounded-2xl border border-[var(--sx-border)] bg-[var(--sx-card)] p-10 text-center">
           <div className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-[#1aab99] to-[#3533cd] text-white shadow-lg shadow-[#1aab99]/20">
             <Play className="h-7 w-7" />
           </div>
           <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-[#1aab99]">Bienvenido al Ritmo</p>
-          <h2 className="mb-3 text-2xl font-extrabold text-white">Vamos a generar tus rondas</h2>
-          <p className="mb-6 text-sm leading-relaxed text-white/60">
+          <h2 className="mb-3 text-2xl font-extrabold text-[var(--sx-text)]">Vamos a generar tus rondas</h2>
+          <p className="mb-6 text-sm leading-relaxed text-[var(--sx-text-muted)]">
             El Ritmo arranca generando todas las semanas reales del calendario sobre las que vas a planear,
-            ejecutar y evaluar. Cada semana es una <strong className="text-white">ronda</strong> de 7 días.
+            ejecutar y evaluar. Cada semana es una <strong className="text-[var(--sx-text)]">ronda</strong> de 7 días.
             En 3 años son ~150 rondas — el músculo que vas a construir.
           </p>
 
           {vector ? (
             <div className="mb-4 rounded-xl border border-[#3533cd]/40 bg-gradient-to-br from-[#3533cd]/10 to-transparent p-4 text-left">
               <div className="text-[11px] font-semibold uppercase tracking-wide text-[#8b8bf0]">Vector activo · horizonte</div>
-              <div className="mt-1 font-bold text-white">{vector.meta}</div>
-              <div className="text-xs text-white/50">{fechaLarga(vector.fecha_inicio)} → {fechaLarga(vector.fecha_fin)}</div>
-              <div className="mt-2 text-xs italic text-white/40">Las fechas se heredan del Vector — son tu compromiso fundacional y no se editan aquí.</div>
+              <div className="mt-1 font-bold text-[var(--sx-text)]">{vector.meta}</div>
+              <div className="text-xs text-[var(--sx-text-muted)]">{fechaLarga(vector.fecha_inicio)} → {fechaLarga(vector.fecha_fin)}</div>
+              <div className="mt-2 text-xs italic text-[var(--sx-text-dim)]">Las fechas se heredan del Vector — son tu compromiso fundacional y no se editan aquí.</div>
             </div>
           ) : (
-            <div className="mb-4 flex items-start gap-2.5 rounded-xl border border-amber-500/30 bg-amber-500/10 p-3 text-left text-xs text-white/60">
+            <div className="mb-4 flex items-start gap-2.5 rounded-xl border border-amber-500/30 bg-amber-500/10 p-3 text-left text-xs text-[var(--sx-text-muted)]">
               <AlertTriangle className="mt-0.5 h-4 w-4 flex-shrink-0 text-amber-400" />
               <span>Aún no tienes un Vector activo. No hay problema: el Ritmo funciona igual. Definiremos un horizonte de 3 años desde hoy.</span>
             </div>
           )}
 
-          <div className="mb-4 rounded-xl border border-white/10 bg-[#141416] p-5 text-left">
+          <div className="mb-4 rounded-xl border border-[var(--sx-border)] bg-[var(--sx-input)] p-5 text-left">
             <div className="mb-3 grid grid-cols-2 gap-3">
               <div>
-                <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-white/40">Desde</label>
+                <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-[var(--sx-text-dim)]">Desde</label>
                 <input type="date" value={onbDesde} readOnly={!!vector} onChange={(e) => setOnbDesde(e.target.value)} className={inputCls} />
               </div>
               <div>
-                <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-white/40">Hasta</label>
+                <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-[var(--sx-text-dim)]">Hasta</label>
                 <input type="date" value={onbHasta} readOnly={!!vector} onChange={(e) => setOnbHasta(e.target.value)} className={inputCls} />
               </div>
             </div>
             <div>
-              <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-white/40">¿Qué día arranca tu semana?</label>
+              <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-[var(--sx-text-dim)]">¿Qué día arranca tu semana?</label>
               <select value={onbDiaInicio} onChange={(e) => setOnbDiaInicio(parseInt(e.target.value, 10))} className={inputCls}>
                 {DIAS_SEMANA.map((d) => <option key={d.v} value={d.v}>{d.label}</option>)}
               </select>
             </div>
           </div>
 
-          <div className="mb-6 flex items-start gap-2.5 rounded-xl border border-amber-500/30 bg-amber-500/10 p-3 text-left text-xs text-white/60">
+          <div className="mb-6 flex items-start gap-2.5 rounded-xl border border-amber-500/30 bg-amber-500/10 p-3 text-left text-xs text-[var(--sx-text-muted)]">
             <AlertTriangle className="mt-0.5 h-4 w-4 flex-shrink-0 text-amber-400" />
             <span><strong className="text-amber-400">Solo se hace una vez.</strong> Las semanas se generan al inicio del Vector. Si necesitas regenerarlas, hay un botón Admin en la parte superior con la advertencia correspondiente.</span>
           </div>
@@ -390,11 +390,11 @@ export function SemanalView({ orgId }: { orgId: string | null }) {
   /* ══════════════════ EMPTY (entre vectores) ══════════════════ */
   if (view === 'empty' || !semana) {
     return (
-      <div className="rounded-2xl border border-white/[0.08] bg-[#1c1c1e] p-16 text-center">
-        <h2 className="text-xl font-bold text-white">No hay una semana en curso para hoy</h2>
-        <p className="mt-2 text-white/50">Puede que tu horizonte ya haya terminado o aún no haya comenzado.</p>
+      <div className="rounded-2xl border border-[var(--sx-border)] bg-[var(--sx-card)] p-16 text-center">
+        <h2 className="text-xl font-bold text-[var(--sx-text)]">No hay una semana en curso para hoy</h2>
+        <p className="mt-2 text-[var(--sx-text-muted)]">Puede que tu horizonte ya haya terminado o aún no haya comenzado.</p>
         <button onClick={onAdminRegenerar} disabled={regenerando}
-          className="mt-5 inline-flex items-center gap-2 rounded-lg border border-white/10 px-4 py-2 text-sm text-white/70 hover:bg-white/[0.06] hover:text-white">
+          className="mt-5 inline-flex items-center gap-2 rounded-lg border border-[var(--sx-border)] px-4 py-2 text-sm text-[var(--sx-text-muted)] hover:bg-[var(--sx-card-hover)] hover:text-[var(--sx-text)]">
           <MoreHorizontal className="h-4 w-4" /> Admin — regenerar semanas
         </button>
       </div>
@@ -412,7 +412,7 @@ export function SemanalView({ orgId }: { orgId: string | null }) {
       {/* Admin */}
       <div className="mb-4 flex justify-end">
         <button onClick={onAdminRegenerar} disabled={regenerando}
-          className="flex items-center gap-1.5 rounded-full border border-white/10 bg-white/[0.04] px-3 py-1.5 text-xs font-semibold text-white/60 hover:bg-white/[0.08] hover:text-white">
+          className="flex items-center gap-1.5 rounded-full border border-[var(--sx-border)] bg-[var(--sx-card-hover)] px-3 py-1.5 text-xs font-semibold text-[var(--sx-text-muted)] hover:bg-[var(--sx-card-hover)] hover:text-[var(--sx-text)]">
           <MoreHorizontal className="h-3.5 w-3.5" /> Admin
         </button>
       </div>
@@ -427,7 +427,7 @@ export function SemanalView({ orgId }: { orgId: string | null }) {
         <span className="inline-flex items-center gap-1.5 rounded-full bg-[#1aab99]/15 px-3 py-1 text-[11.5px] font-bold text-[#1aab99]">
           <GitCommit className="h-3 w-3" /> Ronda {semana.numero_ronda}
         </span>
-        <span className="inline-flex items-center gap-1.5 rounded-full bg-white/[0.06] px-3 py-1 text-[11.5px] font-bold text-white/50">
+        <span className="inline-flex items-center gap-1.5 rounded-full bg-[var(--sx-card-hover)] px-3 py-1 text-[11.5px] font-bold text-[var(--sx-text-muted)]">
           <Calendar className="h-3 w-3" /> {fechaCorta(semana.fecha_inicio)} – {fechaCorta(semana.fecha_fin)}
         </span>
         {semana.cruza_de_mes && (
@@ -447,12 +447,12 @@ export function SemanalView({ orgId }: { orgId: string | null }) {
             <div className="text-sm font-bold text-emerald-400">
               Ritual completado el {fechaConDiaSemana((semana.ritual_completado_en || '').split('T')[0])}
             </div>
-            <div className="text-xs text-white/40">
+            <div className="text-xs text-[var(--sx-text-dim)]">
               La semana corre del {fechaCorta(semana.fecha_inicio)} al {fechaCorta(semana.fecha_fin)}.
             </div>
           </div>
           <button onClick={onReabrirRitual}
-            className="flex items-center gap-1.5 rounded-lg border border-white/10 px-3 py-1.5 text-xs font-semibold text-white/60 hover:bg-white/[0.06] hover:text-white">
+            className="flex items-center gap-1.5 rounded-lg border border-[var(--sx-border)] px-3 py-1.5 text-xs font-semibold text-[var(--sx-text-muted)] hover:bg-[var(--sx-card-hover)] hover:text-[var(--sx-text)]">
             <RotateCcw className="h-3.5 w-3.5" /> Reabrir
           </button>
         </div>
@@ -462,8 +462,8 @@ export function SemanalView({ orgId }: { orgId: string | null }) {
             <ClipboardList className="h-6 w-6" />
           </div>
           <div className="flex-1">
-            <div className="mb-1 text-lg font-extrabold text-white">Tienes el ritual semanal pendiente</div>
-            <div className="max-w-lg text-sm text-white/60">
+            <div className="mb-1 text-lg font-extrabold text-[var(--sx-text)]">Tienes el ritual semanal pendiente</div>
+            <div className="max-w-lg text-sm text-[var(--sx-text-muted)]">
               Tómate 15 minutos para responder las 4 preguntas y fijar el objetivo de los próximos 7 días.
               Es el acto que abre tu semana.
             </div>
@@ -476,7 +476,7 @@ export function SemanalView({ orgId }: { orgId: string | null }) {
       )}
 
       {/* Objetivo */}
-      <div id="objetivo-card" className="mb-5 rounded-2xl border border-white/[0.08] bg-[#1c1c1e] p-6">
+      <div id="objetivo-card" className="mb-5 rounded-2xl border border-[var(--sx-border)] bg-[var(--sx-card)] p-6">
         <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
           <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wide text-[#1aab99]">
             <Target className="h-3.5 w-3.5" /> El objetivo de esta semana
@@ -489,24 +489,24 @@ export function SemanalView({ orgId }: { orgId: string | null }) {
           defaultValue={semana.objetivo ?? ''}
           onChange={(e) => scheduleFieldSave('objetivo', 'objetivo', e.target.value)}
           placeholder="Una sola cosa clara. ¿Qué resultado específico debe lograrse en estos 7 días?"
-          className="w-full resize-none rounded-lg border border-white/10 bg-[#141416] px-4 py-3 text-xl font-extrabold leading-snug text-white outline-none transition placeholder:text-white/25 focus:border-[#1aab99] disabled:opacity-70"
+          className="w-full resize-none rounded-lg border border-[var(--sx-border)] bg-[var(--sx-input)] px-4 py-3 text-xl font-extrabold leading-snug text-[var(--sx-text)] outline-none transition placeholder:text-[var(--sx-text-faint)] focus:border-[#1aab99] disabled:opacity-70"
         />
-        <p className="mt-2 text-xs italic text-white/40">Una sola cosa clara. Si la semana termina y esto se logró, la semana valió.</p>
+        <p className="mt-2 text-xs italic text-[var(--sx-text-dim)]">Una sola cosa clara. Si la semana termina y esto se logró, la semana valió.</p>
       </div>
 
       {/* 4 preguntas */}
-      <div className="mb-4 flex items-center gap-2 text-[17px] font-extrabold text-white">
+      <div className="mb-4 flex items-center gap-2 text-[17px] font-extrabold text-[var(--sx-text)]">
         <ClipboardList className="h-4 w-4 text-[#1aab99]" /> El ritual — 4 preguntas, siempre las mismas
       </div>
       <div className="grid gap-3.5 md:grid-cols-2">
         {CAMPOS_RITUAL.map((c, i) => (
-          <div key={c.key} className="rounded-2xl border border-white/[0.08] bg-[#1c1c1e] p-5">
+          <div key={c.key} className="rounded-2xl border border-[var(--sx-border)] bg-[var(--sx-card)] p-5">
             <div className="mb-3 flex items-start justify-between gap-3">
               <div className="flex min-w-0 items-center gap-2.5">
                 <span className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-md bg-gradient-to-br from-[#1aab99] to-[#3533cd] text-xs font-extrabold text-white">
                   {i + 1}
                 </span>
-                <span className="text-sm font-bold leading-snug text-white">{c.label}</span>
+                <span className="text-sm font-bold leading-snug text-[var(--sx-text)]">{c.label}</span>
               </div>
               <SaveBadge status={saveStatus[c.key as string] ?? 'empty'} savedAt={semana.updated_at} mini />
             </div>
@@ -515,7 +515,7 @@ export function SemanalView({ orgId }: { orgId: string | null }) {
               defaultValue={(semana[c.key] as string) ?? ''}
               onChange={(e) => scheduleFieldSave(c.key as string, c.key as string, e.target.value)}
               placeholder={c.placeholder}
-              className="min-h-[90px] w-full resize-y rounded-lg border border-white/10 bg-[#141416] px-3.5 py-3 text-[13.5px] leading-relaxed text-white outline-none transition placeholder:text-white/25 focus:border-[#1aab99] disabled:opacity-70"
+              className="min-h-[90px] w-full resize-y rounded-lg border border-[var(--sx-border)] bg-[var(--sx-input)] px-3.5 py-3 text-[13.5px] leading-relaxed text-[var(--sx-text)] outline-none transition placeholder:text-[var(--sx-text-faint)] focus:border-[#1aab99] disabled:opacity-70"
             />
           </div>
         ))}
@@ -523,10 +523,10 @@ export function SemanalView({ orgId }: { orgId: string | null }) {
 
       {/* Cierre explícito */}
       {!firmado && (
-        <div className="mt-4 flex flex-wrap items-center gap-4 rounded-2xl border border-white/[0.08] bg-[#1c1c1e] p-5">
+        <div className="mt-4 flex flex-wrap items-center gap-4 rounded-2xl border border-[var(--sx-border)] bg-[var(--sx-card)] p-5">
           <div className="min-w-[220px] flex-1">
-            <div className="mb-0.5 text-sm font-bold text-white">Cierra el ritual cuando termines de responder</div>
-            <div className="text-xs leading-relaxed text-white/40">
+            <div className="mb-0.5 text-sm font-bold text-[var(--sx-text)]">Cierra el ritual cuando termines de responder</div>
+            <div className="text-xs leading-relaxed text-[var(--sx-text-dim)]">
               Esto marca el ritual como completado. A partir de aquí, la semana corre — y los impulsos del Pulso se sumarán a las tareas.
             </div>
           </div>
@@ -541,13 +541,13 @@ export function SemanalView({ orgId }: { orgId: string | null }) {
       {/* Tareas — solo tras cerrar el ritual */}
       {firmado && (
         <div className="mt-8">
-          <div className="mb-3 flex flex-wrap items-center gap-2 text-[17px] font-extrabold text-white">
+          <div className="mb-3 flex flex-wrap items-center gap-2 text-[17px] font-extrabold text-[var(--sx-text)]">
             <ListChecks className="h-4 w-4 text-[#1aab99]" /> Tareas de la semana
-            <span className="rounded-full bg-white/[0.06] px-2.5 py-0.5 text-xs font-bold text-white/50">
+            <span className="rounded-full bg-[var(--sx-card-hover)] px-2.5 py-0.5 text-xs font-bold text-[var(--sx-text-muted)]">
               {tareas.length} tarea{tareas.length === 1 ? '' : 's'} · {hechas} hechas
             </span>
           </div>
-          <div className="mb-3.5 inline-flex gap-1 rounded-full border border-white/10 bg-white/[0.04] p-1">
+          <div className="mb-3.5 inline-flex gap-1 rounded-full border border-[var(--sx-border)] bg-[var(--sx-card-hover)] p-1">
             {([
               { id: 'todas', label: 'Todas', icon: Layers },
               { id: 'plan', label: 'Del plan', icon: ClipboardCheck },
@@ -558,7 +558,7 @@ export function SemanalView({ orgId }: { orgId: string | null }) {
               return (
                 <button key={f.id} onClick={() => setFiltroTareas(f.id)}
                   className={`flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-[11.5px] font-bold transition ${
-                    active ? 'bg-gradient-to-br from-[#1aab99] to-[#3533cd] text-white' : 'text-white/40 hover:text-white/70'
+                    active ? 'bg-gradient-to-br from-[#1aab99] to-[#3533cd] text-white' : 'text-[var(--sx-text-dim)] hover:text-[var(--sx-text-muted)]'
                   }`}>
                   <Icon className="h-3 w-3" /> {f.label}
                 </button>
@@ -568,7 +568,7 @@ export function SemanalView({ orgId }: { orgId: string | null }) {
 
           <div className="flex flex-col gap-2.5">
             {tareasFiltradas.length === 0 && (
-              <div className="rounded-xl border border-dashed border-white/15 bg-[#1c1c1e] p-5 text-center text-sm text-white/40">
+              <div className="rounded-xl border border-dashed border-[var(--sx-border-strong)] bg-[var(--sx-card)] p-5 text-center text-sm text-[var(--sx-text-dim)]">
                 {filtroTareas === 'impulso' ? 'Aún no hay impulsos del día. Surgirán del Pulso (la reunión diaria).'
                   : filtroTareas === 'plan' ? 'Aún no hay tareas del plan. Agrega la primera abajo.'
                     : 'Aún no hay tareas esta semana. Agrega la primera abajo.'}
@@ -577,10 +577,10 @@ export function SemanalView({ orgId }: { orgId: string | null }) {
             {tareasFiltradas.map((t) => {
               const esImpulso = t.origen === 'impulso';
               return (
-                <div key={t.id} className={`flex items-start gap-3.5 rounded-xl border border-white/[0.08] bg-[#1c1c1e] p-4 ${esImpulso ? 'border-l-2 border-l-amber-400' : 'border-l-2 border-l-[#1aab99]'}`}>
+                <div key={t.id} className={`flex items-start gap-3.5 rounded-xl border border-[var(--sx-border)] bg-[var(--sx-card)] p-4 ${esImpulso ? 'border-l-2 border-l-amber-400' : 'border-l-2 border-l-[#1aab99]'}`}>
                   <button onClick={() => onToggleTarea(t.id)}
                     className={`mt-0.5 flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-md border-2 transition ${
-                      t.completada ? 'border-emerald-500 bg-emerald-500 text-white' : 'border-white/20 bg-[#141416]'
+                      t.completada ? 'border-emerald-500 bg-emerald-500 text-white' : 'border-[var(--sx-border-strong)] bg-[var(--sx-input)]'
                     }`}>
                     {t.completada && <Check className="h-3 w-3" />}
                   </button>
@@ -589,15 +589,15 @@ export function SemanalView({ orgId }: { orgId: string | null }) {
                       <span className={`rounded-full px-2 py-0.5 text-[9.5px] font-extrabold uppercase tracking-wide ${esImpulso ? 'bg-amber-500/15 text-amber-400' : 'bg-[#1aab99]/15 text-[#1aab99]'}`}>
                         {esImpulso ? 'Impulso del día' : 'Del plan'}
                       </span>
-                      <span className={`text-sm font-bold ${t.completada ? 'text-white/40 line-through' : 'text-white'}`}>{t.titulo}</span>
+                      <span className={`text-sm font-bold ${t.completada ? 'text-[var(--sx-text-dim)] line-through' : 'text-[var(--sx-text)]'}`}>{t.titulo}</span>
                     </div>
-                    <div className="mt-1.5 flex flex-wrap gap-3.5 text-xs text-white/40">
+                    <div className="mt-1.5 flex flex-wrap gap-3.5 text-xs text-[var(--sx-text-dim)]">
                       {t.responsable && <span className="inline-flex items-center gap-1"><User className="h-3 w-3" /> {t.responsable}</span>}
                       {t.fecha_objetivo && <span className="inline-flex items-center gap-1"><Calendar className="h-3 w-3" /> {fechaCorta(t.fecha_objetivo)}</span>}
                     </div>
                   </div>
                   <button onClick={() => onEliminarTarea(t.id)}
-                    className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-lg border border-white/10 text-white/30 transition hover:border-red-500/50 hover:bg-red-500/10 hover:text-red-400">
+                    className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-lg border border-[var(--sx-border)] text-[var(--sx-text-faint)] transition hover:border-red-500/50 hover:bg-red-500/10 hover:text-red-400">
                     <Trash2 className="h-3.5 w-3.5" />
                   </button>
                 </div>
@@ -611,7 +611,7 @@ export function SemanalView({ orgId }: { orgId: string | null }) {
               onChange={(e) => setAddTareaInput(e.target.value)}
               onKeyDown={(e) => { if (e.key === 'Enter') onAgregarTarea(); }}
               placeholder="Agregar una tarea del plan a esta semana…"
-              className="flex-1 rounded-lg border border-white/10 bg-[#141416] px-3.5 py-2.5 text-sm text-white outline-none placeholder:text-white/25 focus:border-[#1aab99]"
+              className="flex-1 rounded-lg border border-[var(--sx-border)] bg-[var(--sx-input)] px-3.5 py-2.5 text-sm text-[var(--sx-text)] outline-none placeholder:text-[var(--sx-text-faint)] focus:border-[#1aab99]"
             />
             <button onClick={onAgregarTarea}
               className="flex items-center gap-1.5 rounded-lg bg-gradient-to-br from-[#1aab99] to-[#3533cd] px-4 py-2.5 text-sm font-bold text-white transition hover:opacity-90">
@@ -622,36 +622,36 @@ export function SemanalView({ orgId }: { orgId: string | null }) {
       )}
 
       {/* Historial colapsable */}
-      <div className="mt-9 border-t border-white/[0.08] pt-6">
+      <div className="mt-9 border-t border-[var(--sx-border)] pt-6">
         <button onClick={() => setHistorialOpen((v) => !v)}
-          className="flex w-full items-center justify-between rounded-2xl border border-white/[0.08] bg-[#1c1c1e] p-4 px-5 text-left transition hover:bg-white/[0.04]">
+          className="flex w-full items-center justify-between rounded-2xl border border-[var(--sx-border)] bg-[var(--sx-card)] p-4 px-5 text-left transition hover:bg-[var(--sx-card-hover)]">
           <div className="flex items-center gap-3">
-            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-white/[0.06] text-white/40">
+            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-[var(--sx-card-hover)] text-[var(--sx-text-dim)]">
               <History className="h-4 w-4" />
             </div>
             <div>
-              <div className="text-sm font-bold text-white">Rondas anteriores</div>
-              <div className="text-xs text-white/40">
+              <div className="text-sm font-bold text-[var(--sx-text)]">Rondas anteriores</div>
+              <div className="text-xs text-[var(--sx-text-dim)]">
                 {historial.length === 0
                   ? 'Aún no hay rondas anteriores. Tu primera ronda es la semana en curso.'
                   : `${completadasHistorial} rondas completadas — el músculo que llevas construido`}
               </div>
             </div>
           </div>
-          <ChevronDown className={`h-4 w-4 text-white/40 transition-transform ${historialOpen ? 'rotate-180' : ''}`} />
+          <ChevronDown className={`h-4 w-4 text-[var(--sx-text-dim)] transition-transform ${historialOpen ? 'rotate-180' : ''}`} />
         </button>
         {historialOpen && (
           <div className="mt-2.5 flex flex-col gap-2">
             {historial.map((s) => {
               const c = conteoHistorial[s.id];
               return (
-                <div key={s.id} className="flex items-center gap-4 rounded-xl border border-white/[0.08] bg-[#1c1c1e] p-3.5 px-4">
+                <div key={s.id} className="flex items-center gap-4 rounded-xl border border-[var(--sx-border)] bg-[var(--sx-card)] p-3.5 px-4">
                   <div className="min-w-[86px] flex-shrink-0 text-sm font-extrabold text-[#1aab99]">Ronda {s.numero_ronda}</div>
                   <div className="min-w-0 flex-1">
-                    <div className="text-[13px] font-medium text-white/70">
-                      {s.objetivo || <span className="text-white/30">Sin objetivo definido</span>}
+                    <div className="text-[13px] font-medium text-[var(--sx-text-muted)]">
+                      {s.objetivo || <span className="text-[var(--sx-text-faint)]">Sin objetivo definido</span>}
                     </div>
-                    <div className="mt-0.5 text-[11px] text-white/30">
+                    <div className="mt-0.5 text-[11px] text-[var(--sx-text-faint)]">
                       {fechaCorta(s.fecha_inicio)} – {fechaCorta(s.fecha_fin)}{s.cruza_de_mes ? ' · cruza de mes' : ''}
                     </div>
                   </div>
@@ -660,7 +660,7 @@ export function SemanalView({ orgId }: { orgId: string | null }) {
                       <CircleDashed className="h-3 w-3" /> Sin ritual
                     </span>
                   ) : (
-                    <span className="flex flex-shrink-0 items-center gap-1.5 text-xs font-semibold text-white/40">
+                    <span className="flex flex-shrink-0 items-center gap-1.5 text-xs font-semibold text-[var(--sx-text-dim)]">
                       <CheckCircle2 className="h-3 w-3" /> {c && c.total > 0 ? `${c.hechas}/${c.total} tareas` : 'Ritual hecho'}
                     </span>
                   )}
