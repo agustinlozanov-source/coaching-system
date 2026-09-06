@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
-import { ArrowRight, Lock } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 import { createClient } from '@/lib/supabase/server';
 import { HERRAMIENTAS, type Herramienta } from '@/lib/tools';
 import { AccountButton } from '@/components/launcher/AccountButton';
@@ -11,9 +11,9 @@ export const metadata = {
 
 export const dynamic = 'force-dynamic';
 
-function ToolCard({ h, contratada }: { h: Herramienta; contratada: boolean }) {
+function ToolCard({ h }: { h: Herramienta }) {
   const Icon = h.icon;
-  const abrible = contratada && h.disponible;
+  const abrible = h.disponible;
 
   const inner = (
     <>
@@ -24,12 +24,7 @@ function ToolCard({ h, contratada }: { h: Herramienta; contratada: boolean }) {
         >
           <Icon className="h-6 w-6" />
         </div>
-        {!contratada && (
-          <span className="inline-flex items-center gap-1 rounded-full bg-slate-100 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wide text-slate-500">
-            <Lock className="h-3 w-3" /> No incluida
-          </span>
-        )}
-        {contratada && !h.disponible && (
+        {!abrible && (
           <span className="rounded-full bg-slate-100 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wide text-slate-500">
             Próximamente
           </span>
@@ -46,9 +41,7 @@ function ToolCard({ h, contratada }: { h: Herramienta; contratada: boolean }) {
           <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
         </span>
       ) : (
-        <span className="mt-4 text-sm font-medium text-slate-400">
-          {contratada ? 'En construcción' : 'Contáctanos para incluirla'}
-        </span>
+        <span className="mt-4 text-sm font-medium text-slate-400">En construcción</span>
       )}
     </>
   );
@@ -65,7 +58,7 @@ function ToolCard({ h, contratada }: { h: Herramienta; contratada: boolean }) {
       </Link>
     );
   }
-  return <div className={`${base} ${contratada ? '' : 'opacity-70'}`}>{inner}</div>;
+  return <div className={`${base} opacity-70`}>{inner}</div>;
 }
 
 export default async function LauncherPage() {
@@ -82,13 +75,6 @@ export default async function LauncherPage() {
     .select('nombre')
     .eq('id', user.id)
     .maybeSingle();
-
-  // Herramientas contratadas por la(s) organización(es) del usuario (RLS filtra)
-  const { data: ents } = await supabase
-    .from('org_herramientas')
-    .select('herramienta')
-    .eq('estado', 'activa');
-  const contratadas = new Set((ents ?? []).map((e) => e.herramienta as string));
 
   const nombre = perfil?.nombre?.split(' ')[0] ?? '';
 
@@ -114,7 +100,7 @@ export default async function LauncherPage() {
 
         <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {HERRAMIENTAS.map((h) => (
-            <ToolCard key={h.slug} h={h} contratada={contratadas.has(h.slug)} />
+            <ToolCard key={h.slug} h={h} />
           ))}
         </div>
       </main>
