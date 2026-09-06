@@ -6,10 +6,10 @@ import { usePathname, useRouter } from 'next/navigation';
 import {
   LayoutDashboard, Map, Repeat, Eye, Compass, Coins, Activity, Dna,
   KanbanSquare, Presentation, User, Settings, ShieldCheck, TrendingUp,
-  LogOut, Grid3x3, Sun, Moon, Search, Bell, ChevronDown,
+  LogOut, Grid3x3, Sun, Moon, Search, Bell, ChevronDown, ChevronsUpDown, Check,
 } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
-import { clearActiveOrgId } from '@/lib/teamx/org';
+import { clearActiveOrgId, getActiveOrgId, setActiveOrgId } from '@/lib/teamx/org';
 
 type NavItem = {
   href?: string; icon?: any; label?: string; ready?: boolean;
@@ -63,10 +63,16 @@ export default function ScalexLayout({ children }: { children: React.ReactNode }
   const router = useRouter();
   const [theme, setTheme] = useState<'dark' | 'light'>('dark');
   const [perfil, setPerfil] = useState<Perfil | null>(null);
-  const [orgNombre, setOrgNombre] = useState<string>('');
-  const [rolEnOrg, setRolEnOrg] = useState<string>('');
+  const [orgs, setOrgs] = useState<{ id: string; nombre: string; rol: string }[]>([]);
+  const [activeOrgId, setActiveOrgIdState] = useState<string>('');
   const [menuOpen, setMenuOpen] = useState(false);
+  const [orgMenuOpen, setOrgMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement | null>(null);
+  const orgMenuRef = useRef<HTMLDivElement | null>(null);
+
+  const activeOrg = orgs.find((o) => o.id === activeOrgId) ?? null;
+  const orgNombre = activeOrg?.nombre ?? '';
+  const rolEnOrg = activeOrg?.rol ?? '';
 
   const isAdmin = perfil?.rol_global === 'admin';
 
@@ -100,24 +106,34 @@ export default function ScalexLayout({ children }: { children: React.ReactNode }
 
       const { data: membresias } = await supabase
         .from('miembros_organizacion')
-        .select('organizacion_id, rol_en_org, estado')
+        .select('organizacion_id, rol_en_org, estado, organizaciones(nombre)')
         .eq('user_id', user.id);
-      const activas = (membresias ?? []).filter((m) => m.estado === 'activo' || m.estado === 'activa');
-      const pool = activas.length ? activas : (membresias ?? []);
-      const activa = pool.find((m) => m.rol_en_org === 'dueno') ?? pool[0];
-      if (activa) {
-        setRolEnOrg(activa.rol_en_org ?? '');
-        const { data: org } = await supabase
-          .from('organizaciones').select('nombre').eq('id', activa.organizacion_id).maybeSingle();
-        setOrgNombre(org?.nombre ?? '');
-      }
+      const activas = (membresias ?? []).filter((m: any) => m.estado === 'activo' || m.estado === 'activa');
+      const pool: any[] = activas.length ? activas : (membresias ?? []);
+      const lista = pool.map((m: any) => ({
+        id: m.organizacion_id as string,
+        nombre: m.organizaciones?.nombre ?? '—',
+        rol: m.rol_en_org ?? '',
+      }));
+      setOrgs(lista);
+      const activeId = await getActiveOrgId();
+      setActiveOrgIdState(activeId ?? lista[0]?.id ?? '');
     })();
   }, []);
+
+  function switchOrg(orgId: string) {
+    setOrgMenuOpen(false);
+    if (orgId === activeOrgId) return;
+    setActiveOrgId(orgId);
+    setActiveOrgIdState(orgId);
+    router.refresh();
+  }
 
   // Cerrar dropdown al hacer click fuera
   useEffect(() => {
     function onClick(e: MouseEvent) {
       if (menuRef.current && !menuRef.current.contains(e.target as Node)) setMenuOpen(false);
+      if (orgMenuRef.current && !orgMenuRef.current.contains(e.target as Node)) setOrgMenuOpen(false);
     }
     document.addEventListener('mousedown', onClick);
     return () => document.removeEventListener('mousedown', onClick);
@@ -200,17 +216,17 @@ export default function ScalexLayout({ children }: { children: React.ReactNode }
             </div>
           </div>
 
-          {/* Buscador */}
-          <div className="relative mx-auto hidden w-full max-w-xl md:block">
+          {/* Buscador (compacto, se encoge) */}
+          <div className="relative ml-4 hidden min-w-0 flex-1 lg:block" style={{ maxWidth: '340px' }}>
             <Search className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--sx-text-dim)]" />
             <input
-              placeholder="Buscar en tu proceso SCALEx…"
+              placeholder="Buscar…"
               className="w-full rounded-full border border-[var(--sx-border)] bg-[var(--sx-input)] py-2.5 pl-10 pr-4 text-sm text-[var(--sx-text)] outline-none transition placeholder:text-[var(--sx-text-dim)] focus:border-[#1aab99]"
             />
           </div>
 
           {/* Acciones derecha */}
-          <div className="ml-auto flex items-center gap-2.5">
+          <div className="ml-auto flex flex-shrink-0 flex-nowrap items-center gap-2.5">
             {/* Badge de usuario */}
             <div className="hidden items-center gap-2.5 rounded-full border border-[var(--sx-border)] py-1 pl-1 pr-3.5 lg:flex">
               <div className="flex h-8 w-8 items-center justify-center overflow-hidden rounded-full bg-gradient-to-br from-[#1aab99] to-[#3533cd] text-[11px] font-extrabold text-white">
@@ -224,16 +240,47 @@ export default function ScalexLayout({ children }: { children: React.ReactNode }
               </div>
             </div>
 
-            {/* Chip de organización */}
+            {/* Selector de organización */}
             {orgNombre && (
-              <div className="hidden items-center gap-2 rounded-full border border-[var(--sx-border)] py-1.5 pl-2 pr-3 sm:flex">
-                <div className="flex h-7 w-7 items-center justify-center rounded-full bg-gradient-to-br from-[#3533cd] to-[#1aab99] text-[10px] font-extrabold text-white">
-                  {initials(orgNombre)}
-                </div>
-                <div className="leading-tight">
-                  <div className="max-w-[110px] truncate text-xs font-bold text-[var(--sx-text)]">{orgNombre}</div>
-                  {rolLabel && <div className="text-[9px] font-semibold tracking-wide text-[var(--sx-text-dim)]">{rolLabel}</div>}
-                </div>
+              <div ref={orgMenuRef} className="relative hidden sm:block">
+                <button
+                  onClick={() => orgs.length > 1 && setOrgMenuOpen((o) => !o)}
+                  className={`flex items-center gap-2 rounded-full border border-[var(--sx-border)] py-1.5 pl-2 pr-2.5 transition ${orgs.length > 1 ? 'cursor-pointer hover:bg-[var(--sx-card-hover)]' : 'cursor-default'}`}
+                  title={orgs.length > 1 ? 'Cambiar de organización' : orgNombre}>
+                  <div className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-[#3533cd] to-[#1aab99] text-[10px] font-extrabold text-white">
+                    {initials(orgNombre)}
+                  </div>
+                  <div className="leading-tight">
+                    <div className="max-w-[120px] truncate text-xs font-bold text-[var(--sx-text)]">{orgNombre}</div>
+                    {rolLabel && <div className="text-[9px] font-semibold tracking-wide text-[var(--sx-text-dim)]">{rolLabel}</div>}
+                  </div>
+                  {orgs.length > 1 && <ChevronsUpDown className="h-3.5 w-3.5 flex-shrink-0 text-[var(--sx-text-dim)]" />}
+                </button>
+                {orgMenuOpen && orgs.length > 1 && (
+                  <div className="absolute right-0 top-12 z-50 w-72 overflow-hidden rounded-xl border border-[var(--sx-border)] bg-[var(--sx-card)] p-2 shadow-xl">
+                    <div className="px-2 py-1.5 text-[10px] font-bold uppercase tracking-wider text-[var(--sx-text-dim)]">Cambiar a otra organización</div>
+                    <div className="max-h-80 overflow-y-auto">
+                      {orgs.map((o) => {
+                        const isActive = o.id === activeOrgId;
+                        return (
+                          <button key={o.id} onClick={() => switchOrg(o.id)}
+                            className={`flex w-full items-center gap-2.5 rounded-lg px-2 py-2.5 text-left transition ${isActive ? 'bg-[#1aab99]/10' : 'hover:bg-[var(--sx-card-hover)]'}`}>
+                            <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-[#3533cd] to-[#1aab99] text-[11px] font-extrabold text-white">
+                              {initials(o.nombre)}
+                            </div>
+                            <div className="min-w-0 flex-1">
+                              <div className="truncate text-sm font-bold text-[var(--sx-text)]">{o.nombre}</div>
+                              <div className={`text-[11px] ${isActive ? 'font-semibold text-[#1aab99]' : 'text-[var(--sx-text-dim)]'}`}>
+                                {o.rol === 'dueno' ? 'Dueño' : o.rol === 'consultor' ? 'Consultor · Consultor SCALEx' : o.rol || 'Miembro'}
+                              </div>
+                            </div>
+                            {isActive && <Check className="h-4 w-4 flex-shrink-0 text-[#1aab99]" />}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
               </div>
             )}
 

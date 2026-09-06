@@ -4,6 +4,7 @@ import {
   Map, Flag, Repeat, Calendar, Target, FileSignature, Users, Rocket,
   ArrowRight, Clock,
 } from 'lucide-react';
+import { cookies } from 'next/headers';
 import { createClient } from '@/lib/supabase/server';
 
 export const metadata = { title: 'SCALEx · Dashboard' };
@@ -71,7 +72,11 @@ export default async function ScalexDashboard() {
     .from('miembros_organizacion').select('organizacion_id, rol_en_org, estado').eq('user_id', user.id);
   const activas = (membresias ?? []).filter((m) => m.estado === 'activo' || m.estado === 'activa');
   const pool = activas.length ? activas : (membresias ?? []);
-  const orgId = (pool.find((m) => m.rol_en_org === 'dueno') ?? pool[0])?.organizacion_id ?? null;
+  const cookieOrg = cookies().get('sx_active_org')?.value ?? null;
+  const ids = pool.map((m) => m.organizacion_id);
+  const orgId = (cookieOrg && ids.includes(cookieOrg))
+    ? cookieOrg
+    : ((pool.find((m) => m.rol_en_org === 'dueno') ?? pool[0])?.organizacion_id ?? null);
 
   let opsp: any = null, contrato: any = null;
   let consejo: any = null, miembros: any[] = [], proximaSesion: any = null, pagoPendiente: any = null;
