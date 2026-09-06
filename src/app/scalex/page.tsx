@@ -5,7 +5,6 @@ import {
   Presentation, ArrowRight,
 } from 'lucide-react';
 import { createClient } from '@/lib/supabase/server';
-import { getActiveOrgId } from '@/lib/teamx/org';
 
 export const metadata = { title: 'SCALEx · Metodología' };
 export const dynamic = 'force-dynamic';
@@ -42,7 +41,15 @@ export default async function ScalexDashboard() {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect('/login');
 
-  const orgId = await getActiveOrgId();
+  // Resolver la organización activa con el cliente server (no usar el helper client).
+  const { data: membresias } = await supabase
+    .from('miembros_organizacion')
+    .select('organizacion_id, rol_en_org, estado')
+    .eq('user_id', user.id);
+  const activas = (membresias ?? []).filter((m) => m.estado === 'activo' || m.estado === 'activa');
+  const pool = activas.length ? activas : (membresias ?? []);
+  const orgId = (pool.find((m) => m.rol_en_org === 'dueno') ?? pool[0])?.organizacion_id ?? null;
+
   const [{ data: perfil }, { data: org }] = await Promise.all([
     supabase.from('perfiles').select('nombre').eq('id', user.id).maybeSingle(),
     orgId ? supabase.from('organizaciones').select('nombre').eq('id', orgId).maybeSingle() : Promise.resolve({ data: null } as any),
