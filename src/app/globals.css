@@ -57,3 +57,36 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* ── SCALEx theme tokens (scoped al shell de SCALEx) ──────────────────────
+   Dark por defecto (el dark-glow). data-theme="light" conmuta a claro.
+   El sidebar se mantiene oscuro en ambos temas (igual que el portal). */
+.sx-root {
+  --sx-page: #0a0a0c;
+  --sx-sidebar: #050506;
+  --sx-shell: #141416;
+  --sx-card: #1c1c1e;
+  --sx-card-hover: #242426;
+  --sx-input: #141416;
+  --sx-border: rgba(255, 255, 255, 0.08);
+  --sx-border-strong: rgba(255, 255, 255, 0.20);
+  --sx-text: #ffffff;
+  --sx-text-muted: rgba(255, 255, 255, 0.55);
+  --sx-text-dim: rgba(255, 255, 255, 0.40);
+  --sx-teal: #1aab99;
+  --sx-indigo: #3533cd;
+  color-scheme: dark;
+}
+.sx-root[data-theme='light'] {
+  --sx-page: #e6e8eb;
+  --sx-shell: #f1f2f4;
+  --sx-card: #ffffff;
+  --sx-card-hover: #f7f8fa;
+  --sx-input: #ffffff;
+  --sx-border: rgba(17, 20, 24, 0.10);
+  --sx-border-strong: rgba(17, 20, 24, 0.18);
+  --sx-text: #14171c;
+  --sx-text-muted: rgba(20, 23, 28, 0.62);
+  --sx-text-dim: rgba(20, 23, 28, 0.45);
+  color-scheme: light;
+}
