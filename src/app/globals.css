@@ -73,6 +73,7 @@
   --sx-text: #ffffff;
   --sx-text-muted: rgba(255, 255, 255, 0.55);
   --sx-text-dim: rgba(255, 255, 255, 0.40);
+  --sx-text-faint: rgba(255, 255, 255, 0.28);
   --sx-teal: #1aab99;
   --sx-indigo: #3533cd;
   color-scheme: dark;
@@ -88,5 +89,6 @@
   --sx-text: #14171c;
   --sx-text-muted: rgba(20, 23, 28, 0.62);
   --sx-text-dim: rgba(20, 23, 28, 0.45);
+  --sx-text-faint: rgba(20, 23, 28, 0.35);
   color-scheme: light;
 }
