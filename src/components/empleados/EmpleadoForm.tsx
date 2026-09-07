@@ -1,7 +1,8 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
+import { getCoaches } from '@/hooks/useEmpleados';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Loader2 } from 'lucide-react';
 import { Empleado, EmpleadoFormData } from '@/types/empleado';
@@ -31,7 +32,12 @@ export function EmpleadoForm({
   onCancel,
 }: EmpleadoFormProps) {
   const [isLoading, setIsLoading] = useState(false);
+  const [coaches, setCoaches] = useState<{ id: string; nombre: string }[]>([]);
   const isEdit = !!empleado;
+
+  useEffect(() => {
+    getCoaches().then(setCoaches).catch(() => setCoaches([]));
+  }, []);
 
   const {
     register,
@@ -176,12 +182,20 @@ export function EmpleadoForm({
         {/* Coach Asignado */}
         <div className="space-y-2 md:col-span-2">
           <Label htmlFor="coachAsignado">Coach Asignado</Label>
-          <Input
-            id="coachAsignado"
-            placeholder="Nombre del coach"
-            disabled={isLoading}
-            {...register('coachAsignado')}
-          />
+          <Select
+            value={watch('coachAsignado') || 'none'}
+            onValueChange={(v) => setValue('coachAsignado', v === 'none' ? '' : v)}
+          >
+            <SelectTrigger id="coachAsignado" disabled={isLoading}>
+              <SelectValue placeholder="Selecciona un coach" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="none">Sin asignar</SelectItem>
+              {coaches.map((c) => (
+                <SelectItem key={c.id} value={c.id}>{c.nombre}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
           {errors.coachAsignado && (
             <p className="text-sm text-red-600">{errors.coachAsignado.message}</p>
           )}

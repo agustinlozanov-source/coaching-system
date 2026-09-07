@@ -8,6 +8,31 @@ import { Empleado, EmpleadoFormData } from '@/types/empleado';
 
 const TABLE = 'teamx_empleados';
 
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+/** coach_asignado es uuid (FK a perfiles): solo acepta un uuid válido, si no → null. */
+function asUuidOrNull(v: unknown): string | null {
+  return typeof v === 'string' && UUID_RE.test(v) ? v : null;
+}
+
+/** Miembros de la organización activa, para elegir coach. */
+export async function getCoaches(): Promise<{ id: string; nombre: string }[]> {
+  const supabase = createClient();
+  const orgId = await getActiveOrgId();
+  if (!orgId) return [];
+  const { data, error } = await supabase
+    .from('miembros_organizacion')
+    .select('user_id, perfiles(nombre, apellido)')
+    .eq('organizacion_id', orgId);
+  if (error) {
+    console.error('Error al obtener coaches:', error);
+    return [];
+  }
+  return (data ?? []).map((m: any) => ({
+    id: m.user_id as string,
+    nombre: [m.perfiles?.nombre, m.perfiles?.apellido].filter(Boolean).join(' ') || 'Sin nombre',
+  }));
+}
+
 function rowToEmpleado(row: any): Empleado {
   return {
     id: row.id,
@@ -86,7 +111,7 @@ export async function createEmpleado(data: EmpleadoFormData): Promise<string> {
       departamento_id: data.departamentoId ?? null,
       fecha_ingreso: dateOnly(data.fechaIngreso),
       activo: data.activo,
-      coach_asignado: data.coachAsignado ?? null,
+      coach_asignado: asUuidOrNull(data.coachAsignado),
       email: data.email ?? null,
       telefono: data.telefono ?? null,
       custom_fields: data.customFields ?? {},
@@ -109,7 +134,7 @@ export async function updateEmpleado(id: string, data: Partial<EmpleadoFormData>
   if (data.categorias !== undefined) update.categorias = data.categorias;
   if (data.departamentoId !== undefined) update.departamento_id = data.departamentoId ?? null;
   if (data.activo !== undefined) update.activo = data.activo;
-  if (data.coachAsignado !== undefined) update.coach_asignado = data.coachAsignado ?? null;
+  if (data.coachAsignado !== undefined) update.coach_asignado = asUuidOrNull(data.coachAsignado);
   if (data.email !== undefined) update.email = data.email ?? null;
   if (data.telefono !== undefined) update.telefono = data.telefono ?? null;
   if (data.customFields !== undefined) update.custom_fields = data.customFields;
