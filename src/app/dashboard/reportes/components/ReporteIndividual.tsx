@@ -10,7 +10,7 @@ import {
 } from 'recharts';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from '@/components/ui/select';
@@ -102,6 +102,7 @@ export function ReporteIndividual({ empleados, evaluaciones, empleadoId, onChang
         <CardContent className="flex flex-col gap-4 py-5 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex items-center gap-3">
             <Avatar className="h-12 w-12">
+              <AvatarImage src={empleado?.photoURL || undefined} alt="" />
               <AvatarFallback className="bg-emerald-100 text-emerald-700 font-bold">
                 {empleado ? iniciales(empleado.nombre) : <User className="h-5 w-5" />}
               </AvatarFallback>

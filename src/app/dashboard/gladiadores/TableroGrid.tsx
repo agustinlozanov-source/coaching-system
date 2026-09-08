@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { Medal } from 'lucide-react';
 import { cn } from '@/lib/utils/cn';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -99,16 +100,21 @@ export function TableroGrid({
                       {idx + 1}
                     </span>
                   )}
-                  <Avatar className={tv ? 'h-11 w-11' : 'h-8 w-8'}>
-                    <AvatarImage src={fila.photoURL} alt={fila.nombre} />
-                    <AvatarFallback className={cn('bg-emerald-100 text-emerald-700', tv && 'text-base')}>
-                      {iniciales(fila.nombre)}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div className="min-w-0">
-                    <div className={cn('truncate font-semibold', tv && 'text-lg')}>{fila.nombre}</div>
-                    <div className={cn('truncate text-muted-foreground', tv ? 'text-sm' : 'text-xs')}>{fila.cargo}</div>
-                  </div>
+                  <Link
+                    href={`/dashboard/empleados/${fila.empleadoId}`}
+                    className="flex min-w-0 items-center gap-3"
+                  >
+                    <Avatar className={tv ? 'h-11 w-11' : 'h-8 w-8'}>
+                      <AvatarImage src={fila.photoURL} alt={fila.nombre} />
+                      <AvatarFallback className={cn('bg-emerald-100 text-emerald-700', tv && 'text-base')}>
+                        {iniciales(fila.nombre)}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div className="min-w-0">
+                      <div className={cn('truncate font-semibold hover:underline', tv && 'text-lg')}>{fila.nombre}</div>
+                      <div className={cn('truncate text-muted-foreground', tv ? 'text-sm' : 'text-xs')}>{fila.cargo}</div>
+                    </div>
+                  </Link>
                 </div>
               </td>
               {fila.celdas.map((celda) => (

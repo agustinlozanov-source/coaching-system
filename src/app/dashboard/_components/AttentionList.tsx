@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { AlertTriangle, TrendingDown, CalendarX, CheckCircle2 } from 'lucide-react';
 import { dashIniciales, type AttentionEntry } from '@/lib/teamx/dashboard-equipo';
 import { Badge } from '@/components/ui/badge';
@@ -33,25 +34,27 @@ export function AttentionList({
     <div className="space-y-3">
       {entries.map((e) => (
         <div key={e.empleadoId} className="flex items-center gap-3 rounded-lg border p-3">
-          <Avatar className="h-9 w-9">
-            <AvatarImage src={fotos?.[e.empleadoId] || undefined} alt="" />
-            <AvatarFallback>{dashIniciales(nombres[e.empleadoId] ?? '?')}</AvatarFallback>
-          </Avatar>
-          <div className="min-w-0 flex-1">
-            <p className="truncate text-sm font-medium">{nombres[e.empleadoId] ?? 'Empleado'}</p>
-            <div className="mt-1 flex flex-wrap gap-1">
-              {e.reasons.map((r) => {
-                const info = REASON_INFO[r];
-                const Icon = info.icon;
-                return (
-                  <Badge key={r} variant="destructive" className="gap-1 text-[10px] font-medium">
-                    <Icon className="h-3 w-3" />
-                    {info.label}
-                  </Badge>
-                );
-              })}
+          <Link href={`/dashboard/empleados/${e.empleadoId}`} className="flex min-w-0 flex-1 items-center gap-3">
+            <Avatar className="h-9 w-9">
+              <AvatarImage src={fotos?.[e.empleadoId] || undefined} alt="" />
+              <AvatarFallback>{dashIniciales(nombres[e.empleadoId] ?? '?')}</AvatarFallback>
+            </Avatar>
+            <div className="min-w-0 flex-1">
+              <p className="cursor-pointer truncate text-sm font-medium hover:underline">{nombres[e.empleadoId] ?? 'Empleado'}</p>
+              <div className="mt-1 flex flex-wrap gap-1">
+                {e.reasons.map((r) => {
+                  const info = REASON_INFO[r];
+                  const Icon = info.icon;
+                  return (
+                    <Badge key={r} variant="destructive" className="gap-1 text-[10px] font-medium">
+                      <Icon className="h-3 w-3" />
+                      {info.label}
+                    </Badge>
+                  );
+                })}
+              </div>
             </div>
-          </div>
+          </Link>
           {e.pct !== null && <div className="text-lg font-bold tabular-nums text-red-600">{e.pct}%</div>}
         </div>
       ))}

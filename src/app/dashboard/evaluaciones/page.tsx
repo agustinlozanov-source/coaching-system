@@ -93,7 +93,15 @@ export default function EvaluacionesPage() {
               <tbody>
                 {evals.map((e) => (
                   <tr key={e.id} className="border-b transition hover:bg-muted/30">
-                    <td className="p-3 font-medium">{nombres[e.empleadoId] ?? '—'}</td>
+                    <td className="p-3 font-medium">
+                      {nombres[e.empleadoId] ? (
+                        <Link href={`/dashboard/empleados/${e.empleadoId}`} className="hover:underline">
+                          {nombres[e.empleadoId]}
+                        </Link>
+                      ) : (
+                        '—'
+                      )}
+                    </td>
                     <td className="p-3 text-muted-foreground">{e.semana ?? '—'}</td>
                     <td className="p-3 text-muted-foreground">{e.fecha}</td>
                     <td className="p-3"><Badge variant={e.estado === 'borrador' ? 'secondary' : 'default'}>{ESTADO_LABEL[e.estado] ?? e.estado}</Badge></td>

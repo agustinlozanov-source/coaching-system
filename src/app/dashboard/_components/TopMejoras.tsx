@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { ArrowUp, Trophy } from 'lucide-react';
 import { dashIniciales, type ImprovementEntry } from '@/lib/teamx/dashboard-equipo';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -30,16 +31,18 @@ export function TopMejoras({
           ) : (
             <span className="w-5 flex-shrink-0 text-center text-sm font-bold text-muted-foreground">{i + 1}</span>
           )}
-          <Avatar className="h-9 w-9">
-            <AvatarImage src={fotos?.[e.empleadoId] || undefined} alt="" />
-            <AvatarFallback>{dashIniciales(nombres[e.empleadoId] ?? '?')}</AvatarFallback>
-          </Avatar>
-          <div className="min-w-0 flex-1">
-            <p className="truncate text-sm font-medium">{nombres[e.empleadoId] ?? 'Empleado'}</p>
-            <p className="text-xs text-muted-foreground">
-              {e.anterior}% → {e.actual}%
-            </p>
-          </div>
+          <Link href={`/dashboard/empleados/${e.empleadoId}`} className="flex min-w-0 flex-1 items-center gap-3">
+            <Avatar className="h-9 w-9">
+              <AvatarImage src={fotos?.[e.empleadoId] || undefined} alt="" />
+              <AvatarFallback>{dashIniciales(nombres[e.empleadoId] ?? '?')}</AvatarFallback>
+            </Avatar>
+            <div className="min-w-0 flex-1">
+              <p className="cursor-pointer truncate text-sm font-medium hover:underline">{nombres[e.empleadoId] ?? 'Empleado'}</p>
+              <p className="text-xs text-muted-foreground">
+                {e.anterior}% → {e.actual}%
+              </p>
+            </div>
+          </Link>
           <div className="flex items-center gap-1 text-sm font-bold text-emerald-600">
             <ArrowUp className="h-4 w-4" /> +{e.delta}
           </div>

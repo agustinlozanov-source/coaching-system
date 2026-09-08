@@ -62,6 +62,8 @@ export interface Tarea {
   organizacionId: string;
   empleadoId: string;
   evaluacionId: string | null;
+  sesionId: string | null;
+  dimensionId: string | null;
   aspectoId: string | null;
   descripcion: string;
   responsable: string | null;
@@ -96,6 +98,8 @@ function rowToTarea(row: any): Tarea {
     organizacionId: row.organizacion_id,
     empleadoId: row.empleado_id,
     evaluacionId: row.evaluacion_id ?? null,
+    sesionId: row.sesion_id ?? null,
+    dimensionId: row.dimension_id ?? null,
     aspectoId: row.aspecto_id ?? null,
     descripcion: row.descripcion,
     responsable: row.responsable ?? null,
@@ -108,12 +112,13 @@ function rowToTarea(row: any): Tarea {
 /* ── Tareas ──────────────────────────────────────────────────────────────── */
 
 /** Tareas de la organización activa. Filtra por empleado y/o excluye completadas. */
-export async function listTareas(opts?: { empleadoId?: string; soloPendientes?: boolean }): Promise<Tarea[]> {
+export async function listTareas(opts?: { empleadoId?: string; sesionId?: string; soloPendientes?: boolean }): Promise<Tarea[]> {
   const supabase = createClient();
   const orgId = await getActiveOrgId();
   if (!orgId) return [];
   let q = supabase.from('teamx_tareas').select('*').eq('organizacion_id', orgId);
   if (opts?.empleadoId) q = q.eq('empleado_id', opts.empleadoId);
+  if (opts?.sesionId) q = q.eq('sesion_id', opts.sesionId);
   if (opts?.soloPendientes) q = q.neq('estado', 'completada');
   const { data, error } = await q.order('fecha_limite', { ascending: true, nullsFirst: false }).order('created_at', { ascending: false });
   if (error) { console.error('Error al listar tareas:', error); throw error; }
@@ -126,7 +131,10 @@ export async function crearTarea(input: {
   responsable?: string | null;
   fechaLimite?: string | null;
   evaluacionId?: string | null;
+  sesionId?: string | null;
+  dimensionId?: string | null;
   aspectoId?: string | null;
+  estado?: EstadoTarea;
 }): Promise<string> {
   const supabase = createClient();
   const orgId = await getActiveOrgId();
@@ -135,11 +143,13 @@ export async function crearTarea(input: {
     organizacion_id: orgId,
     empleado_id: input.empleadoId,
     evaluacion_id: input.evaluacionId ?? null,
+    sesion_id: input.sesionId ?? null,
+    dimension_id: input.dimensionId ?? null,
     aspecto_id: input.aspectoId ?? null,
     descripcion: input.descripcion,
     responsable: input.responsable ?? null,
     fecha_limite: input.fechaLimite ?? null,
-    estado: 'pendiente',
+    estado: input.estado ?? 'pendiente',
   }).select('id').single();
   if (error) { console.error('Error al crear tarea:', error); throw error; }
   return data.id;
@@ -149,6 +159,7 @@ export async function actualizarTarea(id: string, patch: {
   descripcion?: string;
   responsable?: string | null;
   fechaLimite?: string | null;
+  dimensionId?: string | null;
   estado?: EstadoTarea;
 }): Promise<void> {
   const supabase = createClient();
@@ -156,9 +167,16 @@ export async function actualizarTarea(id: string, patch: {
   if (patch.descripcion !== undefined) update.descripcion = patch.descripcion;
   if (patch.responsable !== undefined) update.responsable = patch.responsable;
   if (patch.fechaLimite !== undefined) update.fecha_limite = patch.fechaLimite;
+  if (patch.dimensionId !== undefined) update.dimension_id = patch.dimensionId;
   if (patch.estado !== undefined) update.estado = patch.estado;
   const { error } = await supabase.from('teamx_tareas').update(update).eq('id', id);
   if (error) { console.error('Error al actualizar tarea:', error); throw error; }
+}
+
+export async function eliminarTarea(id: string): Promise<void> {
+  const supabase = createClient();
+  const { error } = await supabase.from('teamx_tareas').delete().eq('id', id);
+  if (error) { console.error('Error al eliminar tarea:', error); throw error; }
 }
 
 /* ── Agenda auto-generada ────────────────────────────────────────────────── */

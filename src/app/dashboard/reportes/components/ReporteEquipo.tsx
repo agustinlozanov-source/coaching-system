@@ -1,6 +1,7 @@
 'use client';
 
 import { useMemo } from 'react';
+import Link from 'next/link';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { TrendingUp, TrendingDown, Minus, Users } from 'lucide-react';
@@ -10,6 +11,7 @@ import {
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import type { Empleado } from '@/types/empleado';
 import type { Evaluacion } from '@/types/teamx';
 import {
@@ -20,6 +22,10 @@ import {
 interface Props {
   empleados: Empleado[];
   evaluaciones: Evaluacion[];
+}
+
+function iniciales(nombre: string): string {
+  return nombre.split(' ').filter(Boolean).map((w) => w[0]).join('').toUpperCase().slice(0, 2) || '?';
 }
 
 function IconoTendencia({ direccion }: { direccion: Direccion }) {
@@ -187,7 +193,17 @@ export function ReporteEquipo({ empleados, evaluaciones }: Props) {
                   const s = semaforoEficiencia(eficiencia);
                   return (
                     <tr key={emp.id} className="border-b">
-                      <td className="p-3 font-medium">{emp.nombre}</td>
+                      <td className="p-3 font-medium">
+                        <Link href={`/dashboard/empleados/${emp.id}`} className="flex items-center gap-2 hover:underline">
+                          <Avatar className="h-7 w-7">
+                            <AvatarImage src={emp.photoURL || undefined} alt="" />
+                            <AvatarFallback className="bg-emerald-100 text-[10px] font-semibold text-emerald-800">
+                              {iniciales(emp.nombre)}
+                            </AvatarFallback>
+                          </Avatar>
+                          {emp.nombre}
+                        </Link>
+                      </td>
                       <td className="p-3 text-muted-foreground">{emp.cargo || '—'}</td>
                       <td className="p-3 text-muted-foreground">
                         {ultima ? format(new Date(ultima.fecha + 'T00:00:00'), 'dd/MM/yyyy', { locale: es }) : 'Sin evaluar'}

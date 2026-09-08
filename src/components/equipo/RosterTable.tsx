@@ -1,6 +1,7 @@
 'use client';
 
 import { useMemo, useState } from 'react';
+import Link from 'next/link';
 import { ArrowUpDown, TrendingUp, AlertTriangle, CheckCircle2 } from 'lucide-react';
 import {
   Table,
@@ -121,7 +122,10 @@ export function RosterTable({ stats, coachNombres, onVerCurva }: Props) {
                   )}
                 </TableCell>
                 <TableCell>
-                  <div className="flex items-center gap-2">
+                  <Link
+                    href={`/dashboard/empleados/${s.empleado.id}`}
+                    className="flex items-center gap-2"
+                  >
                     <Avatar className="h-8 w-8">
                       <AvatarImage src={s.empleado.photoURL || undefined} alt="" />
                       <AvatarFallback className="bg-emerald-100 text-xs font-semibold text-emerald-800">
@@ -129,12 +133,12 @@ export function RosterTable({ stats, coachNombres, onVerCurva }: Props) {
                       </AvatarFallback>
                     </Avatar>
                     <div>
-                      <div className="font-medium leading-tight">{s.empleado.nombre}</div>
+                      <div className="cursor-pointer font-medium leading-tight hover:underline">{s.empleado.nombre}</div>
                       <Badge variant="outline" className={cn('mt-0.5 px-1.5 py-0 text-[10px]', s.madurez.badgeClass)}>
                         {s.madurez.label}
                       </Badge>
                     </div>
-                  </div>
+                  </Link>
                 </TableCell>
                 <TableCell className="text-muted-foreground">{s.empleado.cargo || '—'}</TableCell>
                 <TableCell className="text-muted-foreground">

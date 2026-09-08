@@ -146,7 +146,15 @@ export default function SesionesPage() {
               <tbody>
                 {sesiones.map((s) => (
                   <tr key={s.id} className="border-b transition hover:bg-muted/30">
-                    <td className="p-3 font-medium">{nombres[s.empleadoId] ?? '—'}</td>
+                    <td className="p-3 font-medium">
+                      {nombres[s.empleadoId] ? (
+                        <Link href={`/dashboard/empleados/${s.empleadoId}`} className="hover:underline">
+                          {nombres[s.empleadoId]}
+                        </Link>
+                      ) : (
+                        '—'
+                      )}
+                    </td>
                     <td className="p-3 text-muted-foreground">{s.fecha}</td>
                     <td className="p-3"><Badge variant={ESTADO_BADGE[s.estado]}>{ESTADO_LABEL[s.estado]}</Badge></td>
                     <td className="p-3 text-right tabular-nums text-muted-foreground">

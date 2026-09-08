@@ -3,14 +3,16 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import {
-  ArrowLeft, Loader2, Plus, Trash2, CheckCircle2, Circle, ListChecks,
-  ClipboardCheck, ListTodo, AlertCircle,
+  ArrowLeft, Loader2, Plus, Trash2, ListChecks, AlertCircle, LayoutDashboard, History,
 } from 'lucide-react';
 import {
-  getSesion, guardarSesion, listTareas, crearTarea, actualizarTarea, NOTAS_VACIAS,
-  type Sesion, type AgendaItem, type NotasSesion, type Acuerdo, type EstadoAcuerdo,
-  type EstadoSesion, type Tarea, type EstadoTarea,
+  getSesion, guardarSesion, listTareas, crearTarea, actualizarTarea, eliminarTarea, NOTAS_VACIAS,
+  type Sesion, type NotasSesion, type EstadoSesion, type Tarea, type EstadoTarea,
 } from '@/lib/teamx/sesiones';
+import { getEvaluacion, getUltimaEvaluacion } from '@/lib/teamx/evaluacion';
+import {
+  Dimension, Escala, Evaluacion, pctDimension, promedioGeneral,
+} from '@/types/teamx';
 import { getEmpleadoById } from '@/hooks/useEmpleados';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -18,9 +20,7 @@ import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
-import {
-  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
-} from '@/components/ui/select';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
 import { SesionTimer } from './SesionTimer';
 
@@ -36,27 +36,39 @@ const ESTADO_BADGE: Record<EstadoSesion, 'secondary' | 'info' | 'success' | 'mut
 const TAREA_LABEL: Record<EstadoTarea, string> = {
   pendiente: 'Pendiente', en_progreso: 'En progreso', completada: 'Completada',
 };
-const ORIGEN_LABEL: Record<AgendaItem['origen'], string> = {
-  aspecto_bajo: 'Bajó vs. anterior', dimension_baja: 'Dimensión débil',
-  tarea_pendiente: 'Tarea pendiente', manual: 'Agregado a mano',
-};
-const ORIGEN_BADGE: Record<AgendaItem['origen'], 'destructive' | 'warning' | 'info' | 'muted'> = {
-  aspecto_bajo: 'destructive', dimension_baja: 'warning', tarea_pendiente: 'info', manual: 'muted',
-};
+const SIN_DIM = '__sin__';
 
 const NOTAS_CAMPOS: { key: keyof NotasSesion; label: string; placeholder: string }[] = [
-  { key: 'revision', label: 'Revisión', placeholder: '¿Qué se revisó de la sesión y tareas anteriores?' },
+  { key: 'revision', label: 'Revisión', placeholder: '¿Qué se revisó de la sesión anterior?' },
   { key: 'observaciones', label: 'Observaciones', placeholder: 'Observaciones del coach durante la sesión.' },
-  { key: 'acuerdos', label: 'Acuerdos', placeholder: 'Resumen narrativo de lo acordado.' },
   { key: 'proximosPasos', label: 'Próximos pasos', placeholder: '¿Qué sigue antes de la próxima sesión?' },
   { key: 'reflexionCoachee', label: 'Reflexión del coachee', placeholder: 'En palabras del coachee.' },
 ];
+
+function semaforoEfi(logro: number): { color: string; label: string } {
+  if (logro > 95) return { color: '#16a34a', label: 'Verde' };
+  if (logro >= 85) return { color: '#f59e0b', label: 'Amarillo' };
+  return { color: '#ef4444', label: 'Rojo' };
+}
+
+/** Nivel de escala (label + color) de una respuesta. */
+function nivelDe(escala: Escala | undefined, r?: { valor: number | null; na?: boolean }): { label: string; color: string } {
+  if (!r || r.na) return { label: 'N/A', color: '#94a3b8' };
+  if (r.valor === null || r.valor === undefined) return { label: 'Sin evaluar', color: '#cbd5e1' };
+  const n = escala?.niveles.find((x) => x.valor === r.valor);
+  return n ? { label: n.label, color: n.color } : { label: String(r.valor), color: '#64748b' };
+}
 
 export function SesionEditor({ sesionId }: { sesionId: string }) {
   const { toast } = useToast();
 
   const [sesion, setSesion] = useState<Sesion | null>(null);
   const [empleado, setEmpleado] = useState<{ nombre: string; cargo?: string } | null>(null);
+  const [prevEval, setPrevEval] = useState<Evaluacion | null>(null);
+  const [evalDims, setEvalDims] = useState<Dimension[]>([]);
+  const [escala, setEscala] = useState<Escala | undefined>(undefined);
+  const [panelDim, setPanelDim] = useState<string>('');
+
   const [tareas, setTareas] = useState<Tarea[]>([]);
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
@@ -65,16 +77,12 @@ export function SesionEditor({ sesionId }: { sesionId: string }) {
   const [fecha, setFecha] = useState('');
   const [estado, setEstado] = useState<EstadoSesion>('programada');
   const [duracionInicialSec, setDuracionInicialSec] = useState(0);
-  const [agenda, setAgenda] = useState<AgendaItem[]>([]);
   const [notas, setNotas] = useState<NotasSesion>(NOTAS_VACIAS);
-  const [acuerdos, setAcuerdos] = useState<Acuerdo[]>([]);
-  const [nuevoPunto, setNuevoPunto] = useState('');
-  const [nuevoAcuerdo, setNuevoAcuerdo] = useState('');
 
-  const [tareaDesc, setTareaDesc] = useState('');
-  const [tareaResp, setTareaResp] = useState('');
-  const [tareaFecha, setTareaFecha] = useState('');
-  const [creandoTarea, setCreandoTarea] = useState(false);
+  const [nuevaTarea, setNuevaTarea] = useState('');
+  const [nuevaDim, setNuevaDim] = useState<string>(SIN_DIM);
+  const [nuevaFecha, setNuevaFecha] = useState('');
+  const [creando, setCreando] = useState(false);
 
   const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const loaded = useRef(false);
@@ -86,15 +94,22 @@ export function SesionEditor({ sesionId }: { sesionId: string }) {
       setSesion(s);
       setFecha(s.fecha);
       setEstado(s.estado);
-      setAgenda(s.agenda);
       setNotas(s.notas);
-      setAcuerdos(s.acuerdos);
       setDuracionInicialSec((s.duracionMin ?? 0) * 60);
-      const [emp, tareasEmp] = await Promise.all([
+
+      const [emp, ev, tareasEmp] = await Promise.all([
         getEmpleadoById(s.empleadoId).catch(() => null),
+        (s.evaluacionId ? getEvaluacion(s.evaluacionId) : getUltimaEvaluacion(s.empleadoId)).catch(() => null),
         listTareas({ empleadoId: s.empleadoId }).catch(() => []),
       ]);
       if (emp) setEmpleado({ nombre: emp.nombre, cargo: emp.cargo });
+      if (ev) {
+        setPrevEval(ev);
+        const comp = (ev.configSnapshot?.dimensiones ?? []).filter((d) => d.naturaleza === 'competencia');
+        setEvalDims(comp);
+        setEscala(ev.configSnapshot?.escala);
+        setPanelDim(comp[0]?.id ?? '');
+      }
       setTareas(tareasEmp);
       loaded.current = true;
       setLoading(false);
@@ -102,129 +117,83 @@ export function SesionEditor({ sesionId }: { sesionId: string }) {
     })();
   }, [sesionId]);
 
-  /* Autosave (debounce) */
   const persist = useCallback((patch: GuardarPatch) => {
     if (!loaded.current) return;
     setStatus('saving');
     if (saveTimer.current) clearTimeout(saveTimer.current);
     saveTimer.current = setTimeout(async () => {
-      try { await guardarSesion(sesionId, patch); setStatus('saved'); }
-      catch { setStatus('error'); }
+      try { await guardarSesion(sesionId, patch); setStatus('saved'); } catch { setStatus('error'); }
     }, 900);
   }, [sesionId]);
 
-  /* Guardado inmediato (cambios de estado) */
   const persistNow = useCallback(async (patch: GuardarPatch) => {
     if (!loaded.current) return;
     if (saveTimer.current) clearTimeout(saveTimer.current);
     setStatus('saving');
-    try { await guardarSesion(sesionId, patch); setStatus('saved'); }
-    catch { setStatus('error'); }
+    try { await guardarSesion(sesionId, patch); setStatus('saved'); } catch { setStatus('error'); }
   }, [sesionId]);
 
-  /* ── Agenda ──────────────────────────────────────────────────────────── */
-  function actualizarAgenda(next: AgendaItem[]) { setAgenda(next); persist({ agenda: next }); }
-  function toggleAgenda(id: string) {
-    actualizarAgenda(agenda.map((a) => (a.id === id ? { ...a, hecho: !a.hecho } : a)));
-  }
-  function editarAgendaTexto(id: string, texto: string) {
-    setAgenda((prev) => prev.map((a) => (a.id === id ? { ...a, texto } : a)));
-  }
-  function commitAgendaTexto() { persist({ agenda }); }
-  function eliminarAgenda(id: string) { actualizarAgenda(agenda.filter((a) => a.id !== id)); }
-  function agregarAgenda() {
-    const texto = nuevoPunto.trim();
-    if (!texto) return;
-    actualizarAgenda([...agenda, { id: `manual-${Date.now()}`, texto, origen: 'manual', hecho: false }]);
-    setNuevoPunto('');
-  }
-
-  /* ── Notas estructuradas ─────────────────────────────────────────────── */
   function editarNota(key: keyof NotasSesion, value: string) {
     const next = { ...notas, [key]: value };
     setNotas(next);
     persist({ notas: next });
   }
-
-  /* ── Acuerdos / compromisos ──────────────────────────────────────────── */
-  function actualizarAcuerdos(next: Acuerdo[]) { setAcuerdos(next); persist({ acuerdos: next }); }
-  function agregarAcuerdo() {
-    const texto = nuevoAcuerdo.trim();
-    if (!texto) return;
-    actualizarAcuerdos([...acuerdos, {
-      id: `ac-${Date.now()}`, texto, estado: 'pendiente', fecha: new Date().toISOString().slice(0, 10),
-    }]);
-    setNuevoAcuerdo('');
-  }
-  function cambiarEstadoAcuerdo(id: string, nuevo: EstadoAcuerdo) {
-    actualizarAcuerdos(acuerdos.map((a) => (a.id === id ? { ...a, estado: nuevo } : a)));
-  }
-  function eliminarAcuerdo(id: string) { actualizarAcuerdos(acuerdos.filter((a) => a.id !== id)); }
-
-  /* ── Estado / fecha de la sesión ─────────────────────────────────────── */
-  async function cambiarEstadoSesion(nuevo: EstadoSesion) {
-    setEstado(nuevo);
-    await persistNow({ estado: nuevo });
-  }
+  async function cambiarEstadoSesion(nuevo: EstadoSesion) { setEstado(nuevo); await persistNow({ estado: nuevo }); }
   function cambiarFecha(v: string) { setFecha(v); persist({ fecha: v }); }
+  const onPersistDuracion = useCallback((elapsedSec: number) => { persist({ duracionMin: Math.round(elapsedSec / 60) }); }, [persist]);
 
-  /* ── Timer ───────────────────────────────────────────────────────────── */
-  const onPersistDuracion = useCallback((elapsedSec: number) => {
-    persist({ duracionMin: Math.round(elapsedSec / 60) });
-  }, [persist]);
-
-  /* ── Tareas del empleado ─────────────────────────────────────────────── */
+  /* ── Agenda y acuerdos = tareas anidadas a dimensión ─────────────────── */
   async function agregarTarea() {
-    const desc = tareaDesc.trim();
+    const desc = nuevaTarea.trim();
     if (!desc || !sesion) return;
-    setCreandoTarea(true);
+    setCreando(true);
     try {
+      const dimId = nuevaDim === SIN_DIM ? null : nuevaDim;
       const id = await crearTarea({
-        empleadoId: sesion.empleadoId,
-        descripcion: desc,
-        responsable: tareaResp.trim() || null,
-        fechaLimite: tareaFecha || null,
-        evaluacionId: sesion.evaluacionId,
+        empleadoId: sesion.empleadoId, sesionId: sesion.id, evaluacionId: sesion.evaluacionId,
+        dimensionId: dimId, descripcion: desc, fechaLimite: nuevaFecha || null,
       });
       setTareas((prev) => [{
         id, organizacionId: sesion.organizacionId, empleadoId: sesion.empleadoId,
-        evaluacionId: sesion.evaluacionId, aspectoId: null, descripcion: desc,
-        responsable: tareaResp.trim() || null, fechaLimite: tareaFecha || null, estado: 'pendiente',
+        evaluacionId: sesion.evaluacionId, sesionId: sesion.id, dimensionId: dimId, aspectoId: null,
+        descripcion: desc, responsable: null, fechaLimite: nuevaFecha || null, estado: 'pendiente',
       }, ...prev]);
-      setTareaDesc(''); setTareaResp(''); setTareaFecha('');
+      setNuevaTarea(''); setNuevaFecha(''); setNuevaDim(SIN_DIM);
     } catch {
-      toast({ title: 'Error', description: 'No se pudo crear la tarea.', variant: 'destructive' });
-    } finally {
-      setCreandoTarea(false);
-    }
+      toast({ title: 'Error', description: 'No se pudo crear el compromiso.', variant: 'destructive' });
+    } finally { setCreando(false); }
   }
-  async function cambiarEstadoTarea(id: string, nuevo: EstadoTarea) {
-    setTareas((prev) => prev.map((t) => (t.id === id ? { ...t, estado: nuevo } : t)));
-    try { await actualizarTarea(id, { estado: nuevo }); }
-    catch { toast({ title: 'Error', description: 'No se pudo actualizar la tarea.', variant: 'destructive' }); }
+  function patchTareaLocal(id: string, patch: Partial<Tarea>) {
+    setTareas((prev) => prev.map((t) => (t.id === id ? { ...t, ...patch } : t)));
+  }
+  async function guardarTarea(id: string, patch: Parameters<typeof actualizarTarea>[1]) {
+    try { await actualizarTarea(id, patch); } catch { toast({ title: 'Error', description: 'No se pudo actualizar.', variant: 'destructive' }); }
+  }
+  async function quitarTarea(id: string) {
+    setTareas((prev) => prev.filter((t) => t.id !== id));
+    try { await eliminarTarea(id); } catch { /* noop */ }
   }
 
   if (loading) {
     return <div className="flex items-center justify-center py-24"><Loader2 className="h-8 w-8 animate-spin text-muted-foreground" /></div>;
   }
-
   if (notFound || !sesion) {
     return (
       <Card><CardContent className="flex flex-col items-center py-16 text-center">
         <AlertCircle className="h-10 w-10 text-muted-foreground" />
         <h3 className="mt-3 font-bold">No se encontró la sesión</h3>
-        <Link href="/dashboard/sesiones" className="mt-4">
-          <Button variant="outline"><ArrowLeft className="mr-2 h-4 w-4" /> Volver a sesiones</Button>
-        </Link>
+        <Link href="/dashboard/sesiones" className="mt-4"><Button variant="outline"><ArrowLeft className="mr-2 h-4 w-4" /> Volver a sesiones</Button></Link>
       </CardContent></Card>
     );
   }
 
-  const agendaDone = agenda.filter((a) => a.hecho).length;
-  const pendientesEmpleado = tareas.filter((t) => t.estado !== 'completada');
+  const dimNombre = (id: string | null) => (id ? evalDims.find((d) => d.id === id)?.nombre : null);
+  const tareasSesion = tareas.filter((t) => t.sesionId === sesion.id);
+  const arrastradas = tareas.filter((t) => t.sesionId !== sesion.id && t.estado !== 'completada');
+  const panel = evalDims.find((d) => d.id === panelDim);
 
   return (
-    <div className="mx-auto max-w-5xl space-y-6">
+    <div className="mx-auto max-w-6xl space-y-6">
       {/* Header */}
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
@@ -260,177 +229,213 @@ export function SesionEditor({ sesionId }: { sesionId: string }) {
             <Label className="mb-1 block text-xs font-semibold uppercase text-muted-foreground">Fecha</Label>
             <Input type="date" value={fecha} onChange={(e) => cambiarFecha(e.target.value)} className="w-44" />
           </div>
-          <SesionTimer
-            initialElapsedSec={duracionInicialSec}
-            disabled={estado === 'cancelada'}
-            onPersist={onPersistDuracion}
-          />
+          <SesionTimer initialElapsedSec={duracionInicialSec} disabled={estado === 'cancelada'} onPersist={onPersistDuracion} />
         </CardContent>
       </Card>
 
-      <div className="grid gap-6 lg:grid-cols-2">
-        {/* Agenda */}
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between">
-            <CardTitle className="flex items-center gap-2 text-base">
-              <ListChecks className="h-4 w-4 text-emerald-600" /> Agenda de la sesión
-            </CardTitle>
-            <span className="text-xs text-muted-foreground">{agendaDone}/{agenda.length} listos</span>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            {agenda.length === 0 ? (
-              <p className="py-6 text-center text-sm text-muted-foreground">
-                Sin puntos de agenda todavía. Se sugieren solos al crear la sesión desde evaluaciones y tareas pendientes.
-              </p>
-            ) : (
-              <ul className="space-y-2">
-                {agenda.map((a) => (
-                  <li key={a.id} className="flex items-start gap-2 rounded-md border p-2">
-                    <button type="button" onClick={() => toggleAgenda(a.id)} className="mt-0.5 shrink-0 text-emerald-600">
-                      {a.hecho ? <CheckCircle2 className="h-5 w-5" /> : <Circle className="h-5 w-5 text-muted-foreground" />}
-                    </button>
-                    <div className="min-w-0 flex-1">
-                      <input
-                        value={a.texto}
-                        onChange={(e) => editarAgendaTexto(a.id, e.target.value)}
-                        onBlur={commitAgendaTexto}
-                        className={`w-full border-none bg-transparent p-0 text-sm outline-none ${a.hecho ? 'text-muted-foreground line-through' : ''}`}
-                      />
-                      <Badge variant={ORIGEN_BADGE[a.origen]} className="mt-1">{ORIGEN_LABEL[a.origen]}</Badge>
-                    </div>
-                    <button type="button" onClick={() => eliminarAgenda(a.id)} className="shrink-0 text-muted-foreground hover:text-destructive">
-                      <Trash2 className="h-4 w-4" />
-                    </button>
-                  </li>
-                ))}
-              </ul>
-            )}
-            <div className="flex gap-2 pt-1">
-              <Input
-                placeholder="Agregar punto a la agenda…" value={nuevoPunto}
-                onChange={(e) => setNuevoPunto(e.target.value)}
-                onKeyDown={(e) => { if (e.key === 'Enter') agregarAgenda(); }}
-              />
-              <Button variant="outline" onClick={agregarAgenda}><Plus className="h-4 w-4" /></Button>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Acuerdos / compromisos */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-base">
-              <ClipboardCheck className="h-4 w-4 text-emerald-600" /> Acuerdos y compromisos
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            {acuerdos.length === 0 ? (
-              <p className="py-6 text-center text-sm text-muted-foreground">Aún no hay acuerdos registrados en esta sesión.</p>
-            ) : (
-              <ul className="space-y-2">
-                {acuerdos.map((a) => (
-                  <li key={a.id} className="flex items-center gap-2 rounded-md border p-2">
-                    <span className="min-w-0 flex-1 truncate text-sm" title={a.texto}>{a.texto}</span>
-                    <Select value={a.estado} onValueChange={(v) => cambiarEstadoAcuerdo(a.id, v as EstadoAcuerdo)}>
-                      <SelectTrigger className="h-8 w-36 text-xs"><SelectValue /></SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="pendiente">Pendiente</SelectItem>
-                        <SelectItem value="cumplido">Cumplido</SelectItem>
-                        <SelectItem value="no_cumplido">No cumplido</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <button type="button" onClick={() => eliminarAcuerdo(a.id)} className="shrink-0 text-muted-foreground hover:text-destructive">
-                      <Trash2 className="h-4 w-4" />
-                    </button>
-                  </li>
-                ))}
-              </ul>
-            )}
-            <div className="flex gap-2 pt-1">
-              <Input
-                placeholder="Nuevo acuerdo o compromiso…" value={nuevoAcuerdo}
-                onChange={(e) => setNuevoAcuerdo(e.target.value)}
-                onKeyDown={(e) => { if (e.key === 'Enter') agregarAcuerdo(); }}
-              />
-              <Button variant="outline" onClick={agregarAcuerdo}><Plus className="h-4 w-4" /></Button>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Notas estructuradas */}
-      <Card>
-        <CardHeader><CardTitle className="text-base">Notas de la sesión</CardTitle></CardHeader>
-        <CardContent className="grid gap-4 sm:grid-cols-2">
-          {NOTAS_CAMPOS.map((c) => (
-            <div key={c.key} className={c.key === 'observaciones' || c.key === 'reflexionCoachee' ? 'sm:col-span-2' : ''}>
-              <Label className="mb-1 block text-xs font-semibold uppercase text-muted-foreground">{c.label}</Label>
-              <Textarea
-                value={notas[c.key]} placeholder={c.placeholder}
-                onChange={(e) => editarNota(c.key, e.target.value)}
-                className="min-h-[90px]"
-              />
-            </div>
-          ))}
-        </CardContent>
-      </Card>
-
-      {/* Tareas del empleado */}
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between">
-          <CardTitle className="flex items-center gap-2 text-base">
-            <ListTodo className="h-4 w-4 text-emerald-600" /> Tareas de {empleado?.nombre ?? 'este empleado'}
-          </CardTitle>
-          <span className="text-xs text-muted-foreground">{pendientesEmpleado.length} pendientes</span>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          {tareas.length === 0 ? (
-            <p className="py-6 text-center text-sm text-muted-foreground">Sin tareas todavía. Crea la primera abajo.</p>
-          ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead className="border-b text-xs uppercase text-muted-foreground">
-                  <tr>
-                    <th className="p-2 text-left">Descripción</th>
-                    <th className="p-2 text-left">Responsable</th>
-                    <th className="p-2 text-left">Fecha límite</th>
-                    <th className="p-2 text-left">Estado</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {tareas.map((t) => (
-                    <tr key={t.id} className="border-b">
-                      <td className="p-2">{t.descripcion}</td>
-                      <td className="p-2 text-muted-foreground">{t.responsable || '—'}</td>
-                      <td className="p-2 text-muted-foreground">{t.fechaLimite || '—'}</td>
-                      <td className="p-2">
-                        <Select value={t.estado} onValueChange={(v) => cambiarEstadoTarea(t.id, v as EstadoTarea)}>
-                          <SelectTrigger className="h-8 w-36 text-xs"><SelectValue /></SelectTrigger>
+      <div className="grid gap-6 lg:grid-cols-[1fr_360px]">
+        {/* ── Columna sesión ── */}
+        <div className="space-y-6">
+          {/* Agenda y acuerdos (tareas anidadas a dimensión) */}
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between">
+              <CardTitle className="flex items-center gap-2 text-base"><ListChecks className="h-4 w-4 text-emerald-600" /> Agenda y acuerdos</CardTitle>
+              <span className="text-xs text-muted-foreground">{tareasSesion.length} compromiso{tareasSesion.length !== 1 ? 's' : ''}</span>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              {tareasSesion.length === 0 ? (
+                <p className="py-4 text-center text-sm text-muted-foreground">Sin compromisos. Agrega uno abajo, anclado a una dimensión.</p>
+              ) : (
+                <div className="space-y-2">
+                  {tareasSesion.map((t) => (
+                    <div key={t.id} className="rounded-lg border p-2.5">
+                      <div className="flex items-center gap-2">
+                        <Select value={t.dimensionId ?? SIN_DIM} onValueChange={(v) => { const dv = v === SIN_DIM ? null : v; patchTareaLocal(t.id, { dimensionId: dv }); guardarTarea(t.id, { dimensionId: dv }); }}>
+                          <SelectTrigger className="h-8 w-44 text-xs"><SelectValue placeholder="Dimensión" /></SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value={SIN_DIM}>Sin dimensión</SelectItem>
+                            {evalDims.map((d) => <SelectItem key={d.id} value={d.id}>{d.nombre}</SelectItem>)}
+                          </SelectContent>
+                        </Select>
+                        <Select value={t.estado} onValueChange={(v) => { patchTareaLocal(t.id, { estado: v as EstadoTarea }); guardarTarea(t.id, { estado: v as EstadoTarea }); }}>
+                          <SelectTrigger className="ml-auto h-8 w-32 text-xs"><SelectValue /></SelectTrigger>
                           <SelectContent>
                             <SelectItem value="pendiente">{TAREA_LABEL.pendiente}</SelectItem>
                             <SelectItem value="en_progreso">{TAREA_LABEL.en_progreso}</SelectItem>
                             <SelectItem value="completada">{TAREA_LABEL.completada}</SelectItem>
                           </SelectContent>
                         </Select>
-                      </td>
-                    </tr>
+                        <button onClick={() => quitarTarea(t.id)} className="text-muted-foreground hover:text-destructive"><Trash2 className="h-4 w-4" /></button>
+                      </div>
+                      <input
+                        value={t.descripcion}
+                        onChange={(e) => patchTareaLocal(t.id, { descripcion: e.target.value })}
+                        onBlur={(e) => guardarTarea(t.id, { descripcion: e.target.value })}
+                        className="mt-2 w-full rounded-md border bg-background px-2.5 py-1.5 text-sm outline-none focus:border-emerald-500"
+                        placeholder="Tarea / compromiso…"
+                      />
+                      <div className="mt-2 flex items-center gap-2">
+                        <span className="text-xs text-muted-foreground">Fecha compromiso:</span>
+                        <input type="date" value={t.fechaLimite ?? ''} onChange={(e) => { patchTareaLocal(t.id, { fechaLimite: e.target.value || null }); guardarTarea(t.id, { fechaLimite: e.target.value || null }); }}
+                          className="rounded-md border bg-background px-2 py-1 text-xs outline-none focus:border-emerald-500" />
+                      </div>
+                    </div>
                   ))}
-                </tbody>
-              </table>
-            </div>
-          )}
+                </div>
+              )}
 
-          <div className="grid gap-2 border-t pt-4 sm:grid-cols-[1fr_auto_auto_auto]">
-            <Input placeholder="Nueva tarea…" value={tareaDesc} onChange={(e) => setTareaDesc(e.target.value)} />
-            <Input placeholder="Responsable" value={tareaResp} onChange={(e) => setTareaResp(e.target.value)} className="sm:w-40" />
-            <Input type="date" value={tareaFecha} onChange={(e) => setTareaFecha(e.target.value)} className="sm:w-40" />
-            <Button onClick={agregarTarea} disabled={!tareaDesc.trim() || creandoTarea}>
-              {creandoTarea ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Plus className="mr-2 h-4 w-4" />}
-              Agregar
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
+              {/* Nuevo compromiso */}
+              <div className="grid gap-2 border-t pt-3 sm:grid-cols-[180px_1fr_auto]">
+                <Select value={nuevaDim} onValueChange={setNuevaDim}>
+                  <SelectTrigger className="text-sm"><SelectValue placeholder="Dimensión" /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value={SIN_DIM}>Sin dimensión</SelectItem>
+                    {evalDims.map((d) => <SelectItem key={d.id} value={d.id}>{d.nombre}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+                <Input placeholder="Nueva tarea / compromiso…" value={nuevaTarea} onChange={(e) => setNuevaTarea(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter') agregarTarea(); }} />
+                <div className="flex gap-2">
+                  <Input type="date" value={nuevaFecha} onChange={(e) => setNuevaFecha(e.target.value)} className="w-40" />
+                  <Button onClick={agregarTarea} disabled={!nuevaTarea.trim() || creando}>
+                    {creando ? <Loader2 className="h-4 w-4 animate-spin" /> : <Plus className="h-4 w-4" />}
+                  </Button>
+                </div>
+              </div>
+
+              {/* Arrastradas */}
+              {arrastradas.length > 0 && (
+                <div className="border-t pt-3">
+                  <p className="mb-2 flex items-center gap-1.5 text-xs font-semibold uppercase text-muted-foreground"><History className="h-3.5 w-3.5" /> Arrastradas de sesiones anteriores</p>
+                  <div className="space-y-1.5">
+                    {arrastradas.map((t) => (
+                      <div key={t.id} className="flex items-center gap-2 rounded-md border bg-muted/30 p-2 text-sm">
+                        <span className="min-w-0 flex-1 truncate">{t.descripcion}{dimNombre(t.dimensionId) ? ` · ${dimNombre(t.dimensionId)}` : ''}{t.fechaLimite ? ` · vence ${t.fechaLimite}` : ''}</span>
+                        <Select value={t.estado} onValueChange={(v) => { patchTareaLocal(t.id, { estado: v as EstadoTarea }); guardarTarea(t.id, { estado: v as EstadoTarea }); }}>
+                          <SelectTrigger className="h-7 w-32 text-xs"><SelectValue /></SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="pendiente">{TAREA_LABEL.pendiente}</SelectItem>
+                            <SelectItem value="en_progreso">{TAREA_LABEL.en_progreso}</SelectItem>
+                            <SelectItem value="completada">{TAREA_LABEL.completada}</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Notas */}
+          <Card>
+            <CardHeader><CardTitle className="text-base">Notas de la sesión</CardTitle></CardHeader>
+            <CardContent className="grid gap-4 sm:grid-cols-2">
+              {NOTAS_CAMPOS.map((c) => (
+                <div key={c.key} className={c.key === 'observaciones' || c.key === 'reflexionCoachee' ? 'sm:col-span-2' : ''}>
+                  <Label className="mb-1 block text-xs font-semibold uppercase text-muted-foreground">{c.label}</Label>
+                  <Textarea value={notas[c.key]} placeholder={c.placeholder} onChange={(e) => editarNota(c.key, e.target.value)} className="min-h-[90px]" />
+                </div>
+              ))}
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* ── Panel: tablero de la sesión anterior ── */}
+        <div className="lg:sticky lg:top-4 lg:self-start">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-base"><LayoutDashboard className="h-4 w-4 text-emerald-600" /> Tablero anterior</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {!prevEval ? (
+                <p className="py-6 text-center text-sm text-muted-foreground">Este empleado aún no tiene una evaluación para revisar.</p>
+              ) : (
+                <>
+                  <p className="text-xs text-muted-foreground">Semana {prevEval.semana ?? '—'} · {prevEval.fecha}</p>
+
+                  {/* KPIs */}
+                  <div className="grid grid-cols-2 gap-2">
+                    <div className="rounded-lg border p-2.5">
+                      <div className="text-[10px] font-semibold uppercase text-muted-foreground">Avance general</div>
+                      <div className="text-xl font-extrabold tabular-nums">{promedioGeneral(prevEval.configSnapshot?.dimensiones ?? [], prevEval.respuestas) ?? prevEval.promedioGeneral ?? 0}%</div>
+                    </div>
+                    <div className="rounded-lg border p-2.5">
+                      <div className="text-[10px] font-semibold uppercase text-muted-foreground">Eficiencia</div>
+                      {typeof prevEval.eficiencia?.logro === 'number' ? (
+                        <div className="flex items-center gap-1.5">
+                          <span className="text-xl font-extrabold tabular-nums">{prevEval.eficiencia.logro}%</span>
+                          <span className="h-3 w-3 rounded-full" style={{ backgroundColor: semaforoEfi(prevEval.eficiencia.logro).color }} />
+                        </div>
+                      ) : <div className="text-xl font-extrabold text-muted-foreground">—</div>}
+                    </div>
+                  </div>
+
+                  {/* Seguimiento a efectividad */}
+                  {Array.isArray(prevEval.seguimiento) && prevEval.seguimiento.length > 0 && (
+                    <div>
+                      <div className="mb-1 text-[11px] font-semibold uppercase text-muted-foreground">Seguimiento a efectividad</div>
+                      <div className="space-y-1">
+                        {prevEval.seguimiento.map((k: any, i: number) => {
+                          const dif = (Number(k.logro) || 0) - (Number(k.meta) || 0);
+                          return (
+                            <div key={i} className="flex items-center justify-between text-xs">
+                              <span className="truncate">{k.nombre || 'KPI'}</span>
+                              <span className="tabular-nums text-muted-foreground">{k.logro}/{k.meta} <span className={dif >= 0 ? 'text-emerald-600' : 'text-red-600'}>({dif >= 0 ? '+' : ''}{dif})</span></span>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* % por dimensión (selector) */}
+                  <div>
+                    <div className="mb-1.5 text-[11px] font-semibold uppercase text-muted-foreground">Por dimensión</div>
+                    <div className="space-y-1">
+                      {evalDims.map((d) => {
+                        const pct = pctDimension(d, prevEval.respuestas) ?? 0;
+                        const active = d.id === panelDim;
+                        return (
+                          <button key={d.id} onClick={() => setPanelDim(d.id)}
+                            className={`flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left text-xs transition ${active ? 'bg-muted' : 'hover:bg-muted/50'}`}>
+                            <span className="min-w-0 flex-1 truncate font-medium">{d.nombre}</span>
+                            <span className="tabular-nums font-bold" style={{ color: d.color }}>{pct}%</span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  {/* Acciones/aspectos de la dimensión seleccionada */}
+                  {panel && (
+                    <div className="rounded-lg border p-2.5">
+                      <div className="mb-2 flex items-center gap-2 text-sm font-semibold">
+                        <span className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: panel.color }} /> {panel.nombre}
+                      </div>
+                      <div className="space-y-1.5">
+                        {panel.aspectos.map((a) => {
+                          const nv = nivelDe(escala, prevEval.respuestas?.[a.id]);
+                          return (
+                            <div key={a.id} className="flex items-center justify-between gap-2 text-xs">
+                              <span className="min-w-0 flex-1 truncate">{a.nombre}</span>
+                              <span className="flex-shrink-0 rounded-full px-2 py-0.5 font-semibold text-white" style={{ backgroundColor: nv.color }}>{nv.label}</span>
+                            </div>
+                          );
+                        })}
+                        {panel.aspectos.length === 0 && <p className="text-xs text-muted-foreground">Sin aspectos.</p>}
+                      </div>
+                    </div>
+                  )}
+
+                  <Link href={`/dashboard/evaluaciones/${prevEval.id}/editar`} className="block">
+                    <Button variant="outline" size="sm" className="w-full">Abrir el tablero completo</Button>
+                  </Link>
+                </>
+              )}
+            </CardContent>
+          </Card>
+        </div>
+      </div>
     </div>
   );
 }
