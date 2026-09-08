@@ -1,11 +1,13 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { getCoaches } from '@/hooks/useEmpleados';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Loader2 } from 'lucide-react';
+import { Loader2, Camera } from 'lucide-react';
 import { Empleado, EmpleadoFormData } from '@/types/empleado';
+import { createClient } from '@/lib/supabase/client';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -33,11 +35,38 @@ export function EmpleadoForm({
 }: EmpleadoFormProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [coaches, setCoaches] = useState<{ id: string; nombre: string }[]>([]);
+  const [uploading, setUploading] = useState(false);
+  const [uploadError, setUploadError] = useState<string | null>(null);
+  const fileRef = useRef<HTMLInputElement | null>(null);
   const isEdit = !!empleado;
 
   useEffect(() => {
     getCoaches().then(setCoaches).catch(() => setCoaches([]));
   }, []);
+
+  async function handleFoto(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > 5 * 1024 * 1024) { setUploadError('Máximo 5 MB'); return; }
+    setUploadError(null);
+    setUploading(true);
+    try {
+      const supabase = createClient();
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('Sin sesión');
+      const ext = file.name.split('.').pop()?.toLowerCase() || 'jpg';
+      const path = `${user.id}/empleado-${Date.now()}.${ext}`;
+      const { error: upErr } = await supabase.storage.from('avatares').upload(path, file, { upsert: true, contentType: file.type });
+      if (upErr) throw upErr;
+      const { data: urlData } = supabase.storage.from('avatares').getPublicUrl(path);
+      setValue('photoURL', `${urlData.publicUrl}?t=${Date.now()}`);
+    } catch {
+      setUploadError('No se pudo subir la foto. Intenta de nuevo.');
+    } finally {
+      setUploading(false);
+      if (fileRef.current) fileRef.current.value = '';
+    }
+  }
 
   const {
     register,
@@ -58,8 +87,11 @@ export function EmpleadoForm({
       email: empleado?.email || '',
       telefono: empleado?.telefono || '',
       coachAsignado: empleado?.coachAsignado || '',
+      photoURL: empleado?.photoURL || '',
     },
   });
+
+  const photoURL = watch('photoURL');
 
   const categorias = watch('categorias');
   const activo = watch('activo');
@@ -80,6 +112,7 @@ export function EmpleadoForm({
         email: data.email || undefined,
         telefono: data.telefono || undefined,
         coachAsignado: data.coachAsignado || undefined,
+        photoURL: data.photoURL || undefined,
       };
       await onSave(formData);
     } finally {
@@ -89,6 +122,30 @@ export function EmpleadoForm({
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+      {/* Foto */}
+      <div className="flex items-center gap-4">
+        <Avatar className="h-20 w-20">
+          <AvatarImage src={photoURL || undefined} alt="" />
+          <AvatarFallback className="bg-muted"><Camera className="h-6 w-6 text-muted-foreground" /></AvatarFallback>
+        </Avatar>
+        <div>
+          <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handleFoto} />
+          <div className="flex gap-2">
+            <Button type="button" variant="outline" size="sm" disabled={uploading || isLoading} onClick={() => fileRef.current?.click()}>
+              {uploading ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Camera className="h-4 w-4 mr-2" />}
+              {photoURL ? 'Cambiar foto' : 'Subir foto'}
+            </Button>
+            {photoURL && (
+              <Button type="button" variant="ghost" size="sm" disabled={uploading} onClick={() => setValue('photoURL', '')}>
+                Quitar
+              </Button>
+            )}
+          </div>
+          <p className="mt-1 text-xs text-muted-foreground">JPG o PNG, máximo 5 MB.</p>
+          {uploadError && <p className="text-sm text-red-600">{uploadError}</p>}
+        </div>
+      </div>
+
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Nombre */}
         <div className="space-y-2">

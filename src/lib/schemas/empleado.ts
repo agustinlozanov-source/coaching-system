@@ -15,6 +15,7 @@ export const empleadoFormSchema = z.object({
   email: z.string().email('Email inválido').or(z.literal('')).optional(),
   telefono: z.string().optional(),
   coachAsignado: z.string().optional(),
+  photoURL: z.string().optional(),
 });
 
 export type EmpleadoFormSchemaType = z.infer<typeof empleadoFormSchema>;

@@ -114,6 +114,7 @@ export async function createEmpleado(data: EmpleadoFormData): Promise<string> {
       coach_asignado: asUuidOrNull(data.coachAsignado),
       email: data.email ?? null,
       telefono: data.telefono ?? null,
+      photo_url: data.photoURL ?? null,
       custom_fields: data.customFields ?? {},
     })
     .select('id')
@@ -137,6 +138,7 @@ export async function updateEmpleado(id: string, data: Partial<EmpleadoFormData>
   if (data.coachAsignado !== undefined) update.coach_asignado = asUuidOrNull(data.coachAsignado);
   if (data.email !== undefined) update.email = data.email ?? null;
   if (data.telefono !== undefined) update.telefono = data.telefono ?? null;
+  if (data.photoURL !== undefined) update.photo_url = data.photoURL ?? null;
   if (data.customFields !== undefined) update.custom_fields = data.customFields;
   if (data.fechaIngreso) update.fecha_ingreso = dateOnly(data.fechaIngreso);
 

@@ -30,5 +30,6 @@ export interface EmpleadoFormData {
   coachAsignado?: string;
   email?: string;
   telefono?: string;
+  photoURL?: string;
   customFields?: Record<string, any>;
 }
