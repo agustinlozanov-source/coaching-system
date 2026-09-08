@@ -2,14 +2,18 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { 
-  LayoutDashboard, 
-  Users, 
-  ClipboardCheck, 
-  BarChart3, 
+import {
+  LayoutDashboard,
+  Users,
+  Users2,
+  ClipboardCheck,
+  MessagesSquare,
+  ShieldHalf,
+  Sparkles,
+  BarChart3,
   Target,
   Settings,
-  LogOut
+  LogOut,
 } from 'lucide-react';
 import { cn } from '@/lib/utils/cn';
 import { Button } from '@/components/ui/button';
@@ -18,36 +22,16 @@ import { clearActiveOrgId } from '@/lib/teamx/org';
 import { useRouter } from 'next/navigation';
 
 const menuItems = [
-  {
-    label: 'Dashboard',
-    icon: LayoutDashboard,
-    href: '/dashboard',
-  },
-  {
-    label: 'Empleados',
-    icon: Users,
-    href: '/dashboard/empleados',
-  },
-  {
-    label: 'Evaluaciones',
-    icon: ClipboardCheck,
-    href: '/dashboard/evaluaciones',
-  },
-  {
-    label: 'Reportes',
-    icon: BarChart3,
-    href: '/dashboard/reportes',
-  },
-  {
-    label: 'Áreas de Oportunidad',
-    icon: Target,
-    href: '/dashboard/areas-oportunidad',
-  },
-  {
-    label: 'Administración',
-    icon: Settings,
-    href: '/dashboard/admin',
-  },
+  { label: 'Dashboard', icon: LayoutDashboard, href: '/dashboard' },
+  { label: 'Empleados', icon: Users, href: '/dashboard/empleados' },
+  { label: 'Evaluaciones', icon: ClipboardCheck, href: '/dashboard/evaluaciones' },
+  { label: 'Sesiones', icon: MessagesSquare, href: '/dashboard/sesiones' },
+  { label: 'Equipo', icon: Users2, href: '/dashboard/equipo' },
+  { label: 'Gladiadores', icon: ShieldHalf, href: '/dashboard/gladiadores' },
+  { label: 'Áreas de Oportunidad', icon: Target, href: '/dashboard/areas-oportunidad' },
+  { label: 'Reportes', icon: BarChart3, href: '/dashboard/reportes' },
+  { label: 'Copiloto IA', icon: Sparkles, href: '/dashboard/copiloto' },
+  { label: 'Administración', icon: Settings, href: '/dashboard/admin' },
 ];
 
 export function Sidebar() {
@@ -82,7 +66,9 @@ export function Sidebar() {
       <nav className="flex-1 p-4 space-y-1">
         {menuItems.map((item) => {
           const Icon = item.icon;
-          const isActive = pathname === item.href || pathname.startsWith(item.href + '/');
+          const isActive = item.href === '/dashboard'
+            ? pathname === '/dashboard'
+            : pathname === item.href || pathname.startsWith(item.href + '/');
 
           return (
             <Link
