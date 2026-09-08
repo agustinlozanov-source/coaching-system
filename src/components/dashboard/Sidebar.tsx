@@ -57,10 +57,13 @@ export function Sidebar({ theme, onToggleTheme }: { theme?: 'light' | 'dark'; on
       {/* Logo */}
       <div className="p-6 border-b">
         <Link href="/launcher" className="block">
-          <h1 className="text-2xl font-bold font-jakarta tracking-tight">
-            TEAM<span className="text-[#1aab99]">x</span>
-          </h1>
-          <p className="text-xs text-muted-foreground mt-1">← Todas las herramientas</p>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={theme === 'dark' ? '/logos/teamx-blanco.png' : '/logos/teamx-negro.png'}
+            alt="TEAMx"
+            className="h-8 w-auto"
+          />
+          <p className="text-xs text-muted-foreground mt-2">← Todas las herramientas</p>
         </Link>
       </div>
 
