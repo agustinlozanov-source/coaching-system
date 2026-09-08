@@ -1,210 +1,135 @@
 'use client';
 
-import { Suspense } from 'react';
-import { useState, useMemo, useEffect } from 'react';
+import { Suspense, useEffect, useMemo, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { ChevronRight } from 'lucide-react';
-import { useEvaluaciones } from '@/hooks/useEvaluaciones';
-import { useToast } from '@/hooks/use-toast';
+import { Loader2, ArrowRight, Search } from 'lucide-react';
 import { getEmpleados } from '@/hooks/useEmpleados';
-import { EvaluacionForm } from '@/components/evaluaciones/EvaluacionForm';
-import { EmpleadoSelector } from '@/components/evaluaciones/EmpleadoSelector';
+import { crearEvaluacion, getCicloActivo, semanaDeCiclo } from '@/lib/teamx/evaluacion';
+import { getActiveOrgId } from '@/lib/teamx/org';
+import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { Loader2 } from 'lucide-react';
-import type { EvaluacionFormData } from '@/types/evaluacion';
 import type { Empleado } from '@/types/empleado';
+import type { Ciclo } from '@/types/teamx';
 
 export const dynamic = 'force-dynamic';
 
-function NuevaEvaluacionContent() {
+const iniciales = (n: string) => n.trim().split(/\s+/).slice(0, 2).map((p) => p[0]).join('').toUpperCase();
+
+function NuevaContent() {
   const router = useRouter();
-  const searchParams = useSearchParams();
+  const params = useSearchParams();
   const { toast } = useToast();
 
-  const empleadoId = searchParams.get('empleadoId');
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isDrafting, setIsDrafting] = useState(false);
   const [empleados, setEmpleados] = useState<Empleado[]>([]);
-  const [loadingEmpleados, setLoadingEmpleados] = useState(true);
+  const [ciclo, setCiclo] = useState<Ciclo | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [q, setQ] = useState('');
+  const [seleccion, setSeleccion] = useState<string | null>(params.get('empleadoId'));
+  const [semana, setSemana] = useState(1);
+  const [fecha, setFecha] = useState(new Date().toISOString().slice(0, 10));
+  const [creando, setCreando] = useState(false);
 
-  const { createEvaluacion, saveDraft } = useEvaluaciones();
-
-  // Cargar empleados
   useEffect(() => {
-    const loadEmpleados = async () => {
-      try {
-        setLoadingEmpleados(true);
-        const data = await getEmpleados();
-        setEmpleados(data);
-      } catch (error) {
-        console.error('Error loading empleados:', error);
-        toast({
-          title: 'Error',
-          description: 'No se pudieron cargar los empleados',
-          variant: 'destructive',
-        });
-      } finally {
-        setLoadingEmpleados(false);
-      }
-    };
-    loadEmpleados();
-  }, [toast]);
+    (async () => {
+      const orgId = await getActiveOrgId();
+      if (orgId) { try { await (await import('@/lib/supabase/client')).createClient().rpc('teamx_seed_defaults', { p_org: orgId }); } catch { /* noop */ } }
+      const [emps, c] = await Promise.all([getEmpleados(), orgId ? getCicloActivo(orgId) : Promise.resolve(null)]);
+      setEmpleados(emps);
+      setCiclo(c);
+      setSemana(semanaDeCiclo(c));
+      setLoading(false);
+    })();
+  }, []);
 
-  // Obtener empleado seleccionado
-  const empleadoSeleccionado = useMemo(() => {
-    if (!empleadoId) return null;
-    return empleados.find((emp) => emp.id === empleadoId);
-  }, [empleados, empleadoId]);
+  const filtrados = useMemo(() => {
+    const t = q.trim().toLowerCase();
+    return t ? empleados.filter((e) => e.nombre.toLowerCase().includes(t) || (e.cargo ?? '').toLowerCase().includes(t)) : empleados;
+  }, [empleados, q]);
 
-  const handleSelectEmpleado = (empleado: Empleado) => {
-    router.push(`/dashboard/evaluaciones/nueva?empleadoId=${empleado.id}`);
-  };
-
-  const handleSave = async (data: EvaluacionFormData) => {
-    if (!empleadoSeleccionado) return;
-
+  async function iniciar() {
+    if (!seleccion) return;
+    setCreando(true);
     try {
-      setIsSubmitting(true);
-      await createEvaluacion(
-        empleadoSeleccionado.id,
-        empleadoSeleccionado.nombre,
-        data
-      );
-
-      toast({
-        title: 'Evaluación creada',
-        description: `Evaluación de ${empleadoSeleccionado.nombre} registrada correctamente`,
-      });
-
-      router.push('/dashboard/evaluaciones');
-    } catch (error) {
-      toast({
-        title: 'Error',
-        description: 'No se pudo guardar la evaluación',
-        variant: 'destructive',
-      });
-    } finally {
-      setIsSubmitting(false);
+      const id = await crearEvaluacion({ empleadoId: seleccion, semana, fecha });
+      router.push(`/dashboard/evaluaciones/${id}/editar`);
+    } catch {
+      toast({ title: 'Error', description: 'No se pudo iniciar la evaluación.', variant: 'destructive' });
+      setCreando(false);
     }
-  };
-
-  const handleSaveDraft = async (data: Partial<EvaluacionFormData>) => {
-    if (!empleadoSeleccionado) return;
-
-    try {
-      setIsDrafting(true);
-      await saveDraft(
-        empleadoSeleccionado.id,
-        empleadoSeleccionado.nombre,
-        data
-      );
-
-      toast({
-        title: 'Borrador guardado',
-        description: 'Tu progreso se ha guardado automáticamente',
-      });
-    } catch (error) {
-      console.error('Error guardando borrador:', error);
-    } finally {
-      setIsDrafting(false);
-    }
-  };
-
-  const handleCancel = () => {
-    router.push('/dashboard/evaluaciones');
-  };
-
-  // Estado: Sin empleadoId - Mostrar selector
-  if (!empleadoId) {
-    return (
-      <div className="space-y-6">
-        <div>
-          <h1 className="text-3xl font-bold">Nueva Evaluación</h1>
-          <p className="text-muted-foreground mt-1">
-            Selecciona un empleado para crear una nueva evaluación
-          </p>
-        </div>
-
-        <EmpleadoSelector
-          onSelect={handleSelectEmpleado}
-          empleadosConEvaluacionReciente={[]}
-        />
-      </div>
-    );
   }
 
-  // Estado: Cargando empleado seleccionado
-  if (!empleadoSeleccionado) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
-      </div>
-    );
+  if (loading) {
+    return <div className="flex items-center justify-center py-24"><Loader2 className="h-8 w-8 animate-spin text-muted-foreground" /></div>;
   }
 
-  // Estado: Mostrar formulario
   return (
-    <div className="space-y-6">
-      {/* Breadcrumb */}
-      <div className="flex items-center gap-2 text-sm text-muted-foreground">
-        <button
-          onClick={() => router.push('/dashboard/evaluaciones')}
-          className="hover:text-foreground transition-colors"
-        >
-          Evaluaciones
-        </button>
-        <ChevronRight className="h-4 w-4" />
-        <span>Nueva</span>
-        <ChevronRight className="h-4 w-4" />
-        <span className="text-foreground font-medium">{empleadoSeleccionado.nombre}</span>
+    <div className="mx-auto max-w-3xl">
+      <div className="mb-6">
+        <p className="text-xs font-semibold uppercase tracking-wide text-emerald-600">Nueva evaluación · Tablero</p>
+        <h1 className="text-2xl font-bold">Elige a quién vas a evaluar</h1>
+        <p className="text-muted-foreground">
+          {ciclo ? `${ciclo.nombre} · Semana ${semana} de ${ciclo.semanas}` : 'Sin ciclo activo'}
+        </p>
       </div>
 
-      {/* Header con info del empleado */}
-      <Card>
-        <CardHeader>
-          <div className="flex items-center gap-4">
-            <Avatar className="h-12 w-12">
-              <AvatarFallback className="text-lg">
-                {empleadoSeleccionado.nombre
-                  .split(' ')
-                  .map((n) => n[0])
-                  .join('')
-                  .toUpperCase()}
-              </AvatarFallback>
-            </Avatar>
-            <div className="flex-1">
-              <CardTitle>{empleadoSeleccionado.nombre}</CardTitle>
-              <p className="text-sm text-muted-foreground mt-1">
-                {empleadoSeleccionado.cargo}
-              </p>
-            </div>
-            <Button
-              variant="ghost"
-              onClick={() => router.push('/dashboard/evaluaciones/nueva')}
-            >
-              Cambiar Empleado
-            </Button>
+      {empleados.length === 0 ? (
+        <Card><CardContent className="py-12 text-center">
+          <p className="text-muted-foreground">Aún no tienes empleados. Agrega uno primero.</p>
+          <Button className="mt-4" onClick={() => router.push('/dashboard/empleados')}>Ir a Empleados</Button>
+        </CardContent></Card>
+      ) : (
+        <>
+          <div className="relative mb-4">
+            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+            <Input placeholder="Buscar empleado…" value={q} onChange={(e) => setQ(e.target.value)} className="pl-9" />
           </div>
-        </CardHeader>
-      </Card>
 
-      {/* Formulario */}
-      <EvaluacionForm
-        empleado={empleadoSeleccionado}
-        onSave={handleSave}
-        onSaveDraft={handleSaveDraft}
-        onCancel={handleCancel}
-      />
+          <div className="mb-6 grid gap-2 sm:grid-cols-2">
+            {filtrados.map((e) => {
+              const sel = seleccion === e.id;
+              return (
+                <button key={e.id} onClick={() => setSeleccion(e.id)}
+                  className={`flex items-center gap-3 rounded-lg border p-3 text-left transition ${sel ? 'border-emerald-500 bg-emerald-50 ring-1 ring-emerald-500' : 'hover:bg-muted/50'}`}>
+                  <Avatar className="h-10 w-10"><AvatarFallback>{iniciales(e.nombre)}</AvatarFallback></Avatar>
+                  <div className="min-w-0">
+                    <div className="truncate font-semibold">{e.nombre}</div>
+                    <div className="truncate text-sm text-muted-foreground">{e.cargo || '—'}</div>
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+
+          <Card>
+            <CardContent className="flex flex-wrap items-end gap-4 py-5">
+              <div>
+                <label className="mb-1 block text-xs font-semibold uppercase text-muted-foreground">Semana del ciclo</label>
+                <Input type="number" min={1} max={ciclo?.semanas ?? 14} value={semana}
+                  onChange={(e) => setSemana(Number(e.target.value))} className="w-28" />
+              </div>
+              <div>
+                <label className="mb-1 block text-xs font-semibold uppercase text-muted-foreground">Fecha</label>
+                <Input type="date" value={fecha} onChange={(e) => setFecha(e.target.value)} className="w-44" />
+              </div>
+              <Button className="ml-auto" disabled={!seleccion || creando} onClick={iniciar}>
+                {creando ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+                Iniciar evaluación <ArrowRight className="ml-2 h-4 w-4" />
+              </Button>
+            </CardContent>
+          </Card>
+        </>
+      )}
     </div>
   );
 }
 
 export default function NuevaEvaluacionPage() {
   return (
-    <Suspense fallback={<div className="flex justify-center items-center h-screen"><Loader2 className="h-8 w-8 animate-spin" /></div>}>
-      <NuevaEvaluacionContent />
+    <Suspense fallback={<div className="flex items-center justify-center py-24"><Loader2 className="h-8 w-8 animate-spin" /></div>}>
+      <NuevaContent />
     </Suspense>
   );
 }

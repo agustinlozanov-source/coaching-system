@@ -1,177 +1,115 @@
 'use client';
 
-import { useEffect, useState, useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Loader2, BarChart3, FileText, TrendingUp, Calendar } from 'lucide-react';
+import { Plus, Loader2, ClipboardList, ChevronRight } from 'lucide-react';
+import { listEvaluaciones } from '@/lib/teamx/evaluacion';
+import { getEmpleados } from '@/hooks/useEmpleados';
+import type { Evaluacion } from '@/types/teamx';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { EvaluacionesTable } from '@/components/evaluaciones/EvaluacionesTable';
-import { useEvaluaciones } from '@/hooks/useEvaluaciones';
-import type { Evaluacion } from '@/types/evaluacion';
+import { Card, CardContent } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 
 export const dynamic = 'force-dynamic';
 
+const ESTADO_LABEL: Record<string, string> = {
+  borrador: 'Borrador', revision: 'En revisión', firmada: 'Firmada', cofirmada: 'Co-firmada', bloqueada: 'Bloqueada',
+};
+
 export default function EvaluacionesPage() {
   const router = useRouter();
-  const { getEvaluaciones } = useEvaluaciones();
-  const [evaluaciones, setEvaluaciones] = useState<Evaluacion[]>([]);
+  const [evals, setEvals] = useState<Evaluacion[]>([]);
+  const [nombres, setNombres] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(true);
 
-  // Cargar evaluaciones
   useEffect(() => {
-    const cargarEvaluaciones = async () => {
-      try {
-        setLoading(true);
-        const data = await getEvaluaciones();
-        setEvaluaciones(data);
-      } catch (error) {
-        console.error('Error cargando evaluaciones:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
+    (async () => {
+      const [ev, emps] = await Promise.all([listEvaluaciones(), getEmpleados()]);
+      setEvals(ev);
+      setNombres(Object.fromEntries(emps.map((e) => [e.id, e.nombre])));
+      setLoading(false);
+    })();
+  }, []);
 
-    cargarEvaluaciones();
-  }, [getEvaluaciones]);
-
-  // Calcular stats
   const stats = useMemo(() => {
-    const ahora = new Date();
-    const mesActual = ahora.getMonth();
-    const annoActual = ahora.getFullYear();
-
-    const evaluacionesEseMes = evaluaciones.filter((e) => {
-      const fecha = e.fecha.toDate();
-      return fecha.getMonth() === mesActual && fecha.getFullYear() === annoActual;
-    });
-
-    const borradores = evaluaciones.filter((e) => e.status === 'borrador');
-
-    const efectividadPromedio =
-      evaluacionesEseMes.length > 0
-        ? evaluacionesEseMes.reduce((sum, e) => sum + e.efectividad, 0) /
-          evaluacionesEseMes.length
-        : 0;
-
-    return {
-      total: evaluaciones.length,
-      borradores: borradores.length,
-      efectividadPromedio,
-      esteM: evaluacionesEseMes.length,
-    };
-  }, [evaluaciones]);
-
-  const handleView = (id: string) => {
-    router.push(`/dashboard/evaluaciones/${id}`);
-  };
-
-  const handleEdit = (id: string) => {
-    router.push(`/dashboard/evaluaciones/${id}/editar`);
-  };
-
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
-      </div>
-    );
-  }
+    const total = evals.length;
+    const borradores = evals.filter((e) => e.estado === 'borrador').length;
+    const conValor = evals.map((e) => e.promedioGeneral).filter((v): v is number => v != null);
+    const prom = conValor.length ? Math.round(conValor.reduce((s, v) => s + v, 0) / conValor.length) : 0;
+    return { total, borradores, prom };
+  }, [evals]);
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
+    <div>
+      <div className="mb-6 flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold">Evaluaciones</h1>
-          <p className="text-muted-foreground mt-1">
-            Gestiona y visualiza las evaluaciones de desempeño
-          </p>
+          <h1 className="text-2xl font-bold">Evaluaciones</h1>
+          <p className="text-muted-foreground">Tableros de coaching de tu equipo.</p>
         </div>
-        <Button
-          onClick={() => router.push('/dashboard/evaluaciones/nueva')}
-          size="lg"
-        >
-          Nueva Evaluación
+        <Button onClick={() => router.push('/dashboard/evaluaciones/nueva')}>
+          <Plus className="mr-2 h-4 w-4" /> Nueva evaluación
         </Button>
       </div>
 
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        {/* Total evaluaciones */}
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
-              <FileText className="h-4 w-4" />
-              Total Evaluaciones
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold">{stats.total}</div>
-            <p className="text-xs text-muted-foreground mt-1">
-              {stats.borradores > 0
-                ? `${stats.borradores} pendientes`
-                : 'Todo al día'}
-            </p>
-          </CardContent>
-        </Card>
-
-        {/* Borradores */}
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
-              <BarChart3 className="h-4 w-4" />
-              Borradores
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold text-yellow-600">
-              {stats.borradores}
-            </div>
-            <p className="text-xs text-muted-foreground mt-1">
-              Pendientes de finalizar
-            </p>
-          </CardContent>
-        </Card>
-
-        {/* Efectividad promedio */}
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
-              <TrendingUp className="h-4 w-4" />
-              Efectividad Promedio
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold">
-              {stats.efectividadPromedio.toFixed(1)}%
-            </div>
-            <p className="text-xs text-muted-foreground mt-1">Este mes</p>
-          </CardContent>
-        </Card>
-
-        {/* Evaluaciones este mes */}
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
-              <Calendar className="h-4 w-4" />
-              Este Mes
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold">{stats.esteM}</div>
-            <p className="text-xs text-muted-foreground mt-1">
-              Evaluaciones registradas
-            </p>
-          </CardContent>
-        </Card>
+      <div className="mb-6 grid gap-4 sm:grid-cols-3">
+        {[
+          { label: 'Total', value: stats.total },
+          { label: 'Borradores', value: stats.borradores },
+          { label: 'Promedio general', value: `${stats.prom}%` },
+        ].map((s) => (
+          <Card key={s.label}><CardContent className="py-5">
+            <div className="text-xs font-semibold uppercase text-muted-foreground">{s.label}</div>
+            <div className="mt-1 text-3xl font-extrabold tabular-nums">{s.value}</div>
+          </CardContent></Card>
+        ))}
       </div>
 
-      {/* Tabla */}
-      <EvaluacionesTable
-        evaluaciones={evaluaciones}
-        onView={handleView}
-        onEdit={handleEdit}
-      />
+      {loading ? (
+        <div className="flex items-center justify-center py-20"><Loader2 className="h-8 w-8 animate-spin text-muted-foreground" /></div>
+      ) : evals.length === 0 ? (
+        <Card><CardContent className="flex flex-col items-center py-16 text-center">
+          <ClipboardList className="h-10 w-10 text-muted-foreground" />
+          <h3 className="mt-3 font-bold">Aún no hay evaluaciones este ciclo</h3>
+          <p className="mt-1 text-sm text-muted-foreground">Crea la primera y empieza a medir el proceso.</p>
+          <Button className="mt-4" onClick={() => router.push('/dashboard/evaluaciones/nueva')}>
+            <Plus className="mr-2 h-4 w-4" /> Nueva evaluación
+          </Button>
+        </CardContent></Card>
+      ) : (
+        <Card><CardContent className="p-0">
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead className="border-b bg-muted/40 text-xs uppercase text-muted-foreground">
+                <tr>
+                  <th className="p-3 text-left">Empleado</th>
+                  <th className="p-3 text-left">Semana</th>
+                  <th className="p-3 text-left">Fecha</th>
+                  <th className="p-3 text-left">Estado</th>
+                  <th className="p-3 text-right">General</th>
+                  <th className="p-3"></th>
+                </tr>
+              </thead>
+              <tbody>
+                {evals.map((e) => (
+                  <tr key={e.id} className="border-b transition hover:bg-muted/30">
+                    <td className="p-3 font-medium">{nombres[e.empleadoId] ?? '—'}</td>
+                    <td className="p-3 text-muted-foreground">{e.semana ?? '—'}</td>
+                    <td className="p-3 text-muted-foreground">{e.fecha}</td>
+                    <td className="p-3"><Badge variant={e.estado === 'borrador' ? 'secondary' : 'default'}>{ESTADO_LABEL[e.estado] ?? e.estado}</Badge></td>
+                    <td className="p-3 text-right font-bold tabular-nums">{e.promedioGeneral ?? 0}%</td>
+                    <td className="p-3 text-right">
+                      <Link href={`/dashboard/evaluaciones/${e.id}/editar`} className="inline-flex items-center text-emerald-600 hover:underline">
+                        Abrir <ChevronRight className="h-4 w-4" />
+                      </Link>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </CardContent></Card>
+      )}
     </div>
   );
 }
