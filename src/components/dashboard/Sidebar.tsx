@@ -14,6 +14,8 @@ import {
   Target,
   Settings,
   LogOut,
+  Sun,
+  Moon,
 } from 'lucide-react';
 import { cn } from '@/lib/utils/cn';
 import { Button } from '@/components/ui/button';
@@ -34,7 +36,7 @@ const menuItems = [
   { label: 'Administración', icon: Settings, href: '/dashboard/admin' },
 ];
 
-export function Sidebar() {
+export function Sidebar({ theme, onToggleTheme }: { theme?: 'light' | 'dark'; onToggleTheme?: () => void }) {
   const pathname = usePathname();
   const router = useRouter();
 
@@ -89,7 +91,17 @@ export function Sidebar() {
       </nav>
 
       {/* User Section */}
-      <div className="p-4 border-t">
+      <div className="p-4 border-t space-y-1">
+        {onToggleTheme && (
+          <Button
+            variant="ghost"
+            className="w-full justify-start text-muted-foreground hover:text-foreground"
+            onClick={onToggleTheme}
+          >
+            {theme === 'dark' ? <Sun className="h-5 w-5 mr-3" /> : <Moon className="h-5 w-5 mr-3" />}
+            {theme === 'dark' ? 'Modo claro' : 'Modo oscuro'}
+          </Button>
+        )}
         <Button
           variant="ghost"
           className="w-full justify-start text-muted-foreground hover:text-destructive"
