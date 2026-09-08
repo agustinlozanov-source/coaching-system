@@ -61,7 +61,7 @@ export function Sidebar({ theme, onToggleTheme }: { theme?: 'light' | 'dark'; on
           <img
             src={theme === 'dark' ? '/logos/teamx-blanco.png' : '/logos/teamx-negro.png'}
             alt="TEAMx"
-            className="h-8 w-auto"
+            className="h-11 w-auto"
           />
           <p className="text-xs text-muted-foreground mt-2">← Todas las herramientas</p>
         </Link>
