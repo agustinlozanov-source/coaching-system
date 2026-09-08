@@ -3,7 +3,7 @@
 import { AlertTriangle, TrendingDown, CalendarX, CheckCircle2 } from 'lucide-react';
 import { dashIniciales, type AttentionEntry } from '@/lib/teamx/dashboard-equipo';
 import { Badge } from '@/components/ui/badge';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
 const REASON_INFO: Record<AttentionEntry['reasons'][number], { label: string; icon: typeof AlertTriangle }> = {
   score_bajo: { label: 'Score bajo', icon: AlertTriangle },
@@ -14,9 +14,11 @@ const REASON_INFO: Record<AttentionEntry['reasons'][number], { label: string; ic
 export function AttentionList({
   entries,
   nombres,
+  fotos,
 }: {
   entries: AttentionEntry[];
   nombres: Record<string, string>;
+  fotos?: Record<string, string | undefined>;
 }) {
   if (entries.length === 0) {
     return (
@@ -32,6 +34,7 @@ export function AttentionList({
       {entries.map((e) => (
         <div key={e.empleadoId} className="flex items-center gap-3 rounded-lg border p-3">
           <Avatar className="h-9 w-9">
+            <AvatarImage src={fotos?.[e.empleadoId] || undefined} alt="" />
             <AvatarFallback>{dashIniciales(nombres[e.empleadoId] ?? '?')}</AvatarFallback>
           </Avatar>
           <div className="min-w-0 flex-1">

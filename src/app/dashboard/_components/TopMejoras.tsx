@@ -2,14 +2,16 @@
 
 import { ArrowUp, Trophy } from 'lucide-react';
 import { dashIniciales, type ImprovementEntry } from '@/lib/teamx/dashboard-equipo';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
 export function TopMejoras({
   entries,
   nombres,
+  fotos,
 }: {
   entries: ImprovementEntry[];
   nombres: Record<string, string>;
+  fotos?: Record<string, string | undefined>;
 }) {
   if (entries.length === 0) {
     return (
@@ -29,6 +31,7 @@ export function TopMejoras({
             <span className="w-5 flex-shrink-0 text-center text-sm font-bold text-muted-foreground">{i + 1}</span>
           )}
           <Avatar className="h-9 w-9">
+            <AvatarImage src={fotos?.[e.empleadoId] || undefined} alt="" />
             <AvatarFallback>{dashIniciales(nombres[e.empleadoId] ?? '?')}</AvatarFallback>
           </Avatar>
           <div className="min-w-0 flex-1">

@@ -10,7 +10,7 @@ import {
   TableHead,
   TableCell,
 } from '@/components/ui/table';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Button } from '@/components/ui/button';
@@ -123,6 +123,7 @@ export function RosterTable({ stats, coachNombres, onVerCurva }: Props) {
                 <TableCell>
                   <div className="flex items-center gap-2">
                     <Avatar className="h-8 w-8">
+                      <AvatarImage src={s.empleado.photoURL || undefined} alt="" />
                       <AvatarFallback className="bg-emerald-100 text-xs font-semibold text-emerald-800">
                         {iniciales(s.empleado.nombre)}
                       </AvatarFallback>

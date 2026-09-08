@@ -12,7 +12,7 @@ import { Evaluacion } from '@/types/evaluacion';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { EmpleadoDialog } from '@/components/empleados/EmpleadoDialog';
 import {
   LineChart,
@@ -145,6 +145,7 @@ export default function EmpleadoDetailPage({ params }: PageProps) {
         <CardContent className="pt-6">
           <div className="flex items-start gap-6">
             <Avatar className="h-20 w-20">
+              <AvatarImage src={empleado.photoURL || undefined} alt="" />
               <AvatarFallback className="text-lg font-semibold">
                 {getInitials(empleado.nombre)}
               </AvatarFallback>

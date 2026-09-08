@@ -14,7 +14,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -238,6 +238,7 @@ export function EmpleadoSelector({
                     {/* Avatar y nombre */}
                     <div className="flex items-start gap-3">
                       <Avatar className="h-10 w-10">
+                        <AvatarImage src={empleado.photoURL || undefined} alt="" />
                         <AvatarFallback>
                           {empleado.nombre
                             .split(' ')

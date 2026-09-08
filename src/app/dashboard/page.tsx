@@ -73,6 +73,10 @@ export default function DashboardPage() {
     () => Object.fromEntries(empleados.map((e) => [e.id, e.nombre])),
     [empleados]
   );
+  const fotos = useMemo(
+    () => Object.fromEntries(empleados.map((e) => [e.id, e.photoURL])),
+    [empleados]
+  );
   const empleadoIds = useMemo(() => empleados.map((e) => e.id), [empleados]);
 
   const latest = useMemo(() => dashLatestByEmpleado(evals), [evals]);
@@ -265,7 +269,7 @@ export default function DashboardPage() {
                 <CardDescription>Score bajo, tendencia negativa o sin evaluación reciente</CardDescription>
               </CardHeader>
               <CardContent>
-                <AttentionList entries={atencion} nombres={nombres} />
+                <AttentionList entries={atencion} nombres={nombres} fotos={fotos} />
               </CardContent>
             </Card>
 
@@ -275,7 +279,7 @@ export default function DashboardPage() {
                 <CardDescription>Quién avanzó más vs. su evaluación anterior</CardDescription>
               </CardHeader>
               <CardContent>
-                <TopMejoras entries={topMejoras} nombres={nombres} />
+                <TopMejoras entries={topMejoras} nombres={nombres} fotos={fotos} />
               </CardContent>
             </Card>
           </div>
