@@ -89,11 +89,13 @@ export default async function LauncherPage() {
 
   // Apps contratadas por la organización activa. El admin global las ve todas.
   let apps: Set<string>;
+  let sinOrg = false;
   if (esAdmin) {
     apps = new Set(HERRAMIENTAS.map((h) => h.slug));
   } else {
     const cookieOrg = cookies().get('sx_active_org')?.value ?? null;
     const orgId = await resolveActiveOrgServer(supabase, user.id, cookieOrg);
+    sinOrg = !orgId;
     apps = orgId ? await appsActivasDeOrg(supabase, orgId) : new Set<string>();
   }
 
@@ -116,6 +118,18 @@ export default async function LauncherPage() {
         <p className="mt-2 max-w-xl text-slate-500">
           Elige la herramienta con la que quieres trabajar. Cada una abre su propio espacio.
         </p>
+
+        {sinOrg && (
+          <div className="mt-6 rounded-xl border border-amber-200 bg-amber-50 p-4">
+            <p className="text-sm font-semibold text-amber-900">
+              Aún no perteneces a ninguna organización
+            </p>
+            <p className="mt-1 text-sm text-amber-800">
+              Pídele a tu coach o administrador que te agregue a su equipo para habilitar tus
+              herramientas.
+            </p>
+          </div>
+        )}
 
         <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {HERRAMIENTAS.map((h) => (
