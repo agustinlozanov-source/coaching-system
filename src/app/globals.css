@@ -93,14 +93,17 @@
   color-scheme: light;
 }
 
-/* ── Glow button (gradiente institucional teal→indigo #1aab99→#3533cd) ──── */
+/* ── Glow button (gradiente institucional teal→indigo #1aab99→#3533cd) ────
+   El glow es INTERNO: un brillo que cruza de abajo-derecha a arriba-izquierda
+   al pasar el mouse. Sombra externa casi imperceptible. */
 .glow-btn {
   position: relative;
-  z-index: 0;
+  overflow: hidden;
+  isolation: isolate;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 0.6rem 1.25rem;
+  padding: 0.62rem 1.3rem;
   border-radius: 0.7rem;
   font-size: 0.875rem;
   font-weight: 600;
@@ -109,28 +112,34 @@
   border: none;
   cursor: pointer;
   background: linear-gradient(90deg, #1aab99 0%, #3533cd 100%);
-  transition: transform 0.12s ease;
+  box-shadow: 0 4px 16px rgba(53, 51, 205, 0.12);
+  transition: transform 0.12s ease, box-shadow 0.25s ease;
 }
+/* Brillo interno que se desplaza en hover */
 .glow-btn::before {
   content: '';
   position: absolute;
-  inset: -3px;
-  z-index: -1;
-  border-radius: inherit;
-  background: linear-gradient(90deg, #1aab99 0%, #3533cd 100%);
-  filter: blur(15px);
-  opacity: 0.55;
-  transition: opacity 0.25s ease, filter 0.25s ease;
-  animation: glowBtnPulse 2.6s ease-in-out infinite;
+  z-index: 0;
+  width: 130%;
+  height: 220%;
+  left: 62%;
+  top: 68%;
+  transform: translate(-50%, -50%);
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.55) 0%, rgba(255, 255, 255, 0) 55%);
+  opacity: 0.3;
+  pointer-events: none;
+  transition: left 0.6s ease, top 0.6s ease, opacity 0.45s ease;
 }
-.glow-btn:hover { transform: translateY(-1px); }
-.glow-btn:hover::before { opacity: 0.9; filter: blur(20px); }
+.glow-btn > span { position: relative; z-index: 1; }
+.glow-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(53, 51, 205, 0.16);
+}
+.glow-btn:hover::before { left: 22%; top: 18%; opacity: 0.85; }
 .glow-btn:active,
-.glow-btn[data-state='clicked'] { transform: scale(0.96); }
-.glow-btn:disabled { opacity: 0.6; cursor: not-allowed; }
-.glow-btn:disabled::before { animation: none; opacity: 0.25; }
-@keyframes glowBtnPulse {
-  0%, 100% { opacity: 0.45; }
-  50% { opacity: 0.8; }
+.glow-btn[data-state='clicked'] { transform: scale(0.97); }
+.glow-btn:disabled { opacity: 0.6; cursor: not-allowed; box-shadow: none; }
+.glow-btn:disabled::before { opacity: 0.2; }
+@media (prefers-reduced-motion: reduce) {
+  .glow-btn::before { transition: opacity 0.2s ease; }
 }
-@media (prefers-reduced-motion: reduce) { .glow-btn::before { animation: none; } }
