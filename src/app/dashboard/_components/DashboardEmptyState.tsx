@@ -1,9 +1,9 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { ClipboardList, Plus } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { ClipboardList } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
+import { GlowButton } from '@/components/ui/glow-button';
 
 export function DashboardEmptyState() {
   const router = useRouter();
@@ -18,9 +18,9 @@ export function DashboardEmptyState() {
           Cuando registres la primera evaluación de tu equipo vas a ver acá el panel completo: promedios por
           dimensión, radar del equipo, mapa de calor y alertas de coaching.
         </p>
-        <Button className="mt-5" onClick={() => router.push('/dashboard/evaluaciones/nueva')}>
-          <Plus className="mr-2 h-4 w-4" /> Nueva evaluación
-        </Button>
+        <GlowButton className="mt-5" onClick={() => router.push('/dashboard/evaluaciones/nueva')}>
+          Nueva evaluación
+        </GlowButton>
       </CardContent>
     </Card>
   );

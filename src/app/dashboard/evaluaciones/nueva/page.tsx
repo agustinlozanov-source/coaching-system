@@ -2,7 +2,7 @@
 
 import { Suspense, useEffect, useMemo, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { Loader2, ArrowRight, Search } from 'lucide-react';
+import { Loader2, Search } from 'lucide-react';
 import { getEmpleados } from '@/hooks/useEmpleados';
 import { crearEvaluacion, getCicloActivo, semanaDeCiclo } from '@/lib/teamx/evaluacion';
 import { getActiveOrgId } from '@/lib/teamx/org';
@@ -11,6 +11,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { GlowButton } from '@/components/ui/glow-button';
 import type { Empleado } from '@/types/empleado';
 import type { Ciclo } from '@/types/teamx';
 
@@ -114,10 +115,9 @@ function NuevaContent() {
                 <label className="mb-1 block text-xs font-semibold uppercase text-muted-foreground">Fecha</label>
                 <Input type="date" value={fecha} onChange={(e) => setFecha(e.target.value)} className="w-44" />
               </div>
-              <Button className="ml-auto" disabled={!seleccion || creando} onClick={iniciar}>
-                {creando ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
-                Iniciar evaluación <ArrowRight className="ml-2 h-4 w-4" />
-              </Button>
+              <GlowButton className="ml-auto" disabled={!seleccion} loading={creando} onClick={iniciar}>
+                Iniciar evaluación
+              </GlowButton>
             </CardContent>
           </Card>
         </>

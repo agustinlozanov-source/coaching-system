@@ -3,13 +3,14 @@
 import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Plus, Loader2, ClipboardList, ChevronRight } from 'lucide-react';
+import { Loader2, ClipboardList, ChevronRight } from 'lucide-react';
 import { listEvaluaciones } from '@/lib/teamx/evaluacion';
 import { getEmpleados } from '@/hooks/useEmpleados';
 import type { Evaluacion } from '@/types/teamx';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { GlowButton } from '@/components/ui/glow-button';
 
 export const dynamic = 'force-dynamic';
 
@@ -47,9 +48,9 @@ export default function EvaluacionesPage() {
           <h1 className="text-2xl font-bold">Evaluaciones</h1>
           <p className="text-muted-foreground">Tableros de coaching de tu equipo.</p>
         </div>
-        <Button onClick={() => router.push('/dashboard/evaluaciones/nueva')}>
-          <Plus className="mr-2 h-4 w-4" /> Nueva evaluación
-        </Button>
+        <GlowButton onClick={() => router.push('/dashboard/evaluaciones/nueva')}>
+          Nueva evaluación
+        </GlowButton>
       </div>
 
       <div className="mb-6 grid gap-4 sm:grid-cols-3">
@@ -72,9 +73,9 @@ export default function EvaluacionesPage() {
           <ClipboardList className="h-10 w-10 text-muted-foreground" />
           <h3 className="mt-3 font-bold">Aún no hay evaluaciones este ciclo</h3>
           <p className="mt-1 text-sm text-muted-foreground">Crea la primera y empieza a medir el proceso.</p>
-          <Button className="mt-4" onClick={() => router.push('/dashboard/evaluaciones/nueva')}>
-            <Plus className="mr-2 h-4 w-4" /> Nueva evaluación
-          </Button>
+          <GlowButton className="mt-4" onClick={() => router.push('/dashboard/evaluaciones/nueva')}>
+            Nueva evaluación
+          </GlowButton>
         </CardContent></Card>
       ) : (
         <Card><CardContent className="p-0">

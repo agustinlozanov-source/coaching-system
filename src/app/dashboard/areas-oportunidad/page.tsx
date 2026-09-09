@@ -6,15 +6,15 @@ import {
   Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, ResponsiveContainer,
 } from 'recharts';
 import {
-  Target, Loader2, AlertTriangle, TrendingDown, GraduationCap, Users, Plus, ListChecks,
+  Target, Loader2, AlertTriangle, TrendingDown, GraduationCap, Users, ListChecks,
 } from 'lucide-react';
 import { getDimensiones, listEvaluaciones } from '@/lib/teamx/evaluacion';
 import { getActiveOrgId } from '@/lib/teamx/org';
 import { getEmpleados } from '@/hooks/useEmpleados';
 import { buildAreasOportunidad, type AreasOportunidadData, type DimensionAgg } from '@/lib/teamx/areas-oportunidad';
-import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { GlowButton } from '@/components/ui/glow-button';
 
 export const dynamic = 'force-dynamic';
 
@@ -102,9 +102,9 @@ export default function AreasOportunidadPage() {
               qué dimensiones y aspectos son más débiles, priorizados por impacto, con sugerencias de
               capacitación.
             </p>
-            <Button className="mt-4" onClick={() => router.push('/dashboard/evaluaciones/nueva')}>
-              <Plus className="mr-2 h-4 w-4" /> Nueva evaluación
-            </Button>
+            <GlowButton className="mt-4" onClick={() => router.push('/dashboard/evaluaciones/nueva')}>
+              Nueva evaluación
+            </GlowButton>
           </CardContent>
         </Card>
       </div>

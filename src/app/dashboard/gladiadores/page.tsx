@@ -11,6 +11,7 @@ import type { Empleado } from '@/types/empleado';
 import type { Ciclo, Evaluacion } from '@/types/teamx';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
+import { GlowButton } from '@/components/ui/glow-button';
 import { TableroGrid } from './TableroGrid';
 
 export const dynamic = 'force-dynamic';
@@ -93,7 +94,7 @@ function GladiadoresContent() {
         icon={<Swords className="h-10 w-10 text-muted-foreground" />}
         titulo="Aún no hay evaluaciones este ciclo"
         mensaje="En cuanto se registren evaluaciones semanales, cada gladiador mostrará su escudo de eficiencia."
-        cta={<Button onClick={() => router.push('/dashboard/evaluaciones/nueva')}>Crear evaluación</Button>}
+        cta={<GlowButton onClick={() => router.push('/dashboard/evaluaciones/nueva')}>Crear evaluación</GlowButton>}
       />
     );
   }

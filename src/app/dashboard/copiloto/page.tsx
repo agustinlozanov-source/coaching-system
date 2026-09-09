@@ -19,6 +19,7 @@ import type { Evaluacion } from '@/types/teamx';
 import type { Empleado } from '@/types/empleado';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { GlowButton } from '@/components/ui/glow-button';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import {
@@ -137,17 +138,9 @@ export default function CopilotoPage() {
             </Select>
           </div>
 
-          <Button onClick={handleGenerar} disabled={evalStatus !== 'ready' || generando} className="sm:ml-auto">
-            {generando ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Generando…
-              </>
-            ) : (
-              <>
-                <Sparkles className="mr-2 h-4 w-4" /> Generar
-              </>
-            )}
-          </Button>
+          <GlowButton onClick={handleGenerar} disabled={evalStatus !== 'ready'} loading={generando} className="sm:ml-auto">
+            {generando ? 'Generando…' : 'Generar'}
+          </GlowButton>
         </CardContent>
       </Card>
 

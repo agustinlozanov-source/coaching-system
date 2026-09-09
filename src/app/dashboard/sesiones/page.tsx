@@ -3,11 +3,12 @@
 import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Plus, Loader2, MessagesSquare, ChevronRight } from 'lucide-react';
+import { Loader2, MessagesSquare, ChevronRight } from 'lucide-react';
 import { listSesiones, crearSesion, type Sesion, type EstadoSesion } from '@/lib/teamx/sesiones';
 import { getEmpleados } from '@/hooks/useEmpleados';
 import type { Empleado } from '@/types/empleado';
 import { Button } from '@/components/ui/button';
+import { GlowButton } from '@/components/ui/glow-button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
@@ -95,9 +96,9 @@ export default function SesionesPage() {
           <h1 className="text-2xl font-bold">Sesiones</h1>
           <p className="text-muted-foreground">Sesiones de coaching: agenda, notas y acuerdos por empleado.</p>
         </div>
-        <Button onClick={abrirDialog} disabled={loading || empleados.length === 0}>
-          <Plus className="mr-2 h-4 w-4" /> Nueva sesión
-        </Button>
+        <GlowButton onClick={abrirDialog} disabled={loading || empleados.length === 0}>
+          Nueva sesión
+        </GlowButton>
       </div>
 
       <div className="mb-6 grid gap-4 sm:grid-cols-3">
@@ -125,9 +126,7 @@ export default function SesionesPage() {
               : 'Crea la primera sesión: la agenda se sugiere sola desde la última evaluación.'}
           </p>
           {empleados.length > 0 && (
-            <Button className="mt-4" onClick={abrirDialog}>
-              <Plus className="mr-2 h-4 w-4" /> Nueva sesión
-            </Button>
+            <GlowButton className="mt-4" onClick={abrirDialog}>Nueva sesión</GlowButton>
           )}
         </CardContent></Card>
       ) : (
@@ -200,10 +199,9 @@ export default function SesionesPage() {
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setOpen(false)}>Cancelar</Button>
-            <Button onClick={confirmarCrear} disabled={!empleadoId || creando}>
-              {creando ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+            <GlowButton onClick={confirmarCrear} disabled={!empleadoId} loading={creando}>
               Crear sesión
-            </Button>
+            </GlowButton>
           </DialogFooter>
         </DialogContent>
       </Dialog>

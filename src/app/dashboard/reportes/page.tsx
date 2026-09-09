@@ -2,13 +2,14 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Loader2, ClipboardList, Plus, Printer, Download, User, Users } from 'lucide-react';
+import { Loader2, ClipboardList, Printer, Download, User, Users } from 'lucide-react';
 import { listEvaluaciones } from '@/lib/teamx/evaluacion';
 import { getEmpleados } from '@/hooks/useEmpleados';
 import type { Evaluacion } from '@/types/teamx';
 import type { Empleado } from '@/types/empleado';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
+import { GlowButton } from '@/components/ui/glow-button';
 import { ReporteIndividual } from './components/ReporteIndividual';
 import { ReporteEquipo } from './components/ReporteEquipo';
 import { toEvalPoint, csvIndividual, csvEquipo, downloadCsv, type FilaEquipoCsv } from '@/lib/teamx/reportes';
@@ -89,9 +90,9 @@ export default function ReportesPage() {
             <p className="mt-1 max-w-sm text-sm text-muted-foreground">
               Crea la primera evaluación de un empleado para empezar a ver evolución, tendencias y comparaciones aquí.
             </p>
-            <Button className="mt-4" onClick={() => router.push('/dashboard/evaluaciones/nueva')}>
-              <Plus className="mr-2 h-4 w-4" /> Nueva evaluación
-            </Button>
+            <GlowButton className="mt-4" onClick={() => router.push('/dashboard/evaluaciones/nueva')}>
+              Nueva evaluación
+            </GlowButton>
           </CardContent>
         </Card>
       </div>

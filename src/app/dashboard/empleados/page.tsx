@@ -1,8 +1,8 @@
 'use client';
 
 import { useState, useMemo } from 'react';
-import { Loader2, Plus, Search, Filter } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { Loader2, Search, Filter } from 'lucide-react';
+import { GlowButton } from '@/components/ui/glow-button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import {
@@ -102,10 +102,9 @@ export default function EmpleadosPage() {
             Gestiona tu equipo de trabajo
           </p>
         </div>
-        <Button onClick={handleNewEmpleado}>
-          <Plus className="h-4 w-4 mr-2" />
+        <GlowButton onClick={handleNewEmpleado}>
           Nuevo Empleado
-        </Button>
+        </GlowButton>
       </div>
 
       <Card>
