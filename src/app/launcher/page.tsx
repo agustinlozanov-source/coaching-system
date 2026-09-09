@@ -1,9 +1,11 @@
 import Link from 'next/link';
+import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight, Lock } from 'lucide-react';
 import { createClient } from '@/lib/supabase/server';
 import { HERRAMIENTAS, type Herramienta } from '@/lib/tools';
 import { AccountButton } from '@/components/launcher/AccountButton';
+import { appsActivasDeOrg, resolveActiveOrgServer } from '@/lib/entitlements';
 
 export const metadata = {
   title: 'Tus herramientas · SCALEx',
@@ -11,9 +13,9 @@ export const metadata = {
 
 export const dynamic = 'force-dynamic';
 
-function ToolCard({ h }: { h: Herramienta }) {
+function ToolCard({ h, contratada }: { h: Herramienta; contratada: boolean }) {
   const Icon = h.icon;
-  const abrible = h.disponible;
+  const abrible = h.disponible && contratada;
 
   const inner = (
     <>
@@ -24,11 +26,15 @@ function ToolCard({ h }: { h: Herramienta }) {
         >
           <Icon className="h-6 w-6" />
         </div>
-        {!abrible && (
+        {!h.disponible ? (
           <span className="rounded-full bg-slate-100 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wide text-slate-500">
             Próximamente
           </span>
-        )}
+        ) : !contratada ? (
+          <span className="inline-flex items-center gap-1 rounded-full bg-slate-100 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wide text-slate-500">
+            <Lock className="h-3 w-3" /> No incluida
+          </span>
+        ) : null}
       </div>
       <h3 className="mt-4 text-lg font-semibold text-slate-900">{h.nombre}</h3>
       <p className="mt-1 flex-1 text-sm leading-relaxed text-slate-500">{h.descripcion}</p>
@@ -40,8 +46,10 @@ function ToolCard({ h }: { h: Herramienta }) {
           Abrir
           <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
         </span>
-      ) : (
+      ) : !h.disponible ? (
         <span className="mt-4 text-sm font-medium text-slate-400">En construcción</span>
+      ) : (
+        <span className="mt-4 text-sm font-medium text-slate-400">Escríbenos para activarla</span>
       )}
     </>
   );
@@ -69,14 +77,25 @@ export default async function LauncherPage() {
   } = await supabase.auth.getUser();
   if (!user) redirect('/login');
 
-  // Perfil (para el saludo)
+  // Perfil (para el saludo + rol de admin)
   const { data: perfil } = await supabase
     .from('perfiles')
-    .select('nombre')
+    .select('nombre, rol_global')
     .eq('id', user.id)
     .maybeSingle();
 
   const nombre = perfil?.nombre?.split(' ')[0] ?? '';
+  const esAdmin = perfil?.rol_global === 'admin';
+
+  // Apps contratadas por la organización activa. El admin global las ve todas.
+  let apps: Set<string>;
+  if (esAdmin) {
+    apps = new Set(HERRAMIENTAS.map((h) => h.slug));
+  } else {
+    const cookieOrg = cookies().get('sx_active_org')?.value ?? null;
+    const orgId = await resolveActiveOrgServer(supabase, user.id, cookieOrg);
+    apps = orgId ? await appsActivasDeOrg(supabase, orgId) : new Set<string>();
+  }
 
   return (
     <div className="min-h-screen bg-slate-50">
@@ -100,7 +119,7 @@ export default async function LauncherPage() {
 
         <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {HERRAMIENTAS.map((h) => (
-            <ToolCard key={h.slug} h={h} />
+            <ToolCard key={h.slug} h={h} contratada={apps.has(h.slug)} />
           ))}
         </div>
       </main>

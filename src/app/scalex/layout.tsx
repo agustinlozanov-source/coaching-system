@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import {
   LayoutDashboard, Map, Repeat, Eye, Compass, Coins, Activity, Dna,
-  KanbanSquare, Presentation, User, Settings, ShieldCheck, TrendingUp,
+  KanbanSquare, Presentation, User, Settings, ShieldCheck, TrendingUp, KeyRound,
   LogOut, Grid3x3, Sun, Moon, Search, Bell, ChevronDown, ChevronsUpDown, Check,
 } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
@@ -31,6 +31,7 @@ const NAV: NavItem[] = [
   { href: '/scalex/presentacion', icon: Presentation, label: 'Presentación', ready: true },
   { href: '/scalex/admin/consultores', icon: ShieldCheck, label: 'Admin · Consultores', ready: true, adminOnly: true },
   { href: '/scalex/admin/pipeline', icon: TrendingUp, label: 'Pipeline Global', ready: true, adminOnly: true },
+  { href: '/scalex/admin/accesos', icon: KeyRound, label: 'Admin · Accesos', ready: true, adminOnly: true },
 ];
 
 const BOTTOM: NavItem[] = [
