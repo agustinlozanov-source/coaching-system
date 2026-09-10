@@ -3,35 +3,18 @@
 import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { Loader2, Check, ChevronLeft, ArrowRight } from 'lucide-react';
-import { Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, ResponsiveContainer } from 'recharts';
 import { Button } from '@/components/ui/button';
 import { GlowButton } from '@/components/ui/glow-button';
+import { RadarScanx } from '@/components/scanx/RadarScanx';
 import { getDiagnostico, getRespuestas, guardarRespuesta, finalizarDiagnostico } from '@/lib/scanx/diagnostico';
 import { BANCO_N1 } from '@/lib/scanx/preguntas';
 import { dimensiones as calcDimensiones, calcularResultado } from '@/lib/scanx/calculo';
 import {
-  DIMENSIONES, SEMAFORO_COLOR, TIPO_EMPRESA, VALOR_MAX,
+  SEMAFORO_COLOR, TIPO_EMPRESA, VALOR_MAX,
   type Diagnostico, type Respuesta, type ResultadoDimension,
 } from '@/types/scanx';
 
 export const dynamic = 'force-dynamic';
-
-function RadarVivo({ dims, size = 300 }: { dims: ResultadoDimension[]; size?: number }) {
-  const data = DIMENSIONES.map((d) => ({
-    dim: d.corto,
-    valor: dims.find((x) => x.id === d.id)?.valor ?? 0,
-  }));
-  return (
-    <ResponsiveContainer width="100%" height={size}>
-      <RadarChart data={data} outerRadius="72%">
-        <PolarGrid stroke="currentColor" strokeOpacity={0.15} />
-        <PolarAngleAxis dataKey="dim" tick={{ fontSize: 10, fill: 'currentColor', opacity: 0.7 }} />
-        <PolarRadiusAxis domain={[0, VALOR_MAX]} tick={false} axisLine={false} />
-        <Radar dataKey="valor" stroke="#3533cd" strokeWidth={2} fill="#1aab99" fillOpacity={0.35} isAnimationActive />
-      </RadarChart>
-    </ResponsiveContainer>
-  );
-}
 
 function Semaforo({ d }: { d: ResultadoDimension }) {
   return (
@@ -117,7 +100,7 @@ export default function DiagnosticoPage({ params }: { params: { id: string } }) 
 
         <div className="mt-6 grid gap-6 md:grid-cols-2">
           <div className="rounded-2xl border border-border bg-card p-4">
-            <RadarVivo dims={resultado.dimensiones} size={320} />
+            <RadarScanx dims={resultado.dimensiones} size={320} />
           </div>
           <div className="flex flex-col gap-4">
             <div className="rounded-2xl border border-border bg-card p-5">
@@ -152,7 +135,7 @@ export default function DiagnosticoPage({ params }: { params: { id: string } }) 
 
         <div className="mt-6 flex items-center justify-between rounded-2xl border border-dashed border-border p-5">
           <p className="text-sm text-muted-foreground">El <b>diagnóstico profundo (Nivel 2)</b> con plan de acción llega pronto.</p>
-          <Link href="/scanx"><Button variant="outline">Volver</Button></Link>
+          <Link href="/scanx/diagnosticos"><Button variant="outline">Volver</Button></Link>
         </div>
       </div>
     );
@@ -230,7 +213,7 @@ export default function DiagnosticoPage({ params }: { params: { id: string } }) 
             <p className="mb-1 text-center text-xs font-semibold uppercase tracking-wide text-muted-foreground">
               Tu empresa, en vivo
             </p>
-            <RadarVivo dims={dims} size={260} />
+            <RadarScanx dims={dims} size={260} />
           </div>
         </div>
       </div>
