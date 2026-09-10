@@ -7,6 +7,7 @@ import { createClient } from '@/lib/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { GlowButton } from '@/components/ui/glow-button';
 
 export const dynamic = 'force-dynamic';
 
@@ -132,177 +133,171 @@ export default function LoginPage() {
 
   return (
     <div className={theme === 'dark' ? 'dark' : ''}>
-      <main className="relative grid min-h-screen bg-background text-foreground lg:grid-cols-2">
-        {/* Panel de marca (izquierda) */}
-        <div className="relative hidden flex-col justify-between overflow-hidden bg-gradient-to-br from-[#0e6b5c] via-[#1aab99] to-[#3533cd] p-10 lg:flex">
-          <div className="sx-drift pointer-events-none absolute inset-0">
-            <FloatingPaths position={1} />
-            <FloatingPaths position={-1} />
+      <main className="flex min-h-screen items-center justify-center bg-muted/40 p-4 md:p-8">
+        <div className="grid w-full max-w-6xl overflow-hidden rounded-[2rem] border border-border bg-background shadow-2xl lg:min-h-[640px] lg:grid-cols-2">
+          {/* Panel de marca (izquierda) */}
+          <div className="relative hidden flex-col justify-between overflow-hidden bg-gradient-to-br from-[#0e6b5c] via-[#1aab99] to-[#3533cd] p-10 lg:flex">
+            <div className="sx-drift pointer-events-none absolute inset-0">
+              <FloatingPaths position={1} />
+              <FloatingPaths position={-1} />
+            </div>
+            <div className="relative z-10">
+              <img src="/logos/scalex-blanco.png" alt="SCALEx" className="h-14 w-auto" />
+            </div>
+            <div className="relative z-10 max-w-md">
+              <p className="text-2xl font-semibold leading-snug text-white">
+                El ecosistema para escalar tu empresa: estrategia, equipo y ritmo en un solo lugar.
+              </p>
+              <p className="mt-4 text-sm font-medium text-white/70">SCALEx · TEAMx</p>
+            </div>
+            <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/25 to-transparent" />
           </div>
-          <div className="relative z-10">
-            <img src="/logos/scalex-blanco.png" alt="SCALEx" className="h-9 w-auto" />
-          </div>
-          <div className="relative z-10 max-w-md">
-            <p className="text-2xl font-semibold leading-snug text-white">
-              El ecosistema para escalar tu empresa: estrategia, equipo y ritmo en un solo lugar.
-            </p>
-            <p className="mt-4 text-sm font-medium text-white/70">
-              SCALEx · TEAMx
-            </p>
-          </div>
-          <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/25 to-transparent" />
-        </div>
 
-        {/* Formulario (derecha) */}
-        <div className="relative flex min-h-screen flex-col justify-center px-6 py-12">
-          {/* Controles superiores */}
-          <a
-            href="https://scalexlatam.com"
-            className="absolute left-5 top-6 inline-flex items-center gap-1.5 text-sm text-muted-foreground transition hover:text-foreground"
-          >
-            <ArrowLeft className="h-4 w-4" /> Inicio
-          </a>
-          <button
-            type="button"
-            onClick={toggleTheme}
-            aria-label="Cambiar tema"
-            className="absolute right-5 top-6 inline-flex h-9 w-9 items-center justify-center rounded-full border border-border text-muted-foreground transition hover:text-foreground"
-          >
-            {theme === 'dark' ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
-          </button>
+          {/* Formulario (derecha) */}
+          <div className="relative flex flex-col justify-center px-6 py-16 sm:px-10">
+            {/* Barra superior: Inicio + toggle de tema */}
+            <div className="absolute left-6 right-6 top-6 flex items-center justify-between">
+              <a
+                href="https://scalexlatam.com"
+                className="inline-flex items-center gap-1.5 text-sm text-muted-foreground transition hover:text-foreground"
+              >
+                <ArrowLeft className="h-4 w-4" /> Inicio
+              </a>
+              <button
+                type="button"
+                onClick={toggleTheme}
+                aria-label="Cambiar tema"
+                className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-border text-muted-foreground transition hover:text-foreground"
+              >
+                {theme === 'dark' ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+              </button>
+            </div>
 
-          <div className="mx-auto w-full max-w-sm space-y-6">
-            {/* Logo en móvil (el panel de marca se oculta) */}
-            <div className="lg:hidden">
+            <div className="mx-auto w-full max-w-sm space-y-6 text-center">
+              {/* Logo arriba del título */}
               <img
                 src={theme === 'dark' ? '/logos/scalex-blanco.png' : '/logos/scalex-negro.png'}
                 alt="SCALEx"
-                className="h-8 w-auto"
+                className="mx-auto h-11 w-auto"
               />
-            </div>
 
-            <div className="space-y-1">
-              <h1 className="text-2xl font-bold tracking-tight">
-                {isSignUp ? 'Crea tu cuenta' : 'Inicia sesión'}
-              </h1>
-              <p className="text-sm text-muted-foreground">
-                {isSignUp
-                  ? 'Crea una cuenta para acceder a tus herramientas.'
-                  : 'Ingresa para acceder a tus herramientas.'}
-              </p>
-            </div>
-
-            <Button
-              type="button"
-              variant="outline"
-              size="lg"
-              className="w-full"
-              onClick={handleGoogle}
-              disabled={loading}
-            >
-              <GoogleIcon className="mr-2" /> Continuar con Google
-            </Button>
-
-            <div className="flex items-center gap-3 text-xs text-muted-foreground">
-              <span className="h-px flex-1 bg-border" />
-              o con tu correo
-              <span className="h-px flex-1 bg-border" />
-            </div>
-
-            <form onSubmit={handleAuth} className="space-y-3">
-              <div className="space-y-1.5">
-                <Label htmlFor="email">Correo electrónico</Label>
-                <div className="relative">
-                  <AtSign className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                  <Input
-                    id="email"
-                    type="email"
-                    placeholder="tu@email.com"
-                    className="pl-9"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    required
-                    disabled={loading}
-                  />
-                </div>
+              <div className="space-y-1">
+                <h1 className="text-2xl font-bold tracking-tight">
+                  {isSignUp ? 'Crea tu cuenta' : 'Inicia sesión'}
+                </h1>
+                <p className="text-sm text-muted-foreground">
+                  {isSignUp
+                    ? 'Crea una cuenta para acceder a tus herramientas.'
+                    : 'Ingresa para acceder a tus herramientas.'}
+                </p>
               </div>
 
-              <div className="space-y-1.5">
-                <Label htmlFor="password">Contraseña</Label>
-                <div className="relative">
-                  <Lock className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                  <Input
-                    id="password"
-                    type="password"
-                    placeholder="••••••••"
-                    className="pl-9"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    required
-                    disabled={loading}
-                  />
-                </div>
+              <Button
+                type="button"
+                variant="outline"
+                size="lg"
+                className="w-full"
+                onClick={handleGoogle}
+                disabled={loading}
+              >
+                <GoogleIcon className="mr-2" /> Continuar con Google
+              </Button>
+
+              <div className="flex items-center gap-3 text-xs text-muted-foreground">
+                <span className="h-px flex-1 bg-border" />
+                o con tu correo
+                <span className="h-px flex-1 bg-border" />
               </div>
 
-              {isSignUp && (
+              <form onSubmit={handleAuth} className="space-y-3 text-left">
                 <div className="space-y-1.5">
-                  <Label htmlFor="confirmPassword">Confirmar contraseña</Label>
+                  <Label htmlFor="email">Correo electrónico</Label>
                   <div className="relative">
-                    <Lock className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                    <AtSign className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                     <Input
-                      id="confirmPassword"
-                      type="password"
-                      placeholder="••••••••"
+                      id="email"
+                      type="email"
+                      placeholder="tu@email.com"
                       className="pl-9"
-                      value={confirmPassword}
-                      onChange={(e) => setConfirmPassword(e.target.value)}
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
                       required
                       disabled={loading}
                     />
                   </div>
                 </div>
-              )}
 
-              {error && (
-                <div className="rounded-md bg-red-50 p-3 text-sm text-red-600 dark:bg-red-950/40 dark:text-red-400">
-                  {error}
+                <div className="space-y-1.5">
+                  <Label htmlFor="password">Contraseña</Label>
+                  <div className="relative">
+                    <Lock className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                    <Input
+                      id="password"
+                      type="password"
+                      placeholder="••••••••"
+                      className="pl-9"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      required
+                      disabled={loading}
+                    />
+                  </div>
                 </div>
-              )}
-              {info && (
-                <div className="rounded-md bg-emerald-50 p-3 text-sm text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400">
-                  {info}
-                </div>
-              )}
 
-              <Button type="submit" size="lg" className="w-full" disabled={loading}>
-                {loading
-                  ? isSignUp
-                    ? 'Creando cuenta...'
-                    : 'Iniciando sesión...'
-                  : isSignUp
-                    ? 'Crear cuenta'
-                    : 'Iniciar sesión'}
-              </Button>
-            </form>
+                {isSignUp && (
+                  <div className="space-y-1.5">
+                    <Label htmlFor="confirmPassword">Confirmar contraseña</Label>
+                    <div className="relative">
+                      <Lock className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                      <Input
+                        id="confirmPassword"
+                        type="password"
+                        placeholder="••••••••"
+                        className="pl-9"
+                        value={confirmPassword}
+                        onChange={(e) => setConfirmPassword(e.target.value)}
+                        required
+                        disabled={loading}
+                      />
+                    </div>
+                  </div>
+                )}
 
-            <p className="text-center text-sm text-muted-foreground">
-              {isSignUp ? '¿Ya tienes cuenta?' : '¿No tienes cuenta?'}{' '}
-              <button
-                type="button"
-                onClick={() => {
-                  setIsSignUp(!isSignUp);
-                  setError('');
-                  setInfo('');
-                }}
-                className="font-medium text-primary hover:underline"
-              >
-                {isSignUp ? 'Inicia sesión' : 'Crea una cuenta'}
-              </button>
-            </p>
+                {error && (
+                  <div className="rounded-md bg-red-50 p-3 text-sm text-red-600 dark:bg-red-950/40 dark:text-red-400">
+                    {error}
+                  </div>
+                )}
+                {info && (
+                  <div className="rounded-md bg-emerald-50 p-3 text-sm text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400">
+                    {info}
+                  </div>
+                )}
 
-            <p className="text-center text-xs text-muted-foreground">
-              © 2026 SCALEx. Todos los derechos reservados.
-            </p>
+                <GlowButton type="submit" className="w-full" loading={loading} icon={<span className="hidden" />}>
+                  {isSignUp ? 'Crear cuenta' : 'Iniciar sesión'}
+                </GlowButton>
+              </form>
+
+              <p className="text-sm text-muted-foreground">
+                {isSignUp ? '¿Ya tienes cuenta?' : '¿No tienes cuenta?'}{' '}
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsSignUp(!isSignUp);
+                    setError('');
+                    setInfo('');
+                  }}
+                  className="font-medium text-primary hover:underline"
+                >
+                  {isSignUp ? 'Inicia sesión' : 'Crea una cuenta'}
+                </button>
+              </p>
+
+              <p className="text-xs text-muted-foreground">
+                © 2026 SCALEx. Todos los derechos reservados.
+              </p>
+            </div>
           </div>
         </div>
       </main>
