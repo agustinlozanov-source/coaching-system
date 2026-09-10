@@ -130,12 +130,6 @@ export default function LoginPage() {
     }
   };
 
-  const Wordmark = ({ className = '' }: { className?: string }) => (
-    <span className={`text-2xl font-extrabold tracking-tight ${className}`}>
-      SCALE<span className="text-[#1aab99]">x</span>
-    </span>
-  );
-
   return (
     <div className={theme === 'dark' ? 'dark' : ''}>
       <main className="relative grid min-h-screen bg-background text-foreground lg:grid-cols-2">
@@ -146,7 +140,7 @@ export default function LoginPage() {
             <FloatingPaths position={-1} />
           </div>
           <div className="relative z-10">
-            <Wordmark className="text-white" />
+            <img src="/logos/scalex-blanco.png" alt="SCALEx" className="h-9 w-auto" />
           </div>
           <div className="relative z-10 max-w-md">
             <p className="text-2xl font-semibold leading-snug text-white">
@@ -178,9 +172,13 @@ export default function LoginPage() {
           </button>
 
           <div className="mx-auto w-full max-w-sm space-y-6">
-            {/* Wordmark en móvil */}
+            {/* Logo en móvil (el panel de marca se oculta) */}
             <div className="lg:hidden">
-              <Wordmark />
+              <img
+                src={theme === 'dark' ? '/logos/scalex-blanco.png' : '/logos/scalex-negro.png'}
+                alt="SCALEx"
+                className="h-8 w-auto"
+              />
             </div>
 
             <div className="space-y-1">
