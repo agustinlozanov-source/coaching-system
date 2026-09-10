@@ -19,16 +19,16 @@ export function AccountButton({ email }: { email: string }) {
     <div className="relative">
       <button
         onClick={() => setOpen((v) => !v)}
-        className="rounded-lg bg-white/15 px-3 py-1.5 text-sm font-medium text-white backdrop-blur transition hover:bg-white/25"
+        className="rounded-lg border border-border bg-background/60 px-3 py-1.5 text-sm font-medium text-foreground backdrop-blur transition hover:bg-muted"
       >
         Mi cuenta
       </button>
       {open && (
-        <div className="absolute right-0 z-10 mt-2 w-56 rounded-xl border border-slate-200 bg-white p-1 shadow-lg">
-          <div className="truncate px-3 py-2 text-xs text-slate-500">{email}</div>
+        <div className="absolute right-0 z-20 mt-2 w-56 rounded-xl border border-border bg-popover p-1 text-popover-foreground shadow-lg">
+          <div className="truncate px-3 py-2 text-xs text-muted-foreground">{email}</div>
           <button
             onClick={signOut}
-            className="w-full rounded-lg px-3 py-2 text-left text-sm font-medium text-slate-700 hover:bg-slate-50"
+            className="w-full rounded-lg px-3 py-2 text-left text-sm font-medium text-foreground hover:bg-muted"
           >
             Cerrar sesión
           </button>

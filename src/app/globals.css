@@ -110,6 +110,34 @@
   .sx-drift { animation: none; }
 }
 
+/* ── Glow card: el MISMO brillo interno del botón, pero sin gradiente teal.
+   La card conserva su propio fondo; en hover un brillo blanco cruza de
+   abajo-derecha a arriba-izquierda. ──────────────────────────────────────── */
+.glow-card {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+}
+.glow-card::before {
+  content: '';
+  position: absolute;
+  z-index: 0;
+  width: 120%;
+  height: 200%;
+  left: 62%;
+  top: 68%;
+  transform: translate(-50%, -50%);
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.22) 0%, rgba(255, 255, 255, 0) 55%);
+  opacity: 0;
+  pointer-events: none;
+  transition: left 0.6s ease, top 0.6s ease, opacity 0.45s ease;
+}
+.glow-card:hover::before { left: 22%; top: 18%; opacity: 1; }
+.glow-card > * { position: relative; z-index: 1; }
+@media (prefers-reduced-motion: reduce) {
+  .glow-card::before { transition: opacity 0.2s ease; }
+}
+
 /* ── Glow button (gradiente institucional teal→indigo #1aab99→#3533cd) ────
    El glow es INTERNO: un brillo que cruza de abajo-derecha a arriba-izquierda
    al pasar el mouse. Sombra externa casi imperceptible. */
