@@ -93,20 +93,21 @@
   color-scheme: light;
 }
 
-/* ── Login: líneas flotantes animadas del panel de marca (sin framer-motion) ── */
-@keyframes sx-flow {
-  0% { stroke-dashoffset: 1200; opacity: 0.12; }
-  50% { opacity: 0.5; }
-  100% { stroke-dashoffset: 0; opacity: 0.12; }
+/* ── Login: líneas del panel de marca con drift suave (transform, compositado) ──
+   Nada de animar stroke-dashoffset (repintaba por frame y glitcheaba). Las
+   líneas son estáticas y solo el contenedor deriva lentamente en GPU. */
+@keyframes sx-drift {
+  0% { transform: translate3d(0, 0, 0) scale(1.06); }
+  50% { transform: translate3d(-2.5%, -1.5%, 0) scale(1.14); }
+  100% { transform: translate3d(0, 0, 0) scale(1.06); }
 }
-.sx-flow-path {
-  stroke-dasharray: 1200;
-  animation-name: sx-flow;
-  animation-timing-function: linear;
-  animation-iteration-count: infinite;
+.sx-drift {
+  animation: sx-drift 28s ease-in-out infinite;
+  will-change: transform;
+  transform: translateZ(0);
 }
 @media (prefers-reduced-motion: reduce) {
-  .sx-flow-path { animation: none; opacity: 0.35; stroke-dashoffset: 0; }
+  .sx-drift { animation: none; }
 }
 
 /* ── Glow button (gradiente institucional teal→indigo #1aab99→#3533cd) ────
