@@ -33,7 +33,7 @@ function FloatingPaths({ position }: { position: number }) {
   return (
     <svg className="absolute inset-0 h-full w-full" viewBox="0 0 696 316" fill="none" preserveAspectRatio="xMidYMid slice">
       {paths.map((p) => (
-        <path key={p.id} d={p.d} stroke="white" strokeWidth={p.width} strokeOpacity={p.opacity} />
+        <path key={p.id} d={p.d} stroke="currentColor" strokeWidth={p.width} strokeOpacity={p.opacity} />
       ))}
     </svg>
   );
@@ -133,11 +133,16 @@ export default function LoginPage() {
 
   return (
     <div className={theme === 'dark' ? 'dark' : ''}>
-      <main className="flex min-h-screen items-center justify-center bg-muted/40 p-4 md:p-8">
-        <div className="grid w-full max-w-6xl overflow-hidden rounded-[2rem] border border-border bg-background shadow-2xl lg:min-h-[640px] lg:grid-cols-2">
+      <main className="relative flex min-h-screen items-center justify-center overflow-hidden bg-[#e9ebef] p-4 text-foreground dark:bg-[#141418] md:p-8">
+        {/* Fondo: mismas líneas del panel, un tono menos negro */}
+        <div className="sx-drift pointer-events-none absolute inset-0 text-slate-400/60 dark:text-white/90">
+          <FloatingPaths position={1} />
+          <FloatingPaths position={-1} />
+        </div>
+        <div className="relative z-10 grid w-full max-w-6xl overflow-hidden rounded-[2rem] bg-background shadow-2xl lg:min-h-[640px] lg:grid-cols-2">
           {/* Panel de marca (izquierda) */}
           <div className="relative hidden flex-col justify-between overflow-hidden bg-gradient-to-br from-[#0e6b5c] via-[#1aab99] to-[#3533cd] p-10 lg:flex">
-            <div className="sx-drift pointer-events-none absolute inset-0">
+            <div className="sx-drift pointer-events-none absolute inset-0 text-white">
               <FloatingPaths position={1} />
               <FloatingPaths position={-1} />
             </div>
@@ -218,7 +223,7 @@ export default function LoginPage() {
                       id="email"
                       type="email"
                       placeholder="tu@email.com"
-                      className="pl-9"
+                      className="pl-9 dark:bg-white/[0.04]"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       required
@@ -235,7 +240,7 @@ export default function LoginPage() {
                       id="password"
                       type="password"
                       placeholder="••••••••"
-                      className="pl-9"
+                      className="pl-9 dark:bg-white/[0.04]"
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       required
@@ -253,7 +258,7 @@ export default function LoginPage() {
                         id="confirmPassword"
                         type="password"
                         placeholder="••••••••"
-                        className="pl-9"
+                        className="pl-9 dark:bg-white/[0.04]"
                         value={confirmPassword}
                         onChange={(e) => setConfirmPassword(e.target.value)}
                         required
