@@ -48,7 +48,8 @@ export default async function LauncherPage() {
     ruta: h.ruta,
     color: h.color,
     disponible: h.disponible,
-    contratada: apps.has(h.slug),
+    // SCANx es la puerta de entrada gratuita: siempre disponible.
+    contratada: h.slug === 'scanx' ? true : apps.has(h.slug),
   }));
 
   return (

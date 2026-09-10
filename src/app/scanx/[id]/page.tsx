@@ -1,0 +1,239 @@
+'use client';
+
+import { useEffect, useMemo, useState } from 'react';
+import Link from 'next/link';
+import { Loader2, Check, ChevronLeft, ArrowRight } from 'lucide-react';
+import { Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, ResponsiveContainer } from 'recharts';
+import { Button } from '@/components/ui/button';
+import { GlowButton } from '@/components/ui/glow-button';
+import { getDiagnostico, getRespuestas, guardarRespuesta, finalizarDiagnostico } from '@/lib/scanx/diagnostico';
+import { BANCO_N1 } from '@/lib/scanx/preguntas';
+import { dimensiones as calcDimensiones, calcularResultado } from '@/lib/scanx/calculo';
+import {
+  DIMENSIONES, SEMAFORO_COLOR, TIPO_EMPRESA, VALOR_MAX,
+  type Diagnostico, type Respuesta, type ResultadoDimension,
+} from '@/types/scanx';
+
+export const dynamic = 'force-dynamic';
+
+function RadarVivo({ dims, size = 300 }: { dims: ResultadoDimension[]; size?: number }) {
+  const data = DIMENSIONES.map((d) => ({
+    dim: d.corto,
+    valor: dims.find((x) => x.id === d.id)?.valor ?? 0,
+  }));
+  return (
+    <ResponsiveContainer width="100%" height={size}>
+      <RadarChart data={data} outerRadius="72%">
+        <PolarGrid stroke="currentColor" strokeOpacity={0.15} />
+        <PolarAngleAxis dataKey="dim" tick={{ fontSize: 10, fill: 'currentColor', opacity: 0.7 }} />
+        <PolarRadiusAxis domain={[0, VALOR_MAX]} tick={false} axisLine={false} />
+        <Radar dataKey="valor" stroke="#3533cd" strokeWidth={2} fill="#1aab99" fillOpacity={0.35} isAnimationActive />
+      </RadarChart>
+    </ResponsiveContainer>
+  );
+}
+
+function Semaforo({ d }: { d: ResultadoDimension }) {
+  return (
+    <div className="flex items-center justify-between gap-3 py-1.5 text-sm">
+      <div className="flex items-center gap-2 min-w-0">
+        <span className="h-2.5 w-2.5 flex-shrink-0 rounded-full" style={{ backgroundColor: SEMAFORO_COLOR[d.semaforo] }} />
+        <span className="truncate">{d.nombre}</span>
+      </div>
+      <span className="tabular-nums font-semibold text-muted-foreground">
+        {d.confiable && d.valor != null ? d.valor.toFixed(2) : '—'}
+      </span>
+    </div>
+  );
+}
+
+export default function DiagnosticoPage({ params }: { params: { id: string } }) {
+  const { id } = params;
+  const [diag, setDiag] = useState<Diagnostico | null>(null);
+  const [resp, setResp] = useState<Respuesta[]>([]);
+  const [idx, setIdx] = useState(0);
+  const [loading, setLoading] = useState(true);
+  const [finalizando, setFinalizando] = useState(false);
+  const [verResultado, setVerResultado] = useState(false);
+
+  useEffect(() => {
+    (async () => {
+      const [d, r] = await Promise.all([getDiagnostico(id), getRespuestas(id)]);
+      setDiag(d);
+      setResp(r);
+      if (d?.estado === 'completado') {
+        setVerResultado(true);
+      } else {
+        const firstUn = BANCO_N1.findIndex((p) => !r.some((x) => x.preguntaId === p.id));
+        setIdx(firstUn === -1 ? BANCO_N1.length - 1 : firstUn);
+      }
+      setLoading(false);
+    })();
+  }, [id]);
+
+  const total = BANCO_N1.length;
+  const dims = useMemo(() => calcDimensiones(resp, BANCO_N1), [resp]);
+  const answered = resp.length;
+  const allAnswered = answered >= total;
+  const pregunta = BANCO_N1[idx];
+  const seleccion = resp.find((r) => r.preguntaId === pregunta?.id)?.opcionId;
+
+  function elegir(opcionId: string, pesos: Record<string, number>) {
+    if (!pregunta) return;
+    setResp((prev) => [...prev.filter((r) => r.preguntaId !== pregunta.id), { preguntaId: pregunta.id, opcionId }]);
+    guardarRespuesta(id, pregunta.id, opcionId, pesos).catch(() => {});
+    if (idx < total - 1) setTimeout(() => setIdx((i) => Math.min(i + 1, total - 1)), 220);
+  }
+
+  async function finalizar() {
+    setFinalizando(true);
+    const resultado = calcularResultado(resp, BANCO_N1);
+    try {
+      await finalizarDiagnostico(id, resultado);
+      setDiag((d) => (d ? { ...d, estado: 'completado', resultado, tipoEmpresa: resultado.tipoEmpresa } : d));
+      setVerResultado(true);
+    } finally {
+      setFinalizando(false);
+    }
+  }
+
+  if (loading) {
+    return <div className="flex justify-center py-24"><Loader2 className="h-7 w-7 animate-spin text-muted-foreground" /></div>;
+  }
+
+  // ── Vista de resultado ─────────────────────────────────────────────
+  if (verResultado && diag) {
+    const resultado = diag.resultado ?? calcularResultado(resp, BANCO_N1);
+    const tipo = TIPO_EMPRESA[resultado.tipoEmpresa];
+    const top = resultado.top3
+      .map((tid) => resultado.dimensiones.find((d) => d.id === tid))
+      .filter((x): x is ResultadoDimension => !!x);
+    return (
+      <div className="mx-auto max-w-3xl">
+        <div className="text-center">
+          <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Resultado del diagnóstico</p>
+          <h1 className="mt-1 text-2xl font-bold">{diag.perfil.nombreEmpresa || 'Tu empresa'}</h1>
+        </div>
+
+        <div className="mt-6 grid gap-6 md:grid-cols-2">
+          <div className="rounded-2xl border border-border bg-card p-4">
+            <RadarVivo dims={resultado.dimensiones} size={320} />
+          </div>
+          <div className="flex flex-col gap-4">
+            <div className="rounded-2xl border border-border bg-card p-5">
+              <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Clasificación</p>
+              <p className="mt-1 text-xl font-extrabold">Tipo {resultado.tipoEmpresa} · {tipo.nombre}</p>
+              <p className="mt-2 text-sm text-muted-foreground">{tipo.descripcion}</p>
+              {resultado.promedioGeneral != null && (
+                <p className="mt-3 text-sm">Promedio general: <span className="font-bold tabular-nums">{resultado.promedioGeneral.toFixed(2)}</span> / {VALOR_MAX.toFixed(2)}</p>
+              )}
+            </div>
+            <div className="rounded-2xl border border-border bg-card p-5">
+              <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Top 3 prioridades</p>
+              <ol className="mt-2 space-y-2">
+                {top.map((d, i) => (
+                  <li key={d.id} className="flex items-center gap-2 text-sm">
+                    <span className="flex h-5 w-5 items-center justify-center rounded-full bg-gradient-to-br from-[#1aab99] to-[#3533cd] text-[11px] font-bold text-white">{i + 1}</span>
+                    <span className="flex-1 font-medium">{d.nombre}</span>
+                    <span className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: SEMAFORO_COLOR[d.semaforo] }} />
+                  </li>
+                ))}
+              </ol>
+            </div>
+          </div>
+        </div>
+
+        <div className="mt-6 rounded-2xl border border-border bg-card p-5">
+          <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-muted-foreground">Radar por dimensión</p>
+          <div className="grid gap-x-8 sm:grid-cols-2">
+            {resultado.dimensiones.map((d) => <Semaforo key={d.id} d={d} />)}
+          </div>
+        </div>
+
+        <div className="mt-6 flex items-center justify-between rounded-2xl border border-dashed border-border p-5">
+          <p className="text-sm text-muted-foreground">El <b>diagnóstico profundo (Nivel 2)</b> con plan de acción llega pronto.</p>
+          <Link href="/scanx"><Button variant="outline">Volver</Button></Link>
+        </div>
+      </div>
+    );
+  }
+
+  // ── Flujo de escenarios ────────────────────────────────────────────
+  return (
+    <div className="mx-auto max-w-5xl">
+      {/* Progreso */}
+      <div className="mb-6">
+        <div className="mb-1.5 flex items-center justify-between text-xs text-muted-foreground">
+          <span>Pregunta {idx + 1} de {total}</span>
+          <span>{answered}/{total} respondidas</span>
+        </div>
+        <div className="h-1.5 w-full overflow-hidden rounded-full bg-muted">
+          <div className="h-full rounded-full bg-gradient-to-r from-[#1aab99] to-[#3533cd] transition-all" style={{ width: `${(answered / total) * 100}%` }} />
+        </div>
+      </div>
+
+      <div className="grid gap-6 lg:grid-cols-[1fr_320px]">
+        {/* Escenario */}
+        <div>
+          {pregunta && (
+            <div>
+              <h2 className="text-xl font-bold leading-snug">{pregunta.escenario}</h2>
+              <div className="mt-5 space-y-3">
+                {pregunta.opciones.map((op) => {
+                  const sel = seleccion === op.id;
+                  return (
+                    <button
+                      key={op.id}
+                      onClick={() => elegir(op.id, op.pesos as Record<string, number>)}
+                      className={`flex w-full items-center gap-3 rounded-xl border p-4 text-left text-sm transition ${
+                        sel
+                          ? 'border-emerald-500 bg-emerald-500/10 ring-1 ring-emerald-500'
+                          : 'border-border bg-card hover:border-foreground/20 hover:bg-muted/50'
+                      }`}
+                    >
+                      <span className={`flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full border ${sel ? 'border-emerald-500 bg-emerald-500 text-white' : 'border-muted-foreground/40'}`}>
+                        {sel && <Check className="h-3.5 w-3.5" />}
+                      </span>
+                      <span className="flex-1">{op.texto}</span>
+                    </button>
+                  );
+                })}
+              </div>
+
+              <div className="mt-6 flex items-center justify-between">
+                <Button variant="ghost" disabled={idx === 0} onClick={() => setIdx((i) => Math.max(0, i - 1))}>
+                  <ChevronLeft className="mr-1 h-4 w-4" /> Anterior
+                </Button>
+                {idx < total - 1 ? (
+                  <Button variant="outline" disabled={!seleccion} onClick={() => setIdx((i) => Math.min(total - 1, i + 1))}>
+                    Siguiente <ArrowRight className="ml-1 h-4 w-4" />
+                  </Button>
+                ) : (
+                  <GlowButton onClick={finalizar} disabled={!allAnswered} loading={finalizando}
+                    icon={<ArrowRight size={16} className="ml-0.5" />}>
+                    Ver mi resultado
+                  </GlowButton>
+                )}
+              </div>
+              {idx === total - 1 && !allAnswered && (
+                <p className="mt-2 text-right text-xs text-amber-600 dark:text-amber-400">
+                  Te faltan {total - answered} respuestas para ver el resultado.
+                </p>
+              )}
+            </div>
+          )}
+        </div>
+
+        {/* Radar en vivo */}
+        <div className="lg:sticky lg:top-6 lg:self-start">
+          <div className="rounded-2xl border border-border bg-card p-4">
+            <p className="mb-1 text-center text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+              Tu empresa, en vivo
+            </p>
+            <RadarVivo dims={dims} size={260} />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}

@@ -1,4 +1,4 @@
-import { Users, Compass, type LucideIcon } from 'lucide-react';
+import { Users, Compass, Radar, type LucideIcon } from 'lucide-react';
 
 export type Herramienta = {
   slug: string;
@@ -18,6 +18,15 @@ export type Herramienta = {
  * Cada una se abre como su propia experiencia independiente.
  */
 export const HERRAMIENTAS: Herramienta[] = [
+  {
+    slug: 'scanx',
+    nombre: 'SCANx',
+    descripcion: 'Diagnóstico empresarial: radiografía completa, tu tipo de empresa y tus 3 prioridades para escalar.',
+    ruta: '/scanx',
+    color: '#0ea5a3',
+    icon: Radar,
+    disponible: true,
+  },
   {
     slug: 'scalex',
     nombre: 'SCALEx',
