@@ -93,6 +93,22 @@
   color-scheme: light;
 }
 
+/* ── Login: líneas flotantes animadas del panel de marca (sin framer-motion) ── */
+@keyframes sx-flow {
+  0% { stroke-dashoffset: 1200; opacity: 0.12; }
+  50% { opacity: 0.5; }
+  100% { stroke-dashoffset: 0; opacity: 0.12; }
+}
+.sx-flow-path {
+  stroke-dasharray: 1200;
+  animation-name: sx-flow;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .sx-flow-path { animation: none; opacity: 0.35; stroke-dashoffset: 0; }
+}
+
 /* ── Glow button (gradiente institucional teal→indigo #1aab99→#3533cd) ────
    El glow es INTERNO: un brillo que cruza de abajo-derecha a arriba-izquierda
    al pasar el mouse. Sombra externa casi imperceptible. */
