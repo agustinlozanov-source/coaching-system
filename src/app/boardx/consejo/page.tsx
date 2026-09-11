@@ -363,11 +363,21 @@ export default function ConsejoPage() {
             <Card key={a.id}>
               <CardContent className="flex h-full flex-col gap-2 pt-6">
                 <div className="flex items-start justify-between gap-2">
-                  <div className="min-w-0">
-                    <p className="truncate font-bold text-foreground">{a.nombre}</p>
-                    {a.rol && (
-                      <p className="truncate text-sm text-muted-foreground">{a.rol}</p>
-                    )}
+                  <div className="flex min-w-0 items-center gap-3">
+                    <span className="flex h-11 w-11 flex-shrink-0 items-center justify-center overflow-hidden rounded-full bg-gradient-to-br from-[#1aab99] to-[#3533cd] text-sm font-bold text-white">
+                      {a.fotoUrl ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img src={a.fotoUrl} alt="" className="h-full w-full object-cover" />
+                      ) : (
+                        (a.nombre.trim()[0] ?? '·').toUpperCase()
+                      )}
+                    </span>
+                    <div className="min-w-0">
+                      <p className="truncate font-bold text-foreground">{a.nombre}</p>
+                      {a.rol && (
+                        <p className="truncate text-sm text-muted-foreground">{a.rol}</p>
+                      )}
+                    </div>
                   </div>
                   <div className="flex shrink-0 gap-1">
                     <Button

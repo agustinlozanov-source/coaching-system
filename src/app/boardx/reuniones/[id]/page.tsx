@@ -238,9 +238,14 @@ export default function ReunionPage({ params }: { params: { id: string } }) {
               return (
                 <button key={a.id} onClick={() => togglePresente(a.id)} disabled={readOnly}
                   className={`flex items-center justify-between rounded-lg border p-3 text-left text-sm transition ${pres ? 'border-emerald-500 bg-emerald-500/10' : 'hover:bg-muted/50'}`}>
-                  <div>
-                    <div className="font-medium">{a.nombre}</div>
-                    <div className="text-xs text-muted-foreground">{a.rol || a.especializacion || (a.tipo === 'interno' ? 'Interno' : 'Externo')}</div>
+                  <div className="flex items-center gap-2.5">
+                    <span className="flex h-9 w-9 flex-shrink-0 items-center justify-center overflow-hidden rounded-full bg-gradient-to-br from-[#1aab99] to-[#3533cd] text-xs font-bold text-white">
+                      {a.fotoUrl ? <img src={a.fotoUrl} alt="" className="h-full w-full object-cover" /> : (a.nombre.trim()[0] ?? '·').toUpperCase()}
+                    </span>
+                    <div>
+                      <div className="font-medium">{a.nombre}</div>
+                      <div className="text-xs text-muted-foreground">{a.rol || a.especializacion || (a.tipo === 'interno' ? 'Interno' : 'Externo')}</div>
+                    </div>
                   </div>
                   {pres && <span className="flex items-center gap-1 text-xs font-semibold text-emerald-600"><Check className="h-4 w-4" />{reunion.asistencia[a.id]?.hora}</span>}
                 </button>
