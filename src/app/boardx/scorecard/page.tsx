@@ -1,8 +1,8 @@
 'use client';
 export const dynamic = 'force-dynamic';
 
-import { useEffect, useState } from 'react';
-import { Plus, Pencil, Trash2, Loader2, TrendingUp, Gauge } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
+import { Plus, Pencil, Trash2, Loader2, TrendingUp, Gauge, Upload } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -124,6 +124,32 @@ export default function ScorecardPage() {
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  const fileRef = useRef<HTMLInputElement>(null);
+
+  async function importarCSV(file: File) {
+    if (!board) return;
+    const text = await file.text();
+    const lines = text.split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
+    if (!lines.length) return;
+    const start = /dimension|dimensi[oó]n|nombre|indicador/i.test(lines[0]) ? 1 : 0;
+    let n = 0;
+    for (let i = start; i < lines.length; i++) {
+      const c = lines[i].split(',').map((s) => s.trim());
+      const [dimension, nombre, valor, meta, unidad, responsable] = c;
+      if (!nombre) continue;
+      const num = (v: string) => (v != null && v !== '' && !isNaN(Number(v)) ? Number(v) : null);
+      try {
+        await crearIndicador(board.id, {
+          dimension: dimension || null, nombre, valorActual: num(valor), meta: num(meta),
+          unidad: unidad || null, direccion: 'mayor', responsable: responsable || null, orden: i,
+        });
+        n++;
+      } catch { /* fila inválida, continúa */ }
+    }
+    await reload();
+    toast({ title: `Importados ${n} indicadores`, description: 'Ajusta dirección/umbral si hace falta.' });
+  }
 
   async function reload() {
     if (!board) return;
@@ -250,9 +276,21 @@ export default function ScorecardPage() {
           <h1 className="text-2xl font-bold">Scorecard</h1>
           <p className="text-muted-foreground">Los indicadores que importan, por dimensión.</p>
         </div>
-        <GlowButton onClick={openCreate} icon={<Plus size={16} className="ml-0.5" />}>
-          Nuevo indicador
-        </GlowButton>
+        <div className="flex items-center gap-2">
+          <input
+            ref={fileRef}
+            type="file"
+            accept=".csv,text/csv"
+            className="hidden"
+            onChange={(e) => { const f = e.target.files?.[0]; if (f) importarCSV(f); e.target.value = ''; }}
+          />
+          <Button variant="outline" onClick={() => fileRef.current?.click()} disabled={!board} title="CSV: dimension,nombre,valor,meta,unidad,responsable">
+            <Upload className="mr-1 h-4 w-4" /> Importar CSV
+          </Button>
+          <GlowButton onClick={openCreate} icon={<Plus size={16} className="ml-0.5" />}>
+            Nuevo indicador
+          </GlowButton>
+        </div>
       </div>
 
       {indicadores.length === 0 ? (

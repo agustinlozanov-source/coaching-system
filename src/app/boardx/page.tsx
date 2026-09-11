@@ -2,10 +2,11 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { Loader2, ArrowRight, CalendarClock, Armchair } from 'lucide-react';
+import { Loader2, ArrowRight, CalendarClock, Armchair, Sparkles, FileText } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import {
   getOrCreateBoard, listAsientos, listReuniones, listAcuerdos, listIndicadores,
 } from '@/lib/boardx/data';
@@ -24,6 +25,22 @@ export default function BoardxInicio() {
   const [acuerdos, setAcuerdos] = useState<Acuerdo[]>([]);
   const [indicadores, setIndicadores] = useState<Indicador[]>([]);
   const [sinOrg, setSinOrg] = useState(false);
+
+  const [iaOpen, setIaOpen] = useState(false);
+  const [iaTitulo, setIaTitulo] = useState('');
+  const [iaTexto, setIaTexto] = useState('');
+  const [iaLoading, setIaLoading] = useState(false);
+
+  async function runIA(tarea: 'semanal' | 'caso-exito', contexto: Record<string, unknown>, titulo: string) {
+    setIaTitulo(titulo); setIaTexto(''); setIaLoading(true); setIaOpen(true);
+    try {
+      const r = await fetch('/api/boardx/ia', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ tarea, contexto }) });
+      const j = await r.json();
+      setIaTexto(j.error ? `Error: ${j.error}` : (j.texto || j.narrativa || 'Sin resultado.'));
+    } catch {
+      setIaTexto('No se pudo generar. Intenta de nuevo.');
+    } finally { setIaLoading(false); }
+  }
 
   useEffect(() => {
     (async () => {
@@ -64,8 +81,29 @@ export default function BoardxInicio() {
           <h1 className="text-2xl font-bold">Inicio</h1>
           <p className="text-muted-foreground">{boardNombre ? boardNombre : 'Tu consejo técnico'} · panel del CEO</p>
         </div>
-        <Link href="/boardx/reuniones"><Button variant="outline">Ir a reuniones <ArrowRight className="ml-1 h-4 w-4" /></Button></Link>
+        <div className="flex items-center gap-2">
+          <Button variant="outline" onClick={() => runIA('semanal', {
+            acuerdosPendientes: pendientes.map((a) => ({ texto: a.texto, prioridad: a.prioridad, clasificacion: a.clasificacion, responsable: a.responsable })),
+            indicadoresRojos: indicadores.filter((i) => semaforoIndicador(i) === 'rojo').map((i) => i.nombre),
+            proxima: proxima ? { nombre: proxima.nombre, tematica: proxima.tematica, kpi: proxima.kpiPrincipal, fecha: proxima.fecha } : null,
+          }, 'Resumen semanal')}><FileText className="mr-1 h-4 w-4" /> Resumen semanal</Button>
+          <Button variant="outline" onClick={() => runIA('caso-exito', {
+            rounds: reuniones.map((r) => ({ round: r.round, tematica: r.tematica, kpi: r.kpiPrincipal, estado: r.estado })),
+            indicadores: indicadores.map((i) => ({ nombre: i.nombre, valorActual: i.valorActual, meta: i.meta })),
+          }, 'Caso de éxito')}><Sparkles className="mr-1 h-4 w-4" /> Caso de éxito</Button>
+        </div>
       </div>
+
+      <Dialog open={iaOpen} onOpenChange={setIaOpen}>
+        <DialogContent className="max-h-[80vh] overflow-y-auto">
+          <DialogHeader><DialogTitle>{iaTitulo}</DialogTitle></DialogHeader>
+          {iaLoading ? (
+            <div className="flex items-center gap-2 py-8 text-sm text-muted-foreground"><Loader2 className="h-5 w-5 animate-spin" /> Generando con IA…</div>
+          ) : (
+            <div className="whitespace-pre-wrap text-sm leading-relaxed">{iaTexto}</div>
+          )}
+        </DialogContent>
+      </Dialog>
 
       <div className="mb-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {[

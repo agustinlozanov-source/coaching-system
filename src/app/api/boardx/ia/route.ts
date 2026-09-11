@@ -86,6 +86,15 @@ ${corpus}`;
       return NextResponse.json({ respuesta: out }, { status: 200 });
     }
 
+    if (tarea === 'semanal') {
+      const ctx = JSON.stringify(body.contexto ?? {}).slice(0, 8000);
+      const prompt = `Eres el asistente del CEO. Genera el RESUMEN SEMANAL: qué pasó esta semana y qué sigue la próxima, organizado en dos bloques (Estrategias / Tácticas), con bullets claros, accionables e imprimibles. Español, breve y directo, sin preámbulo.
+CONTEXTO (acuerdos, indicadores en rojo, próxima reunión):
+${ctx}`;
+      const out = await llamarClaude(prompt, 900);
+      return NextResponse.json({ texto: out }, { status: 200 });
+    }
+
     if (tarea === 'caso-exito') {
       const ctx = JSON.stringify(body.contexto ?? {}).slice(0, 8000);
       const prompt = `Genera la NARRATIVA DE TRANSFORMACIÓN de una empresa a partir de sus rounds de consejo técnico e indicadores (JSON): dónde empezó, qué indicadores se movieron, decisiones pivotales y el crecimiento logrado. Español, tono de caso de éxito, 3-5 párrafos breves.
