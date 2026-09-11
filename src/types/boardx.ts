@@ -44,6 +44,55 @@ export type Reunion = {
   asistencia: Asistencia;
   firmas: Firmas;
   cierre: Cierre;
+  transcripcion: string | null;
+  resumen: { highlights?: string[]; decisiones?: string[]; texto?: string } | null;
+};
+
+// ── F7 canal asíncrono ──────────────────────────────────────────────────
+export type CategoriaContrib = 'alerta' | 'oportunidad' | 'referencia' | 'observacion';
+export const CATEGORIA_CONTRIB: Record<CategoriaContrib, { label: string; icon: string }> = {
+  alerta: { label: 'Alerta', icon: '🚨' },
+  oportunidad: { label: 'Oportunidad', icon: '💡' },
+  referencia: { label: 'Referencia', icon: '📚' },
+  observacion: { label: 'Observación', icon: '👁️' },
+};
+export type Contribucion = {
+  id: string; boardId: string; categoria: CategoriaContrib; texto: string;
+  indicadorId: string | null; autor: string | null; createdAt: string;
+};
+
+// ── F8 pulso de efectividad ─────────────────────────────────────────────
+export type Pulso = {
+  id: string; boardId: string; reunionId: string | null;
+  respuestas: Record<string, number>; comentario: string | null; createdAt: string;
+};
+export const PULSO_PREGUNTAS: { k: string; q: string }[] = [
+  { k: 'productiva', q: '¿Fue productiva la reunión?' },
+  { k: 'temas', q: '¿Se cubrieron los temas importantes?' },
+  { k: 'accionables', q: '¿Las recomendaciones fueron accionables?' },
+  { k: 'tiempo', q: '¿El tiempo se usó eficientemente?' },
+  { k: 'valor', q: '¿El consejo aportó valor?' },
+];
+
+// ── F5 planes por área (despacho) ───────────────────────────────────────
+export type Plan = {
+  id: string; boardId: string; reunionId: string | null; area: string;
+  responsable: string | null; resumen: string | null; contenido: string | null;
+  estado: 'despachado' | 'recibido' | 'presentado'; createdAt: string;
+};
+
+// ── F6 directorio de consultores ────────────────────────────────────────
+export type Consultor = {
+  id: string; nombre: string; fotoUrl: string | null; tier: number; titular: string | null;
+  especializacion: string | null; disciplinas: string[]; area: string | null;
+  aniosExperiencia: number | null; pais: string | null; idiomas: string[];
+  tarifa: number | null; moneda: string | null; bio: string | null; videoUrl: string | null;
+  disponibilidad: 'disponible' | 'limitada' | 'no_disponible';
+};
+export const TIER_INFO: Record<number, { label: string; desc: string }> = {
+  1: { label: 'Tier 1 · Premium', desc: '+15 años, track record probado' },
+  2: { label: 'Tier 2 · Intermedio', desc: '8-15 años, experiencia sólida' },
+  3: { label: 'Tier 3 · Accesible', desc: '3-8 años, talento emergente' },
 };
 
 export type Indicador = {

@@ -2,7 +2,9 @@
 
 import { createClient } from '@/lib/supabase/client';
 import { getActiveOrgId } from '@/lib/teamx/org';
-import type { Acuerdo, Asiento, Board, Indicador, Reunion } from '@/types/boardx';
+import type {
+  Acuerdo, Asiento, Board, Indicador, Reunion, Contribucion, Pulso, Plan, Consultor, CategoriaContrib,
+} from '@/types/boardx';
 
 // ── Mapeos ─────────────────────────────────────────────────────────────
 const mapBoard = (r: any): Board => ({
@@ -18,6 +20,7 @@ const mapReunion = (r: any): Reunion => ({
   id: r.id, boardId: r.board_id, nombre: r.nombre, round: r.round, tematica: r.tematica,
   kpiPrincipal: r.kpi_principal, fecha: r.fecha, modalidad: r.modalidad, estado: r.estado,
   agenda: r.agenda ?? [], asistencia: r.asistencia ?? {}, firmas: r.firmas ?? {}, cierre: r.cierre ?? null,
+  transcripcion: r.transcripcion ?? null, resumen: r.resumen ?? null,
 });
 const mapIndicador = (r: any): Indicador => ({
   id: r.id, boardId: r.board_id, dimension: r.dimension, nombre: r.nombre,
@@ -120,6 +123,8 @@ export async function actualizarReunion(id: string, r: Partial<Reunion>): Promis
   if (r.asistencia !== undefined) patch.asistencia = r.asistencia;
   if (r.firmas !== undefined) patch.firmas = r.firmas;
   if (r.cierre !== undefined) patch.cierre = r.cierre;
+  if (r.transcripcion !== undefined) patch.transcripcion = r.transcripcion;
+  if (r.resumen !== undefined) patch.resumen = r.resumen;
   const { error } = await supabase.from('boardx_reuniones').update(patch).eq('id', id);
   if (error) throw error;
 }
@@ -181,4 +186,81 @@ export async function actualizarAcuerdo(id: string, a: Partial<Acuerdo>): Promis
 export async function eliminarAcuerdo(id: string): Promise<void> {
   const supabase = createClient();
   await supabase.from('boardx_acuerdos').delete().eq('id', id);
+}
+
+// ── Contribuciones (canal asíncrono) ────────────────────────────────────
+const mapContrib = (r: any): Contribucion => ({
+  id: r.id, boardId: r.board_id, categoria: r.categoria, texto: r.texto,
+  indicadorId: r.indicador_id, autor: r.autor, createdAt: r.created_at,
+});
+export async function listContribuciones(boardId: string): Promise<Contribucion[]> {
+  const supabase = createClient();
+  const { data } = await supabase.from('boardx_contribuciones').select('*').eq('board_id', boardId).order('created_at', { ascending: false });
+  return (data ?? []).map(mapContrib);
+}
+export async function crearContribucion(boardId: string, c: { categoria: CategoriaContrib; texto: string; indicadorId?: string | null; autor?: string | null }): Promise<void> {
+  const supabase = createClient();
+  const { error } = await supabase.from('boardx_contribuciones').insert({
+    board_id: boardId, categoria: c.categoria, texto: c.texto, indicador_id: c.indicadorId ?? null, autor: c.autor ?? null,
+  });
+  if (error) throw error;
+}
+export async function eliminarContribucion(id: string): Promise<void> {
+  const supabase = createClient();
+  await supabase.from('boardx_contribuciones').delete().eq('id', id);
+}
+
+// ── Pulsos de efectividad ───────────────────────────────────────────────
+const mapPulso = (r: any): Pulso => ({
+  id: r.id, boardId: r.board_id, reunionId: r.reunion_id, respuestas: r.respuestas ?? {}, comentario: r.comentario, createdAt: r.created_at,
+});
+export async function listPulsos(boardId: string): Promise<Pulso[]> {
+  const supabase = createClient();
+  const { data } = await supabase.from('boardx_pulsos').select('*').eq('board_id', boardId).order('created_at', { ascending: false });
+  return (data ?? []).map(mapPulso);
+}
+export async function crearPulso(boardId: string, reunionId: string | null, respuestas: Record<string, number>, comentario?: string): Promise<void> {
+  const supabase = createClient();
+  const { error } = await supabase.from('boardx_pulsos').insert({ board_id: boardId, reunion_id: reunionId, respuestas, comentario: comentario ?? null });
+  if (error) throw error;
+}
+
+// ── Planes por área (despacho) ──────────────────────────────────────────
+const mapPlan = (r: any): Plan => ({
+  id: r.id, boardId: r.board_id, reunionId: r.reunion_id, area: r.area, responsable: r.responsable,
+  resumen: r.resumen, contenido: r.contenido, estado: r.estado, createdAt: r.created_at,
+});
+export async function listPlanes(boardId: string): Promise<Plan[]> {
+  const supabase = createClient();
+  const { data } = await supabase.from('boardx_planes').select('*').eq('board_id', boardId).order('created_at', { ascending: false });
+  return (data ?? []).map(mapPlan);
+}
+export async function crearPlan(boardId: string, p: Partial<Plan>): Promise<string> {
+  const supabase = createClient();
+  const { data, error } = await supabase.from('boardx_planes').insert({
+    board_id: boardId, reunion_id: p.reunionId ?? null, area: p.area, responsable: p.responsable ?? null,
+    resumen: p.resumen ?? null, contenido: p.contenido ?? null, estado: p.estado ?? 'despachado',
+  }).select('id').single();
+  if (error) throw error;
+  return data.id;
+}
+export async function actualizarPlan(id: string, p: Partial<Plan>): Promise<void> {
+  const supabase = createClient();
+  const { error } = await supabase.from('boardx_planes').update({
+    contenido: p.contenido, estado: p.estado, resumen: p.resumen, responsable: p.responsable,
+  }).eq('id', id);
+  if (error) throw error;
+}
+
+// ── Directorio de consultores (global) ──────────────────────────────────
+const mapConsultor = (r: any): Consultor => ({
+  id: r.id, nombre: r.nombre, fotoUrl: r.foto_url, tier: r.tier, titular: r.titular,
+  especializacion: r.especializacion, disciplinas: r.disciplinas ?? [], area: r.area,
+  aniosExperiencia: r.anios_experiencia, pais: r.pais, idiomas: r.idiomas ?? [],
+  tarifa: r.tarifa, moneda: r.moneda, bio: r.bio, videoUrl: r.video_url, disponibilidad: r.disponibilidad,
+});
+export async function listConsultores(): Promise<Consultor[]> {
+  const supabase = createClient();
+  const { data } = await supabase.from('boardx_consultores').select('*').order('tier').order('anios_experiencia', { ascending: false });
+  return (data ?? []).map(mapConsultor);
 }

@@ -13,6 +13,7 @@ import { Badge } from '@/components/ui/badge';
 import { GlowButton } from '@/components/ui/glow-button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import { ReunionIA } from '@/components/boardx/ReunionIA';
 import { useToast } from '@/hooks/use-toast';
 import {
   getOrCreateBoard, getReunion, actualizarReunion, listAsientos, listAcuerdos, crearAcuerdo, crearReunion,
@@ -158,6 +159,12 @@ export default function ReunionPage({ params }: { params: { id: string } }) {
   function iniciarTimer(idx: number) {
     if (!reunion) return;
     setActivo(idx); setRestante(reunion.agenda[idx].minutos * 60); setCorriendo(true);
+  }
+
+  async function reloadAcuerdos() {
+    if (!board) return;
+    const ac = await listAcuerdos(board.id);
+    setAcuerdos(ac.filter((x) => x.reunionId === id));
   }
 
   async function agregarAcuerdo() {
@@ -351,8 +358,15 @@ export default function ReunionPage({ params }: { params: { id: string } }) {
         </div>
       </Seccion>
 
-      {/* 6. Firma del acta */}
-      <Seccion n={6} titulo="Firma del acta" extra={<Link href={`/boardx/reuniones/${id}/acta`} className="text-xs text-primary hover:underline">Ver acta →</Link>}>
+      {/* 6. IA de la reunión */}
+      {board && (
+        <Seccion n={6} titulo="IA de la reunión">
+          <ReunionIA reunion={reunion} boardId={board.id} acuerdos={acuerdos} onReload={reloadAcuerdos} readOnly={readOnly} />
+        </Seccion>
+      )}
+
+      {/* 7. Firma del acta */}
+      <Seccion n={7} titulo="Firma del acta" extra={<Link href={`/boardx/reuniones/${id}/acta`} className="text-xs text-primary hover:underline">Ver acta →</Link>}>
         {presentes.length === 0 ? (
           <p className="text-sm text-muted-foreground">Marca asistencia en el pase de lista para poder firmar.</p>
         ) : (

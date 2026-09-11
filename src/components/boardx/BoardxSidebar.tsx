@@ -3,7 +3,8 @@
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import {
-  LayoutDashboard, Armchair, CalendarClock, Gauge, ListChecks, Users2, Send, LogOut, Sun, Moon,
+  LayoutDashboard, Armchair, CalendarClock, Gauge, ListChecks, Users2, Send,
+  MessagesSquare, Activity, LogOut, Sun, Moon,
 } from 'lucide-react';
 import { cn } from '@/lib/utils/cn';
 import { Button } from '@/components/ui/button';
@@ -16,12 +17,13 @@ const menuItems = [
   { label: 'Reuniones', icon: CalendarClock, href: '/boardx/reuniones' },
   { label: 'Scorecard', icon: Gauge, href: '/boardx/scorecard' },
   { label: 'Acuerdos', icon: ListChecks, href: '/boardx/acuerdos' },
+  { label: 'Despacho', icon: Send, href: '/boardx/despacho' },
+  { label: 'Canal', icon: MessagesSquare, href: '/boardx/canal' },
+  { label: 'Métricas', icon: Activity, href: '/boardx/metricas' },
+  { label: 'Directorio', icon: Users2, href: '/boardx/directorio' },
 ];
 
-const proximamente = [
-  { label: 'Directorio', icon: Users2 },
-  { label: 'Despacho', icon: Send },
-];
+const proximamente: { label: string; icon: typeof Users2 }[] = [];
 
 export function BoardxSidebar({ theme, onToggleTheme }: { theme?: 'light' | 'dark'; onToggleTheme?: () => void }) {
   const pathname = usePathname();
@@ -74,7 +76,7 @@ export function BoardxSidebar({ theme, onToggleTheme }: { theme?: 'light' | 'dar
           );
         })}
 
-        <div className="px-3 pb-1 pt-4 text-[10px] font-bold uppercase tracking-wider text-muted-foreground/60">Próximamente</div>
+        {proximamente.length > 0 && <div className="px-3 pb-1 pt-4 text-[10px] font-bold uppercase tracking-wider text-muted-foreground/60">Próximamente</div>}
         {proximamente.map((item) => {
           const Icon = item.icon;
           return (

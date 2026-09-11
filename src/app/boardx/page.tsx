@@ -48,6 +48,15 @@ export default function BoardxInicio() {
   const enRojo = indicadores.filter((i) => semaforoIndicador(i) === 'rojo').length;
   const proxima = reuniones.find((r) => r.estado !== 'cerrada') ?? reuniones[0] ?? null;
 
+  // Índice de preparación de la próxima reunión (F7)
+  const prep = proxima ? Math.round(100 * (
+    (proxima.agenda.length ? 1 : 0) +
+    (indicadores.length ? 1 : 0) +
+    (asientos ? 1 : 0) +
+    (proxima.tematica && proxima.kpiPrincipal ? 1 : 0)
+  ) / 4) : 0;
+  const prepColor = prep >= 75 ? '#22c55e' : prep >= 50 ? '#eab308' : '#ef4444';
+
   return (
     <div>
       <div className="mb-6 flex items-center justify-between">
@@ -87,6 +96,15 @@ export default function BoardxInicio() {
               {proxima.tematica && <div className="mt-1 text-sm text-muted-foreground">Temática: {proxima.tematica}</div>}
               {proxima.kpiPrincipal && <div className="text-sm text-muted-foreground">KPI: {proxima.kpiPrincipal}</div>}
               {proxima.fecha && <div className="mt-1 text-xs text-muted-foreground">{new Date(proxima.fecha).toLocaleDateString()}</div>}
+              <div className="mt-3">
+                <div className="mb-1 flex items-center justify-between text-xs">
+                  <span className="text-muted-foreground">Preparación</span>
+                  <span className="font-semibold tabular-nums" style={{ color: prepColor }}>{prep}%</span>
+                </div>
+                <div className="h-1.5 w-full overflow-hidden rounded-full bg-muted">
+                  <div className="h-full rounded-full transition-all" style={{ width: `${prep}%`, backgroundColor: prepColor }} />
+                </div>
+              </div>
             </Link>
           ) : (
             <div className="rounded-lg border border-dashed p-6 text-center text-sm text-muted-foreground">
