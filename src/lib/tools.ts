@@ -1,4 +1,4 @@
-import { Users, Compass, Radar, type LucideIcon } from 'lucide-react';
+import { Users, Compass, Radar, Armchair, type LucideIcon } from 'lucide-react';
 
 export type Herramienta = {
   slug: string;
@@ -43,6 +43,15 @@ export const HERRAMIENTAS: Herramienta[] = [
     ruta: '/dashboard',
     color: '#1aab99',
     icon: Users,
+    disponible: true,
+  },
+  {
+    slug: 'boardx',
+    nombre: 'BOARDx',
+    descripcion: 'Consejo técnico trimestral: mesa, scorecard y acuerdos con trazabilidad total.',
+    ruta: '/boardx',
+    color: '#6366f1',
+    icon: Armchair,
     disponible: true,
   },
 ];
