@@ -28,7 +28,7 @@ function ToolCard({ t, isDark }: { t: ToolItem; isDark: boolean }) {
   const logo = LOGOS[t.slug]?.[isDark ? 'blanco' : 'negro'];
 
   const surface =
-    'flex h-full flex-col rounded-2xl border border-black/5 bg-white p-6 dark:border-white/10 dark:bg-white/[0.05]';
+    'relative flex h-full flex-col rounded-2xl border border-black/5 bg-white p-6 dark:border-white/10 dark:bg-[#1c1c22]';
 
   const inner = (
     <>
