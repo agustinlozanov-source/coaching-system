@@ -27,6 +27,8 @@ export type Asiento = {
 export type AgendaItem = { id: string; titulo: string; minutos: number };
 
 export type Asistencia = Record<string, { presente: boolean; hora?: string }>;
+export type Firmas = Record<string, { firmado: boolean; hora?: string }>;
+export type Cierre = { siguienteTematica?: string; siguienteKpi?: string; siguienteReunionId?: string } | null;
 
 export type Reunion = {
   id: string;
@@ -40,6 +42,8 @@ export type Reunion = {
   estado: 'programada' | 'en_curso' | 'cerrada';
   agenda: AgendaItem[];
   asistencia: Asistencia;
+  firmas: Firmas;
+  cierre: Cierre;
 };
 
 export type Indicador = {

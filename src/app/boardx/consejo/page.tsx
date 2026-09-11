@@ -49,6 +49,8 @@ type FormState = {
   email: string;
   telefono: string;
   orden: string;
+  cumpleanios: string;
+  aniversario: string;
 };
 
 const emptyForm: FormState = {
@@ -61,6 +63,8 @@ const emptyForm: FormState = {
   email: '',
   telefono: '',
   orden: '0',
+  cumpleanios: '',
+  aniversario: '',
 };
 
 export default function ConsejoPage() {
@@ -182,6 +186,8 @@ export default function ConsejoPage() {
       email: a.email ?? '',
       telefono: a.telefono ?? '',
       orden: String(a.orden ?? 0),
+      cumpleanios: a.personales?.cumpleanios ?? '',
+      aniversario: a.personales?.aniversario ?? '',
     });
     setOpen(true);
   }
@@ -207,6 +213,10 @@ export default function ConsejoPage() {
       email: form.email.trim() || null,
       telefono: form.telefono.trim() || null,
       orden: Number.isFinite(Number(form.orden)) ? Number(form.orden) : 0,
+      personales: {
+        ...(form.cumpleanios ? { cumpleanios: form.cumpleanios } : {}),
+        ...(form.aniversario ? { aniversario: form.aniversario } : {}),
+      },
     };
     try {
       if (editing) {
@@ -505,6 +515,15 @@ export default function ConsejoPage() {
                 value={form.telefono}
                 onChange={(e) => setField('telefono', e.target.value)}
               />
+            </div>
+
+            <div className="space-y-1.5">
+              <Label htmlFor="f-cumple">Cumpleaños</Label>
+              <Input id="f-cumple" type="date" value={form.cumpleanios} onChange={(e) => setField('cumpleanios', e.target.value)} />
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="f-aniv">Aniversario</Label>
+              <Input id="f-aniv" type="date" value={form.aniversario} onChange={(e) => setField('aniversario', e.target.value)} />
             </div>
           </div>
 

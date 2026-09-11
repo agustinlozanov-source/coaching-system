@@ -17,7 +17,7 @@ const mapAsiento = (r: any): Asiento => ({
 const mapReunion = (r: any): Reunion => ({
   id: r.id, boardId: r.board_id, nombre: r.nombre, round: r.round, tematica: r.tematica,
   kpiPrincipal: r.kpi_principal, fecha: r.fecha, modalidad: r.modalidad, estado: r.estado,
-  agenda: r.agenda ?? [], asistencia: r.asistencia ?? {},
+  agenda: r.agenda ?? [], asistencia: r.asistencia ?? {}, firmas: r.firmas ?? {}, cierre: r.cierre ?? null,
 });
 const mapIndicador = (r: any): Indicador => ({
   id: r.id, boardId: r.board_id, dimension: r.dimension, nombre: r.nombre,
@@ -118,6 +118,8 @@ export async function actualizarReunion(id: string, r: Partial<Reunion>): Promis
   if (r.estado !== undefined) patch.estado = r.estado;
   if (r.agenda !== undefined) patch.agenda = r.agenda;
   if (r.asistencia !== undefined) patch.asistencia = r.asistencia;
+  if (r.firmas !== undefined) patch.firmas = r.firmas;
+  if (r.cierre !== undefined) patch.cierre = r.cierre;
   const { error } = await supabase.from('boardx_reuniones').update(patch).eq('id', id);
   if (error) throw error;
 }
