@@ -43,7 +43,12 @@ export function BoardxSidebar({ theme, onToggleTheme }: { theme?: 'light' | 'dar
     <div className="flex h-full flex-col border-r bg-card">
       <div className="border-b p-6">
         <Link href="/launcher" className="block">
-          <span className="text-2xl font-extrabold tracking-tight">BOARD<span className="text-[#1aab99]">x</span></span>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={theme === 'dark' ? '/logos/boardx-blanco.png' : '/logos/boardx-negro.png'}
+            alt="BOARDx"
+            className="h-12 w-auto"
+          />
           <p className="mt-2 text-xs text-muted-foreground">← Todas las herramientas</p>
         </Link>
       </div>

@@ -20,6 +20,7 @@ const LOGOS: Record<string, { blanco: string; negro: string }> = {
   scanx: { blanco: '/logos/scanx-blanco.png', negro: '/logos/scanx-negro.png' },
   scalex: { blanco: '/logos/scalex-blanco.png', negro: '/logos/scalex-negro.png' },
   teamx: { blanco: '/logos/teamx-blanco.png', negro: '/logos/teamx-negro.png' },
+  boardx: { blanco: '/logos/boardx-blanco.png', negro: '/logos/boardx-negro.png' },
 };
 
 function ToolCard({ t, isDark }: { t: ToolItem; isDark: boolean }) {
