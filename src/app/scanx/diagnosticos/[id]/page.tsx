@@ -11,7 +11,8 @@ import { ResultadoAvanzado } from '@/components/scanx/ResultadoAvanzado';
 import { MarketTopBar } from '@/components/scanx/MarketTopBar';
 import { calcularValuacion, vsMediana } from '@/lib/scanx/valuacion';
 import { terminosEn, type Termino } from '@/lib/scanx/glosario';
-import { getDiagnostico, getRespuestas, guardarRespuesta, guardarCerteza, finalizarDiagnostico } from '@/lib/scanx/diagnostico';
+import { useRouter } from 'next/navigation';
+import { getDiagnostico, getRespuestas, guardarRespuesta, guardarCerteza, finalizarDiagnostico, crearDiagnostico } from '@/lib/scanx/diagnostico';
 import { BANCO_N1 } from '@/lib/scanx/preguntas';
 import { dimensiones as calcDimensiones, calcularResultado } from '@/lib/scanx/calculo';
 import {
@@ -37,6 +38,7 @@ function Semaforo({ d }: { d: ResultadoDimension }) {
 
 export default function DiagnosticoPage({ params }: { params: { id: string } }) {
   const { id } = params;
+  const router = useRouter();
   const [diag, setDiag] = useState<Diagnostico | null>(null);
   const [resp, setResp] = useState<Respuesta[]>([]);
   const [idx, setIdx] = useState(0);
@@ -237,9 +239,34 @@ export default function DiagnosticoPage({ params }: { params: { id: string } }) 
           </Link>
         </div>
 
-        <div className="mt-6 flex items-center justify-between rounded-2xl border border-dashed border-border p-5">
-          <p className="text-sm text-muted-foreground">El <b>diagnóstico profundo (Nivel 2)</b> con plan de acción llega pronto.</p>
-          <Link href="/scanx/diagnosticos"><Button variant="outline">Volver</Button></Link>
+        {/* Conexiones al ecosistema */}
+        {(() => {
+          const dm = Object.fromEntries(resultado.dimensiones.map((d) => [d.id, d.valor ?? 4]));
+          const cx: { t: string; d: string; href: string }[] = [];
+          if ((dm['talento'] ?? 4) < 2) cx.push({ t: 'TEAMx', d: 'Tu Talento necesita coaching de rendimiento', href: '/dashboard' });
+          if ((dm['liderazgo'] ?? 4) < 2) cx.push({ t: 'BOARDx', d: 'Refuerza tu Liderazgo con un consejo técnico', href: '/boardx' });
+          cx.push({ t: 'Consultoría SCALEx', d: 'Acompañamiento para ejecutar tu plan de acción', href: '/scalex' });
+          return (
+            <div className="mt-6 rounded-2xl border bg-card p-5">
+              <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground">Conexiones recomendadas</p>
+              <div className="grid gap-3 sm:grid-cols-3">
+                {cx.map((c) => (
+                  <Link key={c.t} href={c.href} className="glow-card group rounded-xl border p-4 transition hover:-translate-y-0.5 hover:shadow-md">
+                    <div className="font-bold">{c.t}</div>
+                    <div className="mt-1 text-xs text-muted-foreground">{c.d}</div>
+                  </Link>
+                ))}
+              </div>
+            </div>
+          );
+        })()}
+
+        <div className="mt-6 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-dashed border-border p-5 print:hidden">
+          <p className="text-sm text-muted-foreground">Vuelve a diagnosticar en 6 meses para medir tu evolución (ROI).</p>
+          <div className="flex gap-2">
+            <Button variant="outline" onClick={async () => { const nid = await crearDiagnostico(diag.perfil); router.push(`/scanx/diagnosticos/${nid}`); }}>Re-diagnóstico</Button>
+            <Link href="/scanx/diagnosticos"><Button variant="outline">Volver</Button></Link>
+          </div>
         </div>
         {overlays}
       </div>

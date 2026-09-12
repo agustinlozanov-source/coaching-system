@@ -43,6 +43,7 @@ export default function DiagnosticosPage() {
   const [creando, setCreando] = useState(false);
   const [p, setP] = useState<PerfilContextual>({});
   const [verMas, setVerMas] = useState(false);
+  const [acepta, setAcepta] = useState(false);
 
   useEffect(() => {
     (async () => {
@@ -255,9 +256,16 @@ export default function DiagnosticosPage() {
             )}
           </div>
 
-          <div className="mt-6 flex items-center justify-end gap-3">
+          <label className="mt-6 flex cursor-pointer items-start gap-2.5 rounded-lg border border-dashed p-3 text-sm">
+            <input type="checkbox" checked={acepta} onChange={(e) => setAcepta(e.target.checked)} className="mt-0.5" />
+            <span className="text-muted-foreground">
+              Acepto la <b className="text-foreground">metodología de SCANx</b>: responderé con honestidad y entiendo que el diagnóstico puede pedir evidencia, retos cronometrados y grabación de pantalla. Hacerme trampa a mí mismo es el peor negocio.
+            </span>
+          </label>
+
+          <div className="mt-4 flex items-center justify-end gap-3">
             <Button variant="outline" onClick={() => setModo('list')} disabled={creando}>Cancelar</Button>
-            <GlowButton onClick={iniciar} disabled={!p.nombreEmpresa || !p.sector} loading={creando} icon={<ArrowRight size={16} className="ml-0.5" />}>
+            <GlowButton onClick={iniciar} disabled={!p.nombreEmpresa || !p.sector || !acepta} loading={creando} icon={<ArrowRight size={16} className="ml-0.5" />}>
               Comenzar
             </GlowButton>
           </div>
