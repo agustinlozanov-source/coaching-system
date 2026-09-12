@@ -31,9 +31,9 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  const apiKey = process.env.ANTHROPIC_API_KEY;
+  const apiKey = process.env.ANTHROPIC_API_KEY_TEAMX || process.env.ANTHROPIC_API_KEY;
   if (!apiKey) {
-    console.error('[teamx/copilot] ANTHROPIC_API_KEY no está configurada.');
+    console.error('[teamx/copilot] ANTHROPIC_API_KEY_TEAMX no está configurada.');
     return NextResponse.json(
       { error: 'El copiloto de IA no está configurado todavía. Contacta a un administrador.' },
       { status: 200 }

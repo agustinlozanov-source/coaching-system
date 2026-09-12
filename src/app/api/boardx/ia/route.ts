@@ -6,8 +6,8 @@ export const dynamic = 'force-dynamic';
 const ANTHROPIC_URL = 'https://api.anthropic.com/v1/messages';
 
 async function llamarClaude(prompt: string, maxTokens = 1500): Promise<string> {
-  const apiKey = process.env.ANTHROPIC_API_KEY;
-  if (!apiKey) throw new Error('IA no configurada (falta ANTHROPIC_API_KEY).');
+  const apiKey = process.env.ANTHROPIC_API_KEY_BOARDX || process.env.ANTHROPIC_API_KEY;
+  if (!apiKey) throw new Error('IA no configurada (falta ANTHROPIC_API_KEY_BOARDX).');
   const resp = await fetch(ANTHROPIC_URL, {
     method: 'POST',
     headers: { 'content-type': 'application/json', 'x-api-key': apiKey, 'anthropic-version': '2023-06-01' },
