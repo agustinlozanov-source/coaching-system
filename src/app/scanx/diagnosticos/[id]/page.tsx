@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { GlowButton } from '@/components/ui/glow-button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { RadarScanx } from '@/components/scanx/RadarScanx';
+import { ResultadoAvanzado } from '@/components/scanx/ResultadoAvanzado';
 import { MarketTopBar } from '@/components/scanx/MarketTopBar';
 import { calcularValuacion, vsMediana } from '@/lib/scanx/valuacion';
 import { terminosEn, type Termino } from '@/lib/scanx/glosario';
@@ -210,6 +211,8 @@ export default function DiagnosticoPage({ params }: { params: { id: string } }) 
           </div>
         </div>
 
+        <ResultadoAvanzado diagId={id} resultado={resultado} />
+
         {/* Insights IA */}
         <div className="mt-6 flex flex-wrap gap-2">
           <GlowButton icon={<Sparkles size={16} className="ml-0.5" />}
@@ -220,6 +223,18 @@ export default function DiagnosticoPage({ params }: { params: { id: string } }) 
             onClick={() => runIA('potencial', { perfil: diag.perfil, resultado: { tipo: resultado.tipoEmpresa, promedio: resultado.promedioGeneral, top3: resultado.top3 }, mercado: diag.mercado }, 'Potencial de escala')}>
             <Sparkles className="mr-1 h-4 w-4" /> Potencial de escala (IA)
           </Button>
+        </div>
+
+        {/* Profundizar: capas de verificación */}
+        <div className="mt-6 grid gap-3 sm:grid-cols-2">
+          <Link href={`/scanx/diagnosticos/${id}/equipo`} className="glow-card group flex items-center justify-between rounded-xl border bg-card p-4 transition hover:-translate-y-0.5 hover:shadow-md">
+            <div><div className="font-semibold">Multiperspectiva (Capa 2)</div><div className="text-xs text-muted-foreground">Invita a tu equipo, clientes y proveedores</div></div>
+            <ArrowRight className="h-4 w-4 text-muted-foreground transition-transform group-hover:translate-x-0.5" />
+          </Link>
+          <Link href={`/scanx/diagnosticos/${id}/verificacion`} className="glow-card group flex items-center justify-between rounded-xl border bg-card p-4 transition hover:-translate-y-0.5 hover:shadow-md">
+            <div><div className="font-semibold">Verificación (Capa 3)</div><div className="text-xs text-muted-foreground">Evidencia + timed challenges + screen recording</div></div>
+            <ArrowRight className="h-4 w-4 text-muted-foreground transition-transform group-hover:translate-x-0.5" />
+          </Link>
         </div>
 
         <div className="mt-6 flex items-center justify-between rounded-2xl border border-dashed border-border p-5">

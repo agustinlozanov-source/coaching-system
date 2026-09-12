@@ -24,13 +24,13 @@ export default function ScanxLayout({ children }: { children: React.ReactNode })
   }
 
   return (
-    <div className={`${theme === 'dark' ? 'dark' : ''} flex h-screen overflow-hidden bg-background text-foreground`}>
-      <aside className="w-64 flex-shrink-0">
+    <div className={`${theme === 'dark' ? 'dark' : ''} flex h-screen overflow-hidden bg-background text-foreground print:h-auto print:overflow-visible`}>
+      <aside className="w-64 flex-shrink-0 print:hidden">
         <ScanxSidebar theme={theme} onToggleTheme={toggleTheme} />
       </aside>
-      <div className="flex flex-1 flex-col overflow-hidden">
-        <Header />
-        <main className="flex-1 overflow-y-auto p-6">{children}</main>
+      <div className="flex flex-1 flex-col overflow-hidden print:overflow-visible">
+        <div className="print:hidden"><Header /></div>
+        <main className="flex-1 overflow-y-auto p-6 print:overflow-visible">{children}</main>
       </div>
     </div>
   );

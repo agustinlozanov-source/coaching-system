@@ -32,7 +32,9 @@ export async function updateSession(request: NextRequest) {
   // Rutas de plataforma protegidas (por ahora solo el launcher; /dashboard
   // sigue con Firebase hasta portar sus datos).
   const protegidas = ['/launcher', '/dashboard', '/scalex', '/scanx', '/boardx'];
-  const esProtegida = protegidas.some((p) => request.nextUrl.pathname.startsWith(p));
+  const rutasPublicas = ['/diagnostico/']; // flujo de participante externo (multiperspectiva)
+  const esPublica = rutasPublicas.some((p) => request.nextUrl.pathname.startsWith(p));
+  const esProtegida = !esPublica && protegidas.some((p) => request.nextUrl.pathname.startsWith(p));
 
   if (!user && esProtegida) {
     const url = request.nextUrl.clone();
