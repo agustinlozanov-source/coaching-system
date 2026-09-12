@@ -95,6 +95,11 @@ export async function guardarRespuesta(
   if (error) throw error;
 }
 
+export async function guardarCerteza(diagnosticoId: string, preguntaId: string, certeza: string): Promise<void> {
+  const supabase = createClient();
+  await supabase.from('scanx_respuestas').update({ certeza }).eq('diagnostico_id', diagnosticoId).eq('pregunta_id', preguntaId);
+}
+
 export async function getRespuestas(diagnosticoId: string): Promise<Respuesta[]> {
   const supabase = createClient();
   const { data, error } = await supabase

@@ -2,13 +2,15 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
-import { Loader2, Check, ChevronLeft, ArrowRight } from 'lucide-react';
+import { Loader2, Check, ChevronLeft, ArrowRight, BookOpen, X, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { GlowButton } from '@/components/ui/glow-button';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { RadarScanx } from '@/components/scanx/RadarScanx';
 import { MarketTopBar } from '@/components/scanx/MarketTopBar';
 import { calcularValuacion, vsMediana } from '@/lib/scanx/valuacion';
-import { getDiagnostico, getRespuestas, guardarRespuesta, finalizarDiagnostico } from '@/lib/scanx/diagnostico';
+import { terminosEn, type Termino } from '@/lib/scanx/glosario';
+import { getDiagnostico, getRespuestas, guardarRespuesta, guardarCerteza, finalizarDiagnostico } from '@/lib/scanx/diagnostico';
 import { BANCO_N1 } from '@/lib/scanx/preguntas';
 import { dimensiones as calcDimensiones, calcularResultado } from '@/lib/scanx/calculo';
 import {
@@ -40,6 +42,12 @@ export default function DiagnosticoPage({ params }: { params: { id: string } }) 
   const [loading, setLoading] = useState(true);
   const [finalizando, setFinalizando] = useState(false);
   const [verResultado, setVerResultado] = useState(false);
+  const [certezas, setCertezas] = useState<Record<string, string>>({});
+  const [glos, setGlos] = useState<Termino | null>(null);
+  const [iaOpen, setIaOpen] = useState(false);
+  const [iaTitulo, setIaTitulo] = useState('');
+  const [iaTexto, setIaTexto] = useState('');
+  const [iaLoading, setIaLoading] = useState(false);
 
   useEffect(() => {
     (async () => {
@@ -67,7 +75,22 @@ export default function DiagnosticoPage({ params }: { params: { id: string } }) 
     if (!pregunta) return;
     setResp((prev) => [...prev.filter((r) => r.preguntaId !== pregunta.id), { preguntaId: pregunta.id, opcionId }]);
     guardarRespuesta(id, pregunta.id, opcionId, pesos).catch(() => {});
-    if (idx < total - 1) setTimeout(() => setIdx((i) => Math.min(i + 1, total - 1)), 220);
+  }
+
+  function elegirCerteza(c: string) {
+    if (!pregunta) return;
+    setCertezas((prev) => ({ ...prev, [pregunta.id]: c }));
+    guardarCerteza(id, pregunta.id, c).catch(() => {});
+    if (idx < total - 1) setTimeout(() => setIdx((i) => Math.min(i + 1, total - 1)), 260);
+  }
+
+  async function runIA(tarea: 'narrativa' | 'potencial', contexto: Record<string, unknown>, titulo: string) {
+    setIaTitulo(titulo); setIaTexto(''); setIaLoading(true); setIaOpen(true);
+    try {
+      const r = await fetch('/api/scanx/ia', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ tarea, contexto }) });
+      const j = await r.json();
+      setIaTexto(j.error ? `Error: ${j.error}` : (j.texto || 'Sin resultado.'));
+    } catch { setIaTexto('No se pudo generar.'); } finally { setIaLoading(false); }
   }
 
   async function finalizar() {
@@ -81,6 +104,34 @@ export default function DiagnosticoPage({ params }: { params: { id: string } }) 
       setFinalizando(false);
     }
   }
+
+  const overlays = (
+    <>
+      {glos && (
+        <>
+          <div className="fixed inset-0 z-40 bg-black/30" onClick={() => setGlos(null)} />
+          <div className="fixed inset-y-0 right-0 z-50 w-full max-w-sm overflow-y-auto border-l bg-card p-6 shadow-xl">
+            <div className="flex items-start justify-between">
+              <h3 className="text-lg font-bold capitalize">{glos.termino}</h3>
+              <button onClick={() => setGlos(null)}><X className="h-5 w-5 text-muted-foreground" /></button>
+            </div>
+            <p className="mt-3 text-sm leading-relaxed">{glos.definicion}</p>
+            {glos.ejemplo && <p className="mt-2 text-sm text-muted-foreground">{glos.ejemplo}</p>}
+          </div>
+        </>
+      )}
+      <Dialog open={iaOpen} onOpenChange={setIaOpen}>
+        <DialogContent className="max-h-[80vh] overflow-y-auto">
+          <DialogHeader><DialogTitle>{iaTitulo}</DialogTitle></DialogHeader>
+          {iaLoading ? (
+            <div className="flex items-center gap-2 py-8 text-sm text-muted-foreground"><Loader2 className="h-5 w-5 animate-spin" /> Generando con IA…</div>
+          ) : (
+            <div className="whitespace-pre-wrap text-sm leading-relaxed">{iaTexto}</div>
+          )}
+        </DialogContent>
+      </Dialog>
+    </>
+  );
 
   if (loading) {
     return <div className="flex justify-center py-24"><Loader2 className="h-7 w-7 animate-spin text-muted-foreground" /></div>;
@@ -159,10 +210,23 @@ export default function DiagnosticoPage({ params }: { params: { id: string } }) 
           </div>
         </div>
 
+        {/* Insights IA */}
+        <div className="mt-6 flex flex-wrap gap-2">
+          <GlowButton icon={<Sparkles size={16} className="ml-0.5" />}
+            onClick={() => runIA('narrativa', { perfil: diag.perfil, dimensiones: resultado.dimensiones.map((d) => ({ nombre: d.nombre, valor: d.valor })), tipo: resultado.tipoEmpresa, top3: resultado.top3, mercado: diag.mercado }, 'Narrativa ejecutiva')}>
+            Narrativa ejecutiva (IA)
+          </GlowButton>
+          <Button variant="outline"
+            onClick={() => runIA('potencial', { perfil: diag.perfil, resultado: { tipo: resultado.tipoEmpresa, promedio: resultado.promedioGeneral, top3: resultado.top3 }, mercado: diag.mercado }, 'Potencial de escala')}>
+            <Sparkles className="mr-1 h-4 w-4" /> Potencial de escala (IA)
+          </Button>
+        </div>
+
         <div className="mt-6 flex items-center justify-between rounded-2xl border border-dashed border-border p-5">
           <p className="text-sm text-muted-foreground">El <b>diagnóstico profundo (Nivel 2)</b> con plan de acción llega pronto.</p>
           <Link href="/scanx/diagnosticos"><Button variant="outline">Volver</Button></Link>
         </div>
+        {overlays}
       </div>
     );
   }
@@ -210,6 +274,27 @@ export default function DiagnosticoPage({ params }: { params: { id: string } }) 
                 })}
               </div>
 
+              {/* Glosario contextual */}
+              {terminosEn(pregunta.escenario).length > 0 && (
+                <div className="mt-3 flex flex-wrap items-center gap-1.5">
+                  <BookOpen className="h-3.5 w-3.5 text-muted-foreground" />
+                  {terminosEn(pregunta.escenario).map((t) => (
+                    <button key={t.termino} onClick={() => setGlos(t)} className="rounded-full bg-muted px-2.5 py-0.5 text-xs font-medium text-primary hover:underline">{t.termino}</button>
+                  ))}
+                </div>
+              )}
+
+              {/* Calibración emocional */}
+              {seleccion && (
+                <div className="mt-4 flex flex-wrap items-center gap-2 rounded-lg border border-dashed p-3">
+                  <span className="text-xs text-muted-foreground">¿Qué tan seguro estás de tu respuesta?</span>
+                  {[['muy', 'Muy seguro'], ['mas_o_menos', 'Más o menos'], ['poco', 'Poco seguro']].map(([v, l]) => (
+                    <button key={v} onClick={() => elegirCerteza(v)}
+                      className={`rounded-full border px-3 py-1 text-xs transition ${certezas[pregunta.id] === v ? 'border-emerald-500 bg-emerald-500/10 text-emerald-600' : 'hover:bg-muted/50'}`}>{l}</button>
+                  ))}
+                </div>
+              )}
+
               <div className="mt-6 flex items-center justify-between">
                 <Button variant="ghost" disabled={idx === 0} onClick={() => setIdx((i) => Math.max(0, i - 1))}>
                   <ChevronLeft className="mr-1 h-4 w-4" /> Anterior
@@ -244,6 +329,7 @@ export default function DiagnosticoPage({ params }: { params: { id: string } }) 
           </div>
         </div>
       </div>
+      {overlays}
     </div>
   );
 }
