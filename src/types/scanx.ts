@@ -72,7 +72,59 @@ export type PerfilContextual = {
   empleados?: string;    // rango
   clientesActivos?: string;
   momento?: string;      // arrancando | creciendo_sin_control | estable_estancada | lista_escalar | crisis
+  // Estructura legal y gobierno
+  tipoSociedad?: string;
+  esFamiliar?: string;       // si | no | parcial
+  consejoAdmin?: string;     // activo | formal | no
+  consejoTecnico?: string;   // si | no
+  asambleas?: string;        // trimestral | semestral | anual | nunca
+  socios?: string;           // 1 | 2-3 | 4-10 | 10+
+  // Perfil operativo-digital
+  web?: string;
+  correoDominio?: string;    // propio | personal
+  conmutador?: string;       // si | no
+  canales?: string;          // whatsapp | slack | teams | mixto | ninguno
+  // Ubicación y alcance
+  direccion?: string;
+  lat?: number;
+  lng?: number;
+  alcance?: string;          // local | regional | nacional | multinacional
+  sucursales?: string;
 };
+
+/** Estados financieros (captura manual o parseados de upload). */
+export type AddBack = { concepto: string; monto: number };
+export type Financials = {
+  moneda?: string;
+  ingresos?: number | null;
+  costoVentas?: number | null;
+  gastosOperativos?: number | null;
+  utilidadNeta?: number | null;
+  activos?: number | null;
+  pasivos?: number | null;
+  addbacks?: AddBack[];
+};
+
+/** Valuación estimada (múltiplos por industria sobre EBITDA normalizado). */
+export type Valuacion = {
+  ebitda: number | null;
+  ebitdaNormalizado: number | null;
+  margenOperativo: number | null;   // %
+  multiplo: number;
+  valorMin: number | null;
+  valorMax: number | null;
+};
+
+/** Contexto de mercado (snapshot que acompaña el diagnóstico). */
+export type MacroCtx = {
+  inflacion?: number; tasaReferencia?: number; cetes?: number;
+  tipoCambio?: number; petroleo?: number; fuente?: string; actualizado?: string;
+};
+export type IndustriaCtx = {
+  sector?: string; crecimiento?: number; esperanzaVida?: number;
+  medianaMargen?: number; fuente?: string;
+};
+export type ContextoMercado = { macro: MacroCtx; industria: IndustriaCtx };
 
 export type Respuesta = { preguntaId: string; opcionId: string };
 
@@ -101,6 +153,8 @@ export type Diagnostico = {
   perfil: PerfilContextual;
   resultado: Resultado | null;
   tipoEmpresa: TipoEmpresa | null;
+  financials: Financials | null;
+  mercado: ContextoMercado | null;
   createdAt: string;
   updatedAt: string;
   completedAt: string | null;

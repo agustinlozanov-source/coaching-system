@@ -6,6 +6,8 @@ import { Loader2, Check, ChevronLeft, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { GlowButton } from '@/components/ui/glow-button';
 import { RadarScanx } from '@/components/scanx/RadarScanx';
+import { MarketTopBar } from '@/components/scanx/MarketTopBar';
+import { calcularValuacion, vsMediana } from '@/lib/scanx/valuacion';
 import { getDiagnostico, getRespuestas, guardarRespuesta, finalizarDiagnostico } from '@/lib/scanx/diagnostico';
 import { BANCO_N1 } from '@/lib/scanx/preguntas';
 import { dimensiones as calcDimensiones, calcularResultado } from '@/lib/scanx/calculo';
@@ -91,11 +93,35 @@ export default function DiagnosticoPage({ params }: { params: { id: string } }) 
     const top = resultado.top3
       .map((tid) => resultado.dimensiones.find((d) => d.id === tid))
       .filter((x): x is ResultadoDimension => !!x);
+    const valuacion = calcularValuacion(diag.financials, diag.perfil.sector);
+    const posMercado = vsMediana(valuacion.margenOperativo, diag.mercado?.industria?.medianaMargen);
+    const money = (v: number | null) => v == null ? '—' : new Intl.NumberFormat('es-MX', { style: 'currency', currency: diag.financials?.moneda || 'MXN', maximumFractionDigits: 0 }).format(v);
     return (
       <div className="mx-auto max-w-3xl">
+        <MarketTopBar mercado={diag.mercado} posicion={posMercado} />
         <div className="text-center">
           <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Resultado del diagnóstico</p>
           <h1 className="mt-1 text-2xl font-bold">{diag.perfil.nombreEmpresa || 'Tu empresa'}</h1>
+        </div>
+
+        {/* Valuación estimada */}
+        <div className="mt-6 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-border bg-card p-5">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Valuación estimada</p>
+            {valuacion.valorMin != null ? (
+              <p className="bg-gradient-to-r from-[#1aab99] to-[#3533cd] bg-clip-text text-2xl font-extrabold text-transparent">
+                {money(valuacion.valorMin)} – {money(valuacion.valorMax)}
+              </p>
+            ) : (
+              <p className="text-sm text-muted-foreground">Captura tus financieros para estimar el valor de tu empresa.</p>
+            )}
+            {valuacion.margenOperativo != null && (
+              <p className="mt-0.5 text-xs text-muted-foreground">Margen operativo {valuacion.margenOperativo}% · múltiplo {valuacion.multiplo}x</p>
+            )}
+          </div>
+          <Link href={`/scanx/diagnosticos/${id}/financials`}>
+            <Button variant="outline">{valuacion.valorMin != null ? 'Editar financieros' : 'Cargar financieros'} <ArrowRight className="ml-1 h-4 w-4" /></Button>
+          </Link>
         </div>
 
         <div className="mt-6 grid gap-6 md:grid-cols-2">
@@ -144,6 +170,7 @@ export default function DiagnosticoPage({ params }: { params: { id: string } }) 
   // ── Flujo de escenarios ────────────────────────────────────────────
   return (
     <div className="mx-auto max-w-5xl">
+      <MarketTopBar mercado={diag?.mercado ?? null} />
       {/* Progreso */}
       <div className="mb-6">
         <div className="mb-1.5 flex items-center justify-between text-xs text-muted-foreground">

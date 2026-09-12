@@ -4,6 +4,7 @@ import { createClient } from '@/lib/supabase/client';
 import { getActiveOrgId } from '@/lib/teamx/org';
 import type { Diagnostico, PerfilContextual, Respuesta, Resultado, TipoEmpresa } from '@/types/scanx';
 import { BANCO_VERSION } from './preguntas';
+import { getContextoMercado } from './mercado';
 
 function mapDiag(row: any): Diagnostico {
   return {
@@ -15,6 +16,8 @@ function mapDiag(row: any): Diagnostico {
     perfil: (row.perfil ?? {}) as PerfilContextual,
     resultado: (row.resultado ?? null) as Resultado | null,
     tipoEmpresa: (row.tipo_empresa ?? null) as TipoEmpresa | null,
+    financials: (row.financials ?? null) as Diagnostico['financials'],
+    mercado: (row.mercado ?? null) as Diagnostico['mercado'],
     createdAt: row.created_at,
     updatedAt: row.updated_at,
     completedAt: row.completed_at ?? null,
@@ -30,7 +33,7 @@ export async function crearDiagnostico(perfil: PerfilContextual): Promise<string
 
   const { data, error } = await supabase
     .from('scanx_diagnosticos')
-    .insert({ organizacion_id: orgId, user_id: user.id, nivel: 1, perfil, banco_version: BANCO_VERSION })
+    .insert({ organizacion_id: orgId, user_id: user.id, nivel: 1, perfil, banco_version: BANCO_VERSION, mercado: getContextoMercado(perfil) })
     .select('id')
     .single();
   if (error) throw error;
@@ -60,6 +63,18 @@ export async function listDiagnosticos(): Promise<Diagnostico[]> {
 export async function actualizarPerfil(id: string, perfil: PerfilContextual): Promise<void> {
   const supabase = createClient();
   const { error } = await supabase.from('scanx_diagnosticos').update({ perfil }).eq('id', id);
+  if (error) throw error;
+}
+
+export async function guardarFinancials(id: string, financials: unknown): Promise<void> {
+  const supabase = createClient();
+  const { error } = await supabase.from('scanx_diagnosticos').update({ financials }).eq('id', id);
+  if (error) throw error;
+}
+
+export async function guardarMercado(id: string, mercado: unknown): Promise<void> {
+  const supabase = createClient();
+  const { error } = await supabase.from('scanx_diagnosticos').update({ mercado }).eq('id', id);
   if (error) throw error;
 }
 

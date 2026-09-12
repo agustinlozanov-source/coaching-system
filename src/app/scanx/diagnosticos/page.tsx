@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Loader2, ArrowRight, ClipboardList } from 'lucide-react';
+import { Loader2, ArrowRight, ClipboardList, ChevronDown, ChevronUp } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -42,6 +42,7 @@ export default function DiagnosticosPage() {
   const [modo, setModo] = useState<'list' | 'nuevo'>('list');
   const [creando, setCreando] = useState(false);
   const [p, setP] = useState<PerfilContextual>({});
+  const [verMas, setVerMas] = useState(false);
 
   useEffect(() => {
     (async () => {
@@ -114,6 +115,144 @@ export default function DiagnosticosPage() {
                 <SelectContent>{MOMENTOS.map((m) => <SelectItem key={m.v} value={m.v}>{m.l}</SelectItem>)}</SelectContent>
               </Select>
             </Field>
+          </div>
+
+          <div className="mt-5 border-t pt-4">
+            <Button
+              variant="ghost"
+              onClick={() => setVerMas((v) => !v)}
+              className="flex items-center gap-2 text-sm font-semibold"
+            >
+              Detalles de la empresa (opcional)
+              {verMas ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+            </Button>
+
+            {verMas && (
+              <div className="mt-4 space-y-6">
+                <div className="space-y-3">
+                  <h3 className="text-sm font-bold">Estructura legal y gobierno</h3>
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    <Field label="Tipo de sociedad">
+                      <Input value={p.tipoSociedad ?? ''} onChange={(e) => setP({ ...p, tipoSociedad: e.target.value })} placeholder="SA de CV, S de RL…" />
+                    </Field>
+                    <Field label="¿Es empresa familiar?">
+                      <Select value={p.esFamiliar ?? ''} onValueChange={(v) => setP({ ...p, esFamiliar: v })}>
+                        <SelectTrigger><SelectValue placeholder="Elige una opción" /></SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="si">Sí</SelectItem>
+                          <SelectItem value="no">No</SelectItem>
+                          <SelectItem value="parcial">Parcialmente</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </Field>
+                    <Field label="Consejo de administración">
+                      <Select value={p.consejoAdmin ?? ''} onValueChange={(v) => setP({ ...p, consejoAdmin: v })}>
+                        <SelectTrigger><SelectValue placeholder="Elige una opción" /></SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="activo">Consejo activo</SelectItem>
+                          <SelectItem value="formal">Formal/inactivo</SelectItem>
+                          <SelectItem value="no">No tiene</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </Field>
+                    <Field label="Consejo técnico">
+                      <Select value={p.consejoTecnico ?? ''} onValueChange={(v) => setP({ ...p, consejoTecnico: v })}>
+                        <SelectTrigger><SelectValue placeholder="Elige una opción" /></SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="si">Sí</SelectItem>
+                          <SelectItem value="no">No</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </Field>
+                    <Field label="Asambleas">
+                      <Select value={p.asambleas ?? ''} onValueChange={(v) => setP({ ...p, asambleas: v })}>
+                        <SelectTrigger><SelectValue placeholder="Frecuencia" /></SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="trimestral">Trimestral</SelectItem>
+                          <SelectItem value="semestral">Semestral</SelectItem>
+                          <SelectItem value="anual">Anual</SelectItem>
+                          <SelectItem value="nunca">Nunca</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </Field>
+                    <Field label="Nº de socios">
+                      <Select value={p.socios ?? ''} onValueChange={(v) => setP({ ...p, socios: v })}>
+                        <SelectTrigger><SelectValue placeholder="Rango" /></SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="1">1</SelectItem>
+                          <SelectItem value="2-3">2-3</SelectItem>
+                          <SelectItem value="4-10">4-10</SelectItem>
+                          <SelectItem value="10+">10+</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </Field>
+                  </div>
+                </div>
+
+                <div className="space-y-3">
+                  <h3 className="text-sm font-bold">Perfil operativo-digital</h3>
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    <Field label="Sitio web">
+                      <Input value={p.web ?? ''} onChange={(e) => setP({ ...p, web: e.target.value })} placeholder="https://…" />
+                    </Field>
+                    <Field label="Correo corporativo">
+                      <Select value={p.correoDominio ?? ''} onValueChange={(v) => setP({ ...p, correoDominio: v })}>
+                        <SelectTrigger><SelectValue placeholder="Elige una opción" /></SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="propio">Dominio propio</SelectItem>
+                          <SelectItem value="personal">Correo personal (Gmail/Hotmail)</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </Field>
+                    <Field label="Conmutador telefónico">
+                      <Select value={p.conmutador ?? ''} onValueChange={(v) => setP({ ...p, conmutador: v })}>
+                        <SelectTrigger><SelectValue placeholder="Elige una opción" /></SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="si">Sí, con extensiones</SelectItem>
+                          <SelectItem value="no">No, celular/una línea</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </Field>
+                    <Field label="Canales de comunicación interna">
+                      <Select value={p.canales ?? ''} onValueChange={(v) => setP({ ...p, canales: v })}>
+                        <SelectTrigger><SelectValue placeholder="Elige una opción" /></SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="whatsapp">WhatsApp</SelectItem>
+                          <SelectItem value="slack">Slack</SelectItem>
+                          <SelectItem value="teams">Teams</SelectItem>
+                          <SelectItem value="mixto">Mixto</SelectItem>
+                          <SelectItem value="ninguno">Ninguno</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </Field>
+                  </div>
+                </div>
+
+                <div className="space-y-3">
+                  <h3 className="text-sm font-bold">Ubicación y alcance</h3>
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    <Field label="Dirección">
+                      <Input value={p.direccion ?? ''} onChange={(e) => setP({ ...p, direccion: e.target.value })} placeholder="Calle, ciudad" />
+                      <p className="text-xs text-muted-foreground">Pin en mapa (Google Maps) — integración pendiente</p>
+                    </Field>
+                    <Field label="Alcance geográfico">
+                      <Select value={p.alcance ?? ''} onValueChange={(v) => setP({ ...p, alcance: v })}>
+                        <SelectTrigger><SelectValue placeholder="Elige una opción" /></SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="local">Local (una ciudad)</SelectItem>
+                          <SelectItem value="regional">Regional</SelectItem>
+                          <SelectItem value="nacional">Nacional</SelectItem>
+                          <SelectItem value="multinacional">Multinacional</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </Field>
+                    <Field label="Nº de sucursales">
+                      <Input value={p.sucursales ?? ''} onChange={(e) => setP({ ...p, sucursales: e.target.value })} placeholder="0" inputMode="numeric" />
+                    </Field>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
 
           <div className="mt-6 flex items-center justify-end gap-3">
