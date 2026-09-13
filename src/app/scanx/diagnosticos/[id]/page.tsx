@@ -12,14 +12,20 @@ import { calcularValuacion, vsMediana } from '@/lib/scanx/valuacion';
 import { terminosEn, type Termino } from '@/lib/scanx/glosario';
 import { useRouter } from 'next/navigation';
 import { getDiagnostico, getRespuestas, guardarRespuesta, guardarCerteza, finalizarDiagnostico, crearDiagnostico } from '@/lib/scanx/diagnostico';
-import { BANCO_N1 } from '@/lib/scanx/preguntas';
+import { BANCO_TC } from '@/lib/scanx/preguntas';
+import { preguntasDeAreas, BANCO_CEO } from '@/lib/scanx/banco-areas';
 import { dimensiones as calcDimensiones, calcularResultado } from '@/lib/scanx/calculo';
 import {
   SEMAFORO_COLOR, TIPO_EMPRESA, VALOR_MAX,
-  type Diagnostico, type Respuesta, type ResultadoDimension,
+  type Diagnostico, type Respuesta, type ResultadoDimension, type PerfilContextual,
 } from '@/types/scanx';
 
 export const dynamic = 'force-dynamic';
+
+/** Banco completo del diagnóstico: tronco común → profundización por área → CEO. */
+function bancoDe(perfil?: PerfilContextual) {
+  return [...BANCO_TC, ...preguntasDeAreas(perfil?.areas ?? [], perfil?.sector), ...BANCO_CEO];
+}
 
 function Semaforo({ d }: { d: ResultadoDimension }) {
   return (
@@ -59,18 +65,20 @@ export default function DiagnosticoPage({ params }: { params: { id: string } }) 
       if (d?.estado === 'completado') {
         setVerResultado(true);
       } else {
-        const firstUn = BANCO_N1.findIndex((p) => !r.some((x) => x.preguntaId === p.id));
-        setIdx(firstUn === -1 ? BANCO_N1.length - 1 : firstUn);
+        const bl = bancoDe(d?.perfil);
+        const firstUn = bl.findIndex((p) => !r.some((x) => x.preguntaId === p.id));
+        setIdx(firstUn === -1 ? bl.length - 1 : firstUn);
       }
       setLoading(false);
     })();
   }, [id]);
 
-  const total = BANCO_N1.length;
-  const dims = useMemo(() => calcDimensiones(resp, BANCO_N1), [resp]);
+  const banco = useMemo(() => bancoDe(diag?.perfil), [diag]);
+  const total = banco.length;
+  const dims = useMemo(() => calcDimensiones(resp, banco), [resp, banco]);
   const answered = resp.length;
   const allAnswered = answered >= total;
-  const pregunta = BANCO_N1[idx];
+  const pregunta = banco[idx];
   const seleccion = resp.find((r) => r.preguntaId === pregunta?.id)?.opcionId;
 
   function elegir(opcionId: string, pesos: Record<string, number>) {
@@ -107,7 +115,7 @@ export default function DiagnosticoPage({ params }: { params: { id: string } }) 
 
   async function finalizar() {
     setFinalizando(true);
-    const resultado = calcularResultado(resp, BANCO_N1);
+    const resultado = calcularResultado(resp, banco);
     try {
       await finalizarDiagnostico(id, resultado);
       setDiag((d) => (d ? { ...d, estado: 'completado', resultado, tipoEmpresa: resultado.tipoEmpresa } : d));
@@ -141,7 +149,7 @@ export default function DiagnosticoPage({ params }: { params: { id: string } }) 
 
   // ── Vista de resultado ─────────────────────────────────────────────
   if (verResultado && diag) {
-    const resultado = diag.resultado ?? calcularResultado(resp, BANCO_N1);
+    const resultado = diag.resultado ?? calcularResultado(resp, banco);
     const tipo = TIPO_EMPRESA[resultado.tipoEmpresa];
     const top = resultado.top3
       .map((tid) => resultado.dimensiones.find((d) => d.id === tid))
