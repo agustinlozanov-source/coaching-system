@@ -155,6 +155,20 @@ export type Resultado = {
   top3: DimensionId[];
 };
 
+/** Árbol de causa-raíz (issue tree) de la dimensión más débil. */
+export type IssueTree = { raiz: string; ramas: { causa: string; sub: string[] }[] };
+
+/** Análisis de IA persistido: se calcula UNA vez y solo se recalcula cuando
+ *  cambian los datos (respuestas, multiperspectiva o evidencia). La `firma`
+ *  es un hash de esos inputs; si no coincide con la actual, se regenera. */
+export type AnalisisIA = {
+  narrativa?: string;
+  potencial?: string;
+  issuetree?: IssueTree | null;
+  firma?: string;
+  actualizado?: string;
+};
+
 export type Diagnostico = {
   id: string;
   organizacionId: string;
@@ -166,6 +180,7 @@ export type Diagnostico = {
   tipoEmpresa: TipoEmpresa | null;
   financials: Financials | null;
   mercado: ContextoMercado | null;
+  analisis: AnalisisIA | null;
   createdAt: string;
   updatedAt: string;
   completedAt: string | null;

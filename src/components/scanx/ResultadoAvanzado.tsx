@@ -7,17 +7,19 @@ import { listEvidencias } from '@/lib/scanx/evidencia';
 import { listParticipantes } from '@/lib/scanx/participantes';
 import { getRespuestas } from '@/lib/scanx/diagnostico';
 import { calcularCongruencia } from '@/lib/scanx/congruencia';
-import { DIMENSIONES, type Resultado } from '@/types/scanx';
+import { DIMENSIONES, type Resultado, type IssueTree } from '@/types/scanx';
 
 const IMPACTO_ALTO = new Set(['liderazgo', 'estrategia', 'operacion', 'comercial', 'finanzas']);
 
 function color(pct: number) { return pct >= 75 ? '#22c55e' : pct >= 50 ? '#eab308' : '#ef4444'; }
 
-export function ResultadoAvanzado({ diagId, resultado }: { diagId: string; resultado: Resultado }) {
+/** El issue tree se genera y persiste UNA vez en el runner (padre) y llega por prop:
+ *  así no se recalcula en cada apertura ni falla de forma intermitente. */
+export function ResultadoAvanzado({ diagId, resultado, issuetree, issuetreeLoading }: {
+  diagId: string; resultado: Resultado; issuetree: IssueTree | null; issuetreeLoading: boolean;
+}) {
   const [evidCount, setEvidCount] = useState<Record<string, number>>({});
   const [congr, setCongr] = useState<Record<string, number | null>>({});
-  const [issueLoading, setIssueLoading] = useState(true);
-  const [tree, setTree] = useState<{ raiz: string; ramas: { causa: string; sub: string[] }[] } | null>(null);
 
   useEffect(() => {
     (async () => {
@@ -29,16 +31,6 @@ export function ResultadoAvanzado({ diagId, resultado }: { diagId: string; resul
       const cm: Record<string, number | null> = {};
       for (const d of c.porDimension) cm[d.id] = d.indice;
       setCongr(cm);
-    })();
-    // Issue tree automático de la dimensión más baja (inline, sin popup).
-    (async () => {
-      const peor = [...resultado.dimensiones].filter((d) => d.valor != null).sort((a, b) => (a.valor! - b.valor!))[0];
-      try {
-        const r = await fetch('/api/scanx/ia', { method: 'POST', headers: { 'content-type': 'application/json' },
-          body: JSON.stringify({ tarea: 'issuetree', contexto: { dimension: peor?.nombre, valor: peor?.valor, top3: resultado.top3 } }) });
-        const j = await r.json();
-        setTree(j.tree ?? null);
-      } catch { /* noop */ } finally { setIssueLoading(false); }
     })();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [diagId]);
@@ -119,13 +111,13 @@ export function ResultadoAvanzado({ diagId, resultado }: { diagId: string; resul
       <div className="rounded-2xl border bg-card p-5">
         <div className="mb-1 flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-muted-foreground"><Network className="h-3.5 w-3.5" /> Árbol de causa raíz</div>
         <p className="mb-3 text-xs text-muted-foreground">Descompone tu dimensión más débil en sus posibles causas, para atacar el origen y no el síntoma.</p>
-        {issueLoading ? (
+        {issuetreeLoading ? (
           <div className="flex items-center gap-2 text-sm text-muted-foreground"><Loader2 className="h-4 w-4 animate-spin" /> Generando el árbol de causas…</div>
-        ) : tree ? (
+        ) : issuetree ? (
           <div className="text-sm">
-            <p className="font-bold">{tree.raiz}</p>
+            <p className="font-bold">{issuetree.raiz}</p>
             <div className="mt-2 space-y-2">
-              {tree.ramas?.map((r, i) => (
+              {issuetree.ramas?.map((r, i) => (
                 <div key={i} className="border-l-2 border-[#1aab99]/50 pl-3">
                   <p className="font-medium">{r.causa}</p>
                   <ul className="ml-4 list-disc text-muted-foreground">{r.sub?.map((s, j) => <li key={j}>{s}</li>)}</ul>

@@ -366,7 +366,7 @@ export default function VerificacionPage({ params }: { params: { id: string } })
         >
           <ArrowLeft className="h-4 w-4" /> Volver al diagnóstico
         </Link>
-        <h1 className="mt-3 text-2xl font-bold">Verificación (Capa 3)</h1>
+        <h1 className="mt-3 text-2xl font-bold">Comprueba con evidencia</h1>
         <p className="mt-1 text-sm text-muted-foreground">
           La confianza se gana: sube evidencia y demuestra en vivo lo que declaras.
         </p>
@@ -553,6 +553,11 @@ export default function VerificacionPage({ params }: { params: { id: string } })
                         <Badge variant="outline">Completado</Badge>
                       )}
                     </div>
+                    {ev.preguntaTexto && (
+                      <p className="rounded-md border-l-2 border-[#1aab99]/50 bg-muted/40 px-2 py-1 text-xs text-muted-foreground">
+                        <span className="font-semibold text-foreground/70">Pregunta: </span>{ev.preguntaTexto}
+                      </p>
+                    )}
                     {(ev.tipo === 'timed' || ev.tipo === 'video') && (
                       <p className="text-xs text-muted-foreground tabular-nums">
                         Declarado {fmt(ev.tiempoDeclarado)} · Real {fmt(ev.tiempoReal)}

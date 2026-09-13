@@ -2,7 +2,7 @@
 
 import { createClient } from '@/lib/supabase/client';
 import { getActiveOrgId } from '@/lib/teamx/org';
-import type { Diagnostico, PerfilContextual, Respuesta, Resultado, TipoEmpresa } from '@/types/scanx';
+import type { AnalisisIA, Diagnostico, PerfilContextual, Respuesta, Resultado, TipoEmpresa } from '@/types/scanx';
 import { BANCO_VERSION } from './preguntas';
 import { getContextoMercado } from './mercado';
 
@@ -18,6 +18,7 @@ function mapDiag(row: any): Diagnostico {
     tipoEmpresa: (row.tipo_empresa ?? null) as TipoEmpresa | null,
     financials: (row.financials ?? null) as Diagnostico['financials'],
     mercado: (row.mercado ?? null) as Diagnostico['mercado'],
+    analisis: (row.analisis ?? null) as Diagnostico['analisis'],
     createdAt: row.created_at,
     updatedAt: row.updated_at,
     completedAt: row.completed_at ?? null,
@@ -75,6 +76,14 @@ export async function guardarFinancials(id: string, financials: unknown): Promis
 export async function guardarMercado(id: string, mercado: unknown): Promise<void> {
   const supabase = createClient();
   const { error } = await supabase.from('scanx_diagnosticos').update({ mercado }).eq('id', id);
+  if (error) throw error;
+}
+
+/** Persiste el análisis de IA (narrativa, potencial, issue tree + firma de inputs).
+ *  Se calcula una sola vez; solo se regenera cuando cambia la firma. */
+export async function guardarAnalisis(id: string, analisis: AnalisisIA): Promise<void> {
+  const supabase = createClient();
+  const { error } = await supabase.from('scanx_diagnosticos').update({ analisis }).eq('id', id);
   if (error) throw error;
 }
 

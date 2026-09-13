@@ -55,8 +55,12 @@ ${ctx}`, 1000);
     }
     if (tarea === 'issuetree') {
       const ctx = JSON.stringify(body.contexto ?? {}).slice(0, 6000);
-      const out = await claude(`Genera un ISSUE TREE (árbol de causa-raíz estilo McKinsey) para la dimensión problemática indicada. Devuelve SOLO JSON: {"raiz": string, "ramas": [{"causa": string, "sub": string[]}]} (2-4 ramas, cada una 1-3 sub-causas concretas). Español.\nCONTEXTO:\n${ctx}`, 900);
-      const p = parseJSON(out); return NextResponse.json({ tree: p ?? null }, { status: 200 });
+      const prompt = `Genera un ISSUE TREE (árbol de causa-raíz estilo McKinsey) para la dimensión problemática indicada. Devuelve SOLO JSON válido, sin texto fuera del JSON: {"raiz": string, "ramas": [{"causa": string, "sub": string[]}]} (2-4 ramas, cada una 1-3 sub-causas concretas). Español.\nCONTEXTO:\n${ctx}`;
+      let p = parseJSON(await claude(prompt, 900));
+      // Reintento único: el modelo a veces envuelve el JSON en prosa → segundo intento estricto.
+      if (!p?.raiz || !Array.isArray(p?.ramas)) p = parseJSON(await claude(`${prompt}\n\nResponde ÚNICAMENTE con el objeto JSON.`, 900));
+      const tree = p?.raiz && Array.isArray(p?.ramas) ? p : null;
+      return NextResponse.json({ tree }, { status: 200 });
     }
     if (tarea === 'potencial') {
       const ctx = JSON.stringify(body.contexto ?? {}).slice(0, 7000);

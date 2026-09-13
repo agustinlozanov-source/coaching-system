@@ -14,13 +14,17 @@ export type Evidencia = {
   tiempoDeclarado: number | null;
   tiempoReal: number | null;
   completado: boolean;
+  preguntaId: string | null;     // pregunta que originó la evidencia (contexto)
+  preguntaTexto: string | null;  // enunciado de esa pregunta, para revisarla luego
   createdAt: string;
 };
 
 const map = (r: any): Evidencia => ({
   id: r.id, diagnosticoId: r.diagnostico_id, tipo: r.tipo, dimension: r.dimension,
   descripcion: r.descripcion, archivoUrl: r.archivo_url, tiempoDeclarado: r.tiempo_declarado,
-  tiempoReal: r.tiempo_real, completado: r.completado, createdAt: r.created_at,
+  tiempoReal: r.tiempo_real, completado: r.completado,
+  preguntaId: r.pregunta_id ?? null, preguntaTexto: r.pregunta_texto ?? null,
+  createdAt: r.created_at,
 });
 
 export async function listEvidencias(diagnosticoId: string): Promise<Evidencia[]> {
@@ -52,6 +56,7 @@ export async function crearEvidencia(diagnosticoId: string, e: Partial<Evidencia
     descripcion: e.descripcion ?? null, archivo_url: e.archivoUrl ?? null,
     tiempo_declarado: e.tiempoDeclarado ?? null, tiempo_real: e.tiempoReal ?? null,
     completado: e.completado ?? false,
+    pregunta_id: e.preguntaId ?? null, pregunta_texto: e.preguntaTexto ?? null,
   });
   if (error) throw error;
 }

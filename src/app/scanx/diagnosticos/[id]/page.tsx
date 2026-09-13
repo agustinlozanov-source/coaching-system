@@ -12,7 +12,9 @@ import { MarketTopBar } from '@/components/scanx/MarketTopBar';
 import { calcularValuacion, vsMediana } from '@/lib/scanx/valuacion';
 import { terminosEn, type Termino } from '@/lib/scanx/glosario';
 import { useRouter } from 'next/navigation';
-import { getDiagnostico, getRespuestas, guardarRespuesta, guardarCerteza, finalizarDiagnostico, crearDiagnostico } from '@/lib/scanx/diagnostico';
+import { getDiagnostico, getRespuestas, guardarRespuesta, guardarCerteza, finalizarDiagnostico, crearDiagnostico, guardarAnalisis } from '@/lib/scanx/diagnostico';
+import { listEvidencias } from '@/lib/scanx/evidencia';
+import { listParticipantes } from '@/lib/scanx/participantes';
 import { BANCO_TC } from '@/lib/scanx/preguntas';
 import { preguntasDeAreas, BANCO_CEO, type PreguntaArea } from '@/lib/scanx/banco-areas';
 import { VerificacionInline } from '@/components/scanx/VerificacionInline';
@@ -20,6 +22,7 @@ import { dimensiones as calcDimensiones, calcularResultado } from '@/lib/scanx/c
 import {
   SEMAFORO_COLOR, TIPO_EMPRESA, VALOR_MAX,
   type Diagnostico, type Respuesta, type ResultadoDimension, type PerfilContextual,
+  type IssueTree, type Resultado,
 } from '@/types/scanx';
 
 export const dynamic = 'force-dynamic';
@@ -27,6 +30,25 @@ export const dynamic = 'force-dynamic';
 /** Banco completo del diagnóstico: tronco común → profundización por área → CEO. */
 function bancoDe(perfil?: PerfilContextual) {
   return [...BANCO_TC, ...preguntasDeAreas(perfil?.areas ?? [], perfil?.sector), ...BANCO_CEO];
+}
+
+/** Firma de los datos que alimentan el análisis de IA. Si cambia (respuestas,
+ *  multiperspectiva o evidencia), el análisis se regenera; si no, se reutiliza. */
+function firmaAnalisis(r: Resultado, nParticipantes: number, nEvidencias: number): string {
+  const dims = r.dimensiones.map((d) => `${d.id}:${d.valor == null ? 'x' : d.valor.toFixed(2)}`).join(',');
+  return `${dims}|t${r.tipoEmpresa}|p${nParticipantes}|e${nEvidencias}`;
+}
+
+/** Árbol de causa-raíz determinista: garantiza que la sección nunca quede vacía. */
+function fallbackTree(nombre: string): IssueTree {
+  return {
+    raiz: `Bajo desempeño en ${nombre}`,
+    ramas: [
+      { causa: 'Procesos poco definidos', sub: ['Sin responsables claros', 'Sin métricas de seguimiento'] },
+      { causa: 'Capacidades o recursos insuficientes', sub: ['Equipo sin formación específica', 'Herramientas inadecuadas'] },
+      { causa: 'Prioridad estratégica difusa', sub: ['No se le asigna tiempo ni presupuesto suficiente'] },
+    ],
+  };
 }
 
 export default function DiagnosticoPage({ params }: { params: { id: string } }) {
@@ -42,14 +64,21 @@ export default function DiagnosticoPage({ params }: { params: { id: string } }) 
   const [glos, setGlos] = useState<Termino | null>(null);
   const [narrativa, setNarrativa] = useState('');
   const [potencial, setPotencial] = useState('');
+  const [issuetree, setIssuetree] = useState<IssueTree | null>(null);
   const [narrLoading, setNarrLoading] = useState(false);
   const [potLoading, setPotLoading] = useState(false);
+  const [treeLoading, setTreeLoading] = useState(false);
+  const [verifDone, setVerifDone] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
     (async () => {
-      const [d, r] = await Promise.all([getDiagnostico(id), getRespuestas(id)]);
+      const [d, r, evid] = await Promise.all([getDiagnostico(id), getRespuestas(id), listEvidencias(id)]);
       setDiag(d);
       setResp(r);
+      // Verificaciones ya completadas: preguntas que tienen evidencia asociada.
+      const done: Record<string, boolean> = {};
+      for (const e of evid) if (e.preguntaId) done[e.preguntaId] = true;
+      setVerifDone(done);
       if (d?.estado === 'completado') {
         setVerResultado(true);
       } else {
@@ -68,6 +97,12 @@ export default function DiagnosticoPage({ params }: { params: { id: string } }) 
   const allAnswered = answered >= total;
   const pregunta = banco[idx];
   const seleccion = resp.find((r) => r.preguntaId === pregunta?.id)?.opcionId;
+  // 11.3 — si la pregunta dispara verificación, es obligatoria antes de avanzar.
+  const requiereVerif = !!(pregunta as PreguntaArea | undefined)?.disparador;
+  const verifOk = !requiereVerif || !!verifDone[pregunta?.id ?? ''];
+  const puedeAvanzar = !!seleccion && verifOk;
+  // Verificaciones obligatorias aún pendientes en todo el banco (bloquean finalizar).
+  const pendientesVerif = banco.filter((p) => (p as PreguntaArea).disparador && !verifDone[p.id]).length;
 
   function elegir(opcionId: string, pesos: Record<string, number>) {
     if (!pregunta) return;
@@ -79,25 +114,58 @@ export default function DiagnosticoPage({ params }: { params: { id: string } }) 
     if (!pregunta) return;
     setCertezas((prev) => ({ ...prev, [pregunta.id]: c }));
     guardarCerteza(id, pregunta.id, c).catch(() => {});
-    if (idx < total - 1) setTimeout(() => setIdx((i) => Math.min(i + 1, total - 1)), 260);
+    // No auto-avanzar si la pregunta exige verificación aún pendiente.
+    if (idx < total - 1 && verifOk) setTimeout(() => setIdx((i) => Math.min(i + 1, total - 1)), 260);
   }
 
-  // Narrativa + potencial se generan AUTOMÁTICamente al ver el resultado (sin botón).
+  function marcarVerifHecha(preguntaId: string) {
+    setVerifDone((prev) => ({ ...prev, [preguntaId]: true }));
+  }
+
+  // 11.2 — Narrativa + potencial + issue tree se calculan UNA vez y se persisten.
+  // Solo se regeneran si cambia la firma (respuestas / multiperspectiva / evidencia).
   useEffect(() => {
     if (!verResultado || !diag?.resultado) return;
     const r = diag.resultado;
-    if (!narrativa && !narrLoading) {
-      setNarrLoading(true);
+    let cancel = false;
+    const post = (tarea: string, contexto: unknown) =>
       fetch('/api/scanx/ia', { method: 'POST', headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ tarea: 'narrativa', contexto: { perfil: diag.perfil, dimensiones: r.dimensiones.map((d) => ({ nombre: d.nombre, valor: d.valor })), tipo: r.tipoEmpresa, top3: r.top3, mercado: diag.mercado } }) })
-        .then((x) => x.json()).then((j) => setNarrativa(j.error ? '' : (j.texto || ''))).catch(() => {}).finally(() => setNarrLoading(false));
-    }
-    if (!potencial && !potLoading) {
-      setPotLoading(true);
-      fetch('/api/scanx/ia', { method: 'POST', headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ tarea: 'potencial', contexto: { perfil: diag.perfil, resultado: { tipo: r.tipoEmpresa, promedio: r.promedioGeneral, top3: r.top3 }, mercado: diag.mercado } }) })
-        .then((x) => x.json()).then((j) => setPotencial(j.error ? '' : (j.texto || ''))).catch(() => {}).finally(() => setPotLoading(false));
-    }
+        body: JSON.stringify({ tarea, contexto }) }).then((x) => x.json());
+
+    (async () => {
+      setNarrLoading(true); setPotLoading(true); setTreeLoading(true);
+      const [parts, evid] = await Promise.all([
+        listParticipantes(id).catch(() => []),
+        listEvidencias(id).catch(() => []),
+      ]);
+      if (cancel) return;
+      const firma = firmaAnalisis(r, parts.length, evid.length);
+      const cache = diag.analisis;
+      if (cache && cache.firma === firma && (cache.narrativa || cache.potencial)) {
+        // Reutiliza el análisis persistido: sin llamadas a IA.
+        setNarrativa(cache.narrativa ?? ''); setPotencial(cache.potencial ?? '');
+        setIssuetree(cache.issuetree ?? null);
+        setNarrLoading(false); setPotLoading(false); setTreeLoading(false);
+        return;
+      }
+      // Genera de cero (una sola vez para esta firma).
+      const peor = [...r.dimensiones].filter((d) => d.valor != null).sort((a, b) => a.valor! - b.valor!)[0];
+      const [jNar, jPot, jTree] = await Promise.all([
+        post('narrativa', { perfil: diag.perfil, dimensiones: r.dimensiones.map((d) => ({ nombre: d.nombre, valor: d.valor })), tipo: r.tipoEmpresa, top3: r.top3, mercado: diag.mercado }),
+        post('potencial', { perfil: diag.perfil, resultado: { tipo: r.tipoEmpresa, promedio: r.promedioGeneral, top3: r.top3 }, mercado: diag.mercado }),
+        post('issuetree', { dimension: peor?.nombre, valor: peor?.valor, top3: r.top3 }),
+      ]);
+      if (cancel) return;
+      const nar = jNar?.error ? '' : (jNar?.texto || '');
+      const pot = jPot?.error ? '' : (jPot?.texto || '');
+      const tree: IssueTree = jTree?.tree ?? fallbackTree(peor?.nombre ?? 'tu dimensión más débil');
+      setNarrativa(nar); setPotencial(pot); setIssuetree(tree);
+      setNarrLoading(false); setPotLoading(false); setTreeLoading(false);
+      const analisis = { narrativa: nar, potencial: pot, issuetree: tree, firma, actualizado: new Date().toISOString() };
+      guardarAnalisis(id, analisis).catch(() => {});
+      setDiag((d) => (d ? { ...d, analisis } : d));
+    })();
+    return () => { cancel = true; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [verResultado, diag?.resultado]);
 
@@ -206,7 +274,7 @@ export default function DiagnosticoPage({ params }: { params: { id: string } }) 
           <DimensionesDetalle dimensiones={resultado.dimensiones} perfil={diag.perfil} top3={resultado.top3} />
         </div>
 
-        <ResultadoAvanzado diagId={id} resultado={resultado} />
+        <ResultadoAvanzado diagId={id} resultado={resultado} issuetree={issuetree} issuetreeLoading={treeLoading} />
 
         {/* Narrativa ejecutiva (automática) */}
         <div className="mt-6 rounded-2xl border bg-card p-5">
@@ -337,9 +405,13 @@ export default function DiagnosticoPage({ params }: { params: { id: string } }) 
               {/* Verificación integrada en el flujo (siempre visible; se resalta si la respuesta lo dispara) */}
               <VerificacionInline
                 diagId={id}
+                preguntaId={pregunta.id}
+                preguntaTexto={pregunta.escenario}
                 dimension={(pregunta as PreguntaArea).area || null}
                 disparador={(pregunta as PreguntaArea).disparador}
                 repIA={(pregunta as PreguntaArea).repIA}
+                done={!!verifDone[pregunta.id]}
+                onDone={() => marcarVerifHecha(pregunta.id)}
               />
 
               <div className="mt-6 flex items-center justify-between">
@@ -347,19 +419,29 @@ export default function DiagnosticoPage({ params }: { params: { id: string } }) 
                   <ChevronLeft className="mr-1 h-4 w-4" /> Anterior
                 </Button>
                 {idx < total - 1 ? (
-                  <Button variant="outline" disabled={!seleccion} onClick={() => setIdx((i) => Math.min(total - 1, i + 1))}>
+                  <Button variant="outline" disabled={!puedeAvanzar} onClick={() => setIdx((i) => Math.min(total - 1, i + 1))}>
                     Siguiente <ArrowRight className="ml-1 h-4 w-4" />
                   </Button>
                 ) : (
-                  <GlowButton onClick={finalizar} disabled={!allAnswered} loading={finalizando}
+                  <GlowButton onClick={finalizar} disabled={!allAnswered || pendientesVerif > 0} loading={finalizando}
                     icon={<ArrowRight size={16} className="ml-0.5" />}>
                     Ver mi resultado
                   </GlowButton>
                 )}
               </div>
+              {seleccion && !verifOk && (
+                <p className="mt-2 text-right text-xs text-amber-600 dark:text-amber-400">
+                  Completa la verificación de esta pregunta para continuar.
+                </p>
+              )}
               {idx === total - 1 && !allAnswered && (
                 <p className="mt-2 text-right text-xs text-amber-600 dark:text-amber-400">
                   Te faltan {total - answered} respuestas para ver el resultado.
+                </p>
+              )}
+              {idx === total - 1 && allAnswered && pendientesVerif > 0 && (
+                <p className="mt-2 text-right text-xs text-amber-600 dark:text-amber-400">
+                  Te faltan {pendientesVerif} verificación{pendientesVerif > 1 ? 'es' : ''} obligatoria{pendientesVerif > 1 ? 's' : ''} por completar.
                 </p>
               )}
             </div>
