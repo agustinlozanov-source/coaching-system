@@ -13,7 +13,8 @@ import { terminosEn, type Termino } from '@/lib/scanx/glosario';
 import { useRouter } from 'next/navigation';
 import { getDiagnostico, getRespuestas, guardarRespuesta, guardarCerteza, finalizarDiagnostico, crearDiagnostico } from '@/lib/scanx/diagnostico';
 import { BANCO_TC } from '@/lib/scanx/preguntas';
-import { preguntasDeAreas, BANCO_CEO } from '@/lib/scanx/banco-areas';
+import { preguntasDeAreas, BANCO_CEO, type PreguntaArea } from '@/lib/scanx/banco-areas';
+import { VerificacionInline } from '@/components/scanx/VerificacionInline';
 import { dimensiones as calcDimensiones, calcularResultado } from '@/lib/scanx/calculo';
 import {
   SEMAFORO_COLOR, TIPO_EMPRESA, VALOR_MAX,
@@ -348,6 +349,14 @@ export default function DiagnosticoPage({ params }: { params: { id: string } }) 
                   ))}
                 </div>
               )}
+
+              {/* Verificación integrada en el flujo (siempre visible; se resalta si la respuesta lo dispara) */}
+              <VerificacionInline
+                diagId={id}
+                dimension={(pregunta as PreguntaArea).area || null}
+                disparador={(pregunta as PreguntaArea).disparador}
+                repIA={(pregunta as PreguntaArea).repIA}
+              />
 
               <div className="mt-6 flex items-center justify-between">
                 <Button variant="ghost" disabled={idx === 0} onClick={() => setIdx((i) => Math.max(0, i - 1))}>
