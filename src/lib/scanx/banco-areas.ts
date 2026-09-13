@@ -1,4 +1,5 @@
 import type { Pregunta } from '@/types/scanx';
+import { BANCO_TC } from './preguntas';
 
 /**
  * Profundización por ÁREA + preguntas CEO. Se preguntan DESPUÉS del tronco común,
@@ -150,6 +151,41 @@ export const BANCO_CEO: PreguntaArea[] = [
   qa('escalabilidad', 'ceo09', '¿Cómo es tu red de contactos empresarial?', ['Casi inexistente — no busco networking.', 'Algunos contactos, pero no los cultivo ni aprovecho.', 'Red activa que uso para referidos o consultas.', 'Estratégica — la construyo intencionalmente y genera valor para mi empresa.']),
   qa('escalabilidad', 'ceo10', 'Si tu empresa cerrara mañana, ¿qué quedaría?', ['Nada — si yo no estoy, la empresa no existe.', 'Algunos clientes y relaciones, pero poco más.', 'Marca, procesos y un equipo que podría continuar con dirección.', 'Un negocio con valor propio — marca, procesos, clientes, equipo y sistemas.']),
 ];
+
+/** Preguntas para CLIENTES (percepción externa; alimentan la dimensión Cliente). */
+export const BANCO_CLIENTE: PreguntaArea[] = [
+  qa('cliente', 'cli01', '¿Qué tan satisfecho estás en general con el producto o servicio de esta empresa?', ['Insatisfecho.', 'Más o menos.', 'Satisfecho.', 'Muy satisfecho — supera mis expectativas.']),
+  qa('cliente', 'cli02', '¿Recomendarías esta empresa a un colega o amigo?', ['No.', 'Tal vez.', 'Probablemente sí.', 'Sin duda, ya lo he hecho.']),
+  qa('cliente', 'cli03', '¿Qué tan fácil y clara fue tu experiencia de compra?', ['Confusa o complicada.', 'Funcional, sin nada especial.', 'Buena, con algún punto de fricción.', 'Excelente — fácil de principio a fin.']),
+  qa('cliente', 'cli04', 'Cuando has necesitado soporte o postventa, ¿cómo respondieron?', ['Mal o no respondieron.', 'Tarde o a medias.', 'Bien en general.', 'Excelente — rápido y resolutivo.']),
+  qa('cliente', 'cli05', 'Comparada con otras opciones del mercado, esta empresa es…', ['Igual o peor — no veo diferencia.', 'Un poco mejor en algo.', 'Claramente mejor en varias cosas.', 'La mejor opción para lo que necesito.']),
+  qa('cliente', 'cli06', '¿Cumplen lo que prometen (tiempos, calidad, precio)?', ['Casi nunca.', 'A veces.', 'Casi siempre.', 'Siempre — puedo confiar en ellos.']),
+];
+
+/** Preguntas para PROVEEDORES (relación comercial; alimentan Operación/Finanzas). */
+export const BANCO_PROVEEDOR: PreguntaArea[] = [
+  qa('operacion', 'prov01', '¿Qué tan claro y ordenado es el proceso de compra/pedido de esta empresa?', ['Desordenado — cada pedido es distinto.', 'Más o menos claro.', 'Claro en general.', 'Muy profesional y estructurado.']),
+  qa('finanzas', 'prov02', '¿Te pagan a tiempo y según lo acordado?', ['Casi nunca — hay problemas frecuentes.', 'A veces se atrasan.', 'Generalmente sí.', 'Siempre, puntual y sin fricción.']),
+  qa('operacion', 'prov03', '¿La comunicación con esta empresa es fluida y profesional?', ['Deficiente.', 'Irregular.', 'Buena.', 'Excelente — siempre accesibles y claros.']),
+  qa('operacion', 'prov04', '¿Los requerimientos/especificaciones te llegan claros y completos?', ['Casi nunca — hay que adivinar.', 'A veces incompletos.', 'Generalmente claros.', 'Siempre claros y a tiempo.']),
+  qa('operacion', 'prov05', '¿Cómo describirías la relación comercial con esta empresa?', ['Transaccional y conflictiva.', 'Ocasional, sin mucha confianza.', 'Estable y de confianza.', 'Socio estratégico de largo plazo.']),
+  qa('operacion', 'prov06', 'Cuando surge un problema, ¿lo resuelven bien?', ['No — se complican las cosas.', 'A medias.', 'Bien en general.', 'Muy bien — con actitud de solución.']),
+];
+
+const TODAS_LAS_PREGUNTAS: Pregunta[] = [
+  ...BANCO_TC, ...Object.values(BANCO_AREAS).flat(), ...BANCO_CEO, ...BANCO_CLIENTE, ...BANCO_PROVEEDOR,
+];
+const POR_ID = new Map(TODAS_LAS_PREGUNTAS.map((q) => [q.id, q]));
+
+/** Busca una pregunta por id en cualquier banco (tronco común, áreas, CEO, cliente, proveedor). */
+export function preguntaPorId(id: string): Pregunta | undefined { return POR_ID.get(id); }
+
+/** Ids de preguntas asignadas a un participante según su tipo. */
+export function preguntasParaTipo(tipo: 'interno' | 'cliente' | 'proveedor'): string[] {
+  if (tipo === 'cliente') return BANCO_CLIENTE.map((q) => q.id);
+  if (tipo === 'proveedor') return BANCO_PROVEEDOR.map((q) => q.id);
+  return []; // interno → tronco común (lo resuelve el flujo del participante con BANCO_TC)
+}
 
 /** Devuelve las preguntas de profundización para las áreas confirmadas + sector (oculta las que no aplican). */
 export function preguntasDeAreas(areas: string[], sector?: string): PreguntaArea[] {

@@ -12,20 +12,41 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { GlowButton } from '@/components/ui/glow-button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { InfoTip } from '@/components/ui/info-tip';
 import { useToast } from '@/hooks/use-toast';
 import { getDiagnostico, getRespuestas } from '@/lib/scanx/diagnostico';
 import {
   listParticipantes,
   crearParticipante,
   eliminarParticipante,
+  TIPOS,
   NIVELES,
+  ROLES_SUGERIDOS,
+  type TipoParticipante,
   type NivelParticipante,
   type Participante,
 } from '@/lib/scanx/participantes';
 import { calcularCongruencia } from '@/lib/scanx/congruencia';
 import type { Diagnostico, Respuesta } from '@/types/scanx';
 
-const nivelLabel = (n: NivelParticipante) => NIVELES.find((x) => x.v === n)?.l ?? n;
+const AREAS_FALLBACK = [
+  'Dirección / Estrategia',
+  'Comercial / Ventas',
+  'Marketing',
+  'Operaciones',
+  'Finanzas',
+  'Talento / RRHH',
+  'Tecnología / Sistemas',
+  'Servicio al cliente',
+  'Legal',
+];
+
+const nivelLabel = (n: NivelParticipante | null) => (n ? NIVELES.find((x) => x.v === n)?.l ?? n : null);
+const tipoBadge = (t: TipoParticipante): { variant: 'info' | 'secondary' | 'muted'; label: string } => {
+  if (t === 'interno') return { variant: 'info', label: 'Interno' };
+  if (t === 'cliente') return { variant: 'secondary', label: 'Cliente' };
+  return { variant: 'muted', label: 'Proveedor' };
+};
 
 function barColor(v: number) {
   if (v >= 75) return 'bg-emerald-500';
@@ -48,12 +69,14 @@ export default function EquipoPage({ params }: { params: { id: string } }) {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
-  // Formulario de invitación
+  // Formulario de invitación (anidado: primero el tipo)
+  const [tipo, setTipo] = useState<TipoParticipante | null>(null);
   const [nombre, setNombre] = useState('');
-  const [rol, setRol] = useState('');
-  const [departamento, setDepartamento] = useState('');
+  const [apellido, setApellido] = useState('');
   const [email, setEmail] = useState('');
-  const [nivel, setNivel] = useState<NivelParticipante>(NIVELES[0].v);
+  const [departamento, setDepartamento] = useState('');
+  const [nivel, setNivel] = useState<NivelParticipante | ''>('');
+  const [rol, setRol] = useState('');
 
   const [copiado, setCopiado] = useState<string | null>(null);
 
@@ -86,6 +109,8 @@ export default function EquipoPage({ params }: { params: { id: string } }) {
   const origin = typeof window !== 'undefined' ? window.location.origin : '';
   const linkDe = (p: Participante) => `${origin}/diagnostico/${p.token}`;
 
+  const areasEmpresa = diag?.perfil?.areas?.length ? diag.perfil.areas : AREAS_FALLBACK;
+
   const completados = participantes.filter((p) => p.estado === 'completado').length;
 
   const congruencia = useMemo(
@@ -93,21 +118,38 @@ export default function EquipoPage({ params }: { params: { id: string } }) {
     [ceoResp, participantes],
   );
 
+  function resetForm() {
+    setTipo(null);
+    setNombre('');
+    setApellido('');
+    setEmail('');
+    setDepartamento('');
+    setNivel('');
+    setRol('');
+  }
+
   async function invitar() {
+    if (!tipo) {
+      toast({ variant: 'destructive', title: 'Falta el tipo', description: 'Elige el tipo de participante primero.' });
+      return;
+    }
     setSaving(true);
     try {
       await crearParticipante(id, {
+        tipo,
         nombre: nombre.trim() || undefined,
-        rol: rol.trim() || undefined,
-        departamento: departamento.trim() || undefined,
+        apellido: apellido.trim() || undefined,
         email: email.trim() || undefined,
-        nivel,
+        ...(tipo === 'interno'
+          ? {
+              departamento: departamento.trim() || undefined,
+              nivel: nivel || undefined,
+              rol: rol.trim() || undefined,
+            }
+          : {}),
       });
-      setNombre('');
-      setRol('');
-      setDepartamento('');
-      setEmail('');
       await recargar();
+      resetForm();
       toast({ title: 'Invitación creada' });
     } catch {
       toast({ variant: 'destructive', title: 'Error', description: 'No se pudo crear la invitación.' });
@@ -128,7 +170,8 @@ export default function EquipoPage({ params }: { params: { id: string } }) {
   }
 
   async function borrar(p: Participante) {
-    if (!confirm(`¿Eliminar la invitación de ${p.nombre || 'este participante'}?`)) return;
+    const nombreCompleto = [p.nombre, p.apellido].filter(Boolean).join(' ');
+    if (!confirm(`¿Eliminar la invitación de ${nombreCompleto || 'este participante'}?`)) return;
     try {
       await eliminarParticipante(p.id);
       await recargar();
@@ -188,43 +231,114 @@ export default function EquipoPage({ params }: { params: { id: string } }) {
       {/* Invitar participante */}
       <Card>
         <CardContent className="p-5">
-          <p className="mb-4 text-sm font-semibold">Invitar participante</p>
-          <div className="grid gap-4 sm:grid-cols-2">
-            <div className="space-y-1.5">
-              <Label htmlFor="nombre">Nombre</Label>
-              <Input id="nombre" value={nombre} onChange={(e) => setNombre(e.target.value)} placeholder="Nombre completo" />
-            </div>
-            <div className="space-y-1.5">
-              <Label htmlFor="rol">Rol</Label>
-              <Input id="rol" value={rol} onChange={(e) => setRol(e.target.value)} placeholder="Ej. Gerente de ventas" />
-            </div>
-            <div className="space-y-1.5">
-              <Label htmlFor="departamento">Departamento</Label>
-              <Input id="departamento" value={departamento} onChange={(e) => setDepartamento(e.target.value)} placeholder="Ej. Comercial" />
-            </div>
-            <div className="space-y-1.5">
-              <Label htmlFor="email">Email</Label>
-              <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="correo@empresa.com" />
-            </div>
-            <div className="space-y-1.5">
-              <Label>Nivel</Label>
-              <Select value={nivel} onValueChange={(v) => setNivel(v as NivelParticipante)}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Selecciona un nivel" />
-                </SelectTrigger>
-                <SelectContent>
-                  {NIVELES.map((n) => (
-                    <SelectItem key={n.v} value={n.v}>{n.l}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+          <p className="mb-1 text-sm font-semibold">Invitar participante</p>
+          <p className="mb-4 text-xs text-muted-foreground">
+            Primero elige a quién vas a invitar. Cada tipo responde su propio set de preguntas.
+          </p>
+
+          {/* Paso 1 — Tipo de participante */}
+          <div className="grid gap-3 sm:grid-cols-3">
+            {TIPOS.map((t) => {
+              const activo = tipo === t.v;
+              return (
+                <button
+                  key={t.v}
+                  type="button"
+                  onClick={() => setTipo(t.v)}
+                  className={`rounded-xl border p-4 text-left transition ${
+                    activo
+                      ? 'border-primary bg-primary/5 ring-1 ring-primary'
+                      : 'border-border bg-card hover:border-primary/50 hover:bg-muted/40'
+                  }`}
+                >
+                  <div className="flex items-center justify-between">
+                    <span className="font-semibold">{t.l}</span>
+                    {activo && <Check className="h-4 w-4 text-primary" />}
+                  </div>
+                  <p className="mt-1 text-xs text-muted-foreground">{t.desc}</p>
+                </button>
+              );
+            })}
           </div>
-          <div className="mt-5">
-            <GlowButton onClick={invitar} loading={saving} icon={<Link2 size={16} className="ml-0.5" />}>
-              Generar invitación
-            </GlowButton>
-          </div>
+
+          {/* Paso 2 — Datos (solo tras elegir tipo) */}
+          {tipo && (
+            <div className="mt-5 space-y-4">
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div className="space-y-1.5">
+                  <Label htmlFor="nombre">Nombre</Label>
+                  <Input id="nombre" value={nombre} onChange={(e) => setNombre(e.target.value)} placeholder="Nombre" />
+                </div>
+                <div className="space-y-1.5">
+                  <Label htmlFor="apellido">Apellido</Label>
+                  <Input id="apellido" value={apellido} onChange={(e) => setApellido(e.target.value)} placeholder="Apellido" />
+                </div>
+                <div className="space-y-1.5 sm:col-span-2">
+                  <Label htmlFor="email">Email</Label>
+                  <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="correo@empresa.com" />
+                </div>
+              </div>
+
+              {tipo === 'interno' && (
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <div className="space-y-1.5">
+                    <Label className="flex items-center gap-1">
+                      Departamento
+                      <InfoTip text="El área de la empresa a la que pertenece." />
+                    </Label>
+                    <Select value={departamento} onValueChange={setDepartamento}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Selecciona un área" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {areasEmpresa.map((a) => (
+                          <SelectItem key={a} value={a}>{a}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label className="flex items-center gap-1">
+                      Nivel
+                      <InfoTip text="Su nivel jerárquico — para cruzar percepciones entre director, gerente y operativo." />
+                    </Label>
+                    <Select value={nivel} onValueChange={(v) => setNivel(v as NivelParticipante)}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Selecciona un nivel" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {NIVELES.map((n) => (
+                          <SelectItem key={n.v} value={n.v}>{n.l}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-1.5 sm:col-span-2">
+                    <Label className="flex items-center gap-1">
+                      Rol
+                      <InfoTip text="Su puesto o cargo — elígelo de la lista para poder cruzar los datos." />
+                    </Label>
+                    <Select value={rol} onValueChange={setRol}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Selecciona un rol" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {ROLES_SUGERIDOS.map((r) => (
+                          <SelectItem key={r} value={r}>{r}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+              )}
+
+              <div className="pt-1">
+                <GlowButton onClick={invitar} loading={saving} icon={<Link2 size={16} className="ml-0.5" />}>
+                  Generar invitación
+                </GlowButton>
+              </div>
+            </div>
+          )}
         </CardContent>
       </Card>
 
@@ -238,23 +352,27 @@ export default function EquipoPage({ params }: { params: { id: string } }) {
           participantes.map((p) => {
             const link = linkDe(p);
             const mensaje = `Contesta el diagnóstico de ${empresa}: ${link}  ·  Contraseña: ${p.passwordTemp ?? ''}`;
+            const bt = tipoBadge(p.tipo);
+            const nombreCompleto = [p.nombre, p.apellido].filter(Boolean).join(' ') || '—';
+            const detalle =
+              p.tipo === 'interno'
+                ? [nivelLabel(p.nivel), p.rol, p.departamento].filter(Boolean).join(' · ') || 'Sin datos de área'
+                : null;
             return (
               <Card key={p.id}>
                 <CardContent className="p-4">
                   <div className="flex flex-wrap items-start justify-between gap-3">
                     <div className="min-w-0">
                       <div className="flex flex-wrap items-center gap-2">
-                        <span className="font-semibold">{p.nombre || '—'}</span>
-                        <Badge variant="secondary">{nivelLabel(p.nivel)}</Badge>
+                        <Badge variant={bt.variant}>{bt.label}</Badge>
+                        <span className="font-semibold">{nombreCompleto}</span>
                         {p.estado === 'completado' ? (
                           <Badge variant="success">Completado</Badge>
                         ) : (
                           <Badge variant="muted">Pendiente</Badge>
                         )}
                       </div>
-                      <p className="mt-1 text-xs text-muted-foreground">
-                        {[p.rol, p.departamento].filter(Boolean).join(' · ') || 'Sin departamento'}
-                      </p>
+                      {detalle && <p className="mt-1 text-xs text-muted-foreground">{detalle}</p>}
                     </div>
                     <Button
                       variant="ghost"

@@ -5,7 +5,7 @@ export const dynamic = 'force-dynamic';
 import { useState } from 'react';
 import { Loader2, Lock, Check, ArrowRight, ArrowLeft } from 'lucide-react';
 
-import { BANCO_N1 } from '@/lib/scanx/preguntas';
+import { preguntaPorId } from '@/lib/scanx/banco-areas';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -52,9 +52,13 @@ export default function ParticipantePage({ params }: { params: { token: string }
   const [respuestas, setRespuestas] = useState<Record<string, string>>({});
   const [saveError, setSaveError] = useState<string | null>(null);
 
-  // Escenarios asignados (respetando el orden del banco).
+  // Escenarios asignados (respetando el orden de asignación).
+  // Las preguntas pueden venir de distintos bancos (tronco común, área,
+  // CEO, cliente, proveedor); preguntaPorId resuelve cualquier id.
   const asignadas = participante
-    ? BANCO_N1.filter((p) => participante.preguntas.includes(p.id))
+    ? participante.preguntas
+        .map((qid) => preguntaPorId(qid))
+        .filter((p): p is NonNullable<typeof p> => Boolean(p))
     : [];
   const total = asignadas.length;
   const actual = asignadas[indice];

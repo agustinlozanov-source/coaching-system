@@ -44,6 +44,15 @@ export async function POST(req: NextRequest) {
       const out = await claude(`Eres un consultor moderando un diagnóstico. Con base en lo que la empresa ha revelado (JSON), formula UNA sola pregunta abierta de profundización, específica y potente, para escarbar en el área más interesante. Devuelve solo la pregunta, sin comillas ni preámbulo.\nCONTEXTO:\n${ctx}`, 300);
       return NextResponse.json({ pregunta: out }, { status: 200 });
     }
+    if (tarea === 'dimension') {
+      const ctx = JSON.stringify(body.contexto ?? {}).slice(0, 4500);
+      const out = await claude(`Eres un consultor SCALEx. Analiza UNA dimensión del diagnóstico de esta empresa (JSON: dimension, valor 0-4, perfil, top3). Devuelve SOLO JSON:
+{"estado": string (1 frase: en qué estado está la empresa en esa dimensión), "analisis": string (2-4 frases describiendo la naturaleza de la situación y sus implicaciones), "conceptos": [{"termino": string, "definicion": string}] (1-2 conceptos clave aterrizados), "tips": string[] (3 acciones concretas y accionables)}. Español, directo, sin genéricos.
+CONTEXTO:
+${ctx}`, 1000);
+      const p = parseJSON(out) ?? {};
+      return NextResponse.json({ detalle: p }, { status: 200 });
+    }
     if (tarea === 'issuetree') {
       const ctx = JSON.stringify(body.contexto ?? {}).slice(0, 6000);
       const out = await claude(`Genera un ISSUE TREE (árbol de causa-raíz estilo McKinsey) para la dimensión problemática indicada. Devuelve SOLO JSON: {"raiz": string, "ramas": [{"causa": string, "sub": string[]}]} (2-4 ramas, cada una 1-3 sub-causas concretas). Español.\nCONTEXTO:\n${ctx}`, 900);

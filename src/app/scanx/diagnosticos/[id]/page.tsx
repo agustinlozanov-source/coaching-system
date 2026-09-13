@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { GlowButton } from '@/components/ui/glow-button';
 import { RadarScanx } from '@/components/scanx/RadarScanx';
 import { ResultadoAvanzado } from '@/components/scanx/ResultadoAvanzado';
+import { DimensionesDetalle } from '@/components/scanx/DimensionesDetalle';
 import { MarketTopBar } from '@/components/scanx/MarketTopBar';
 import { calcularValuacion, vsMediana } from '@/lib/scanx/valuacion';
 import { terminosEn, type Termino } from '@/lib/scanx/glosario';
@@ -26,20 +27,6 @@ export const dynamic = 'force-dynamic';
 /** Banco completo del diagnóstico: tronco común → profundización por área → CEO. */
 function bancoDe(perfil?: PerfilContextual) {
   return [...BANCO_TC, ...preguntasDeAreas(perfil?.areas ?? [], perfil?.sector), ...BANCO_CEO];
-}
-
-function Semaforo({ d }: { d: ResultadoDimension }) {
-  return (
-    <div className="flex items-center justify-between gap-3 py-1.5 text-sm">
-      <div className="flex items-center gap-2 min-w-0">
-        <span className="h-2.5 w-2.5 flex-shrink-0 rounded-full" style={{ backgroundColor: SEMAFORO_COLOR[d.semaforo] }} />
-        <span className="truncate">{d.nombre}</span>
-      </div>
-      <span className="tabular-nums font-semibold text-muted-foreground">
-        {d.confiable && d.valor != null ? d.valor.toFixed(2) : '—'}
-      </span>
-    </div>
-  );
 }
 
 export default function DiagnosticoPage({ params }: { params: { id: string } }) {
@@ -215,11 +202,8 @@ export default function DiagnosticoPage({ params }: { params: { id: string } }) 
           </div>
         </div>
 
-        <div className="mt-6 rounded-2xl border border-border bg-card p-5">
-          <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-muted-foreground">Radar por dimensión</p>
-          <div className="grid gap-x-8 sm:grid-cols-2">
-            {resultado.dimensiones.map((d) => <Semaforo key={d.id} d={d} />)}
-          </div>
+        <div className="mt-6">
+          <DimensionesDetalle dimensiones={resultado.dimensiones} perfil={diag.perfil} top3={resultado.top3} />
         </div>
 
         <ResultadoAvanzado diagId={id} resultado={resultado} />
