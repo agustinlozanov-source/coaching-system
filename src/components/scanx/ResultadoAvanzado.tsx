@@ -1,9 +1,8 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
-import { Sparkles, Loader2, Printer, Network } from 'lucide-react';
+import { Loader2, Printer, Network } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { listEvidencias } from '@/lib/scanx/evidencia';
 import { listParticipantes } from '@/lib/scanx/participantes';
 import { getRespuestas } from '@/lib/scanx/diagnostico';
@@ -17,8 +16,7 @@ function color(pct: number) { return pct >= 75 ? '#22c55e' : pct >= 50 ? '#eab30
 export function ResultadoAvanzado({ diagId, resultado }: { diagId: string; resultado: Resultado }) {
   const [evidCount, setEvidCount] = useState<Record<string, number>>({});
   const [congr, setCongr] = useState<Record<string, number | null>>({});
-  const [issueOpen, setIssueOpen] = useState(false);
-  const [issueLoading, setIssueLoading] = useState(false);
+  const [issueLoading, setIssueLoading] = useState(true);
   const [tree, setTree] = useState<{ raiz: string; ramas: { causa: string; sub: string[] }[] } | null>(null);
 
   useEffect(() => {
@@ -32,6 +30,17 @@ export function ResultadoAvanzado({ diagId, resultado }: { diagId: string; resul
       for (const d of c.porDimension) cm[d.id] = d.indice;
       setCongr(cm);
     })();
+    // Issue tree automático de la dimensión más baja (inline, sin popup).
+    (async () => {
+      const peor = [...resultado.dimensiones].filter((d) => d.valor != null).sort((a, b) => (a.valor! - b.valor!))[0];
+      try {
+        const r = await fetch('/api/scanx/ia', { method: 'POST', headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({ tarea: 'issuetree', contexto: { dimension: peor?.nombre, valor: peor?.valor, top3: resultado.top3 } }) });
+        const j = await r.json();
+        setTree(j.tree ?? null);
+      } catch { /* noop */ } finally { setIssueLoading(false); }
+    })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [diagId]);
 
   // Índice de confiabilidad por dimensión (C1 densidad + C3 evidencia + C2 congruencia)
@@ -60,17 +69,6 @@ export function ResultadoAvanzado({ diagId, resultado }: { diagId: string; resul
     }
     return cuad;
   }, [resultado.dimensiones]);
-
-  async function generarIssueTree() {
-    setIssueOpen(true); setIssueLoading(true); setTree(null);
-    const peor = [...resultado.dimensiones].filter((d) => d.valor != null).sort((a, b) => (a.valor! - b.valor!))[0];
-    try {
-      const r = await fetch('/api/scanx/ia', { method: 'POST', headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ tarea: 'issuetree', contexto: { dimension: peor?.nombre, valor: peor?.valor, top3: resultado.top3 } }) });
-      const j = await r.json();
-      setTree(j.tree ?? null);
-    } finally { setIssueLoading(false); }
-  }
 
   const Quad = ({ emoji, titulo, accion, items }: { emoji: string; titulo: string; accion: string; items: string[] }) => (
     <div className="rounded-xl border p-3">
@@ -117,34 +115,33 @@ export function ResultadoAvanzado({ diagId, resultado }: { diagId: string; resul
         </div>
       </div>
 
-      {/* Acciones */}
-      <div className="flex flex-wrap gap-2 print:hidden">
-        <Button variant="outline" onClick={generarIssueTree}><Network className="mr-1 h-4 w-4" /> Issue tree (IA)</Button>
-        <Button variant="outline" onClick={() => window.print()}><Printer className="mr-1 h-4 w-4" /> Imprimir / PDF</Button>
+      {/* Issue tree — causa raíz (inline, automático) */}
+      <div className="rounded-2xl border bg-card p-5">
+        <div className="mb-1 flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-muted-foreground"><Network className="h-3.5 w-3.5" /> Árbol de causa raíz</div>
+        <p className="mb-3 text-xs text-muted-foreground">Descompone tu dimensión más débil en sus posibles causas, para atacar el origen y no el síntoma.</p>
+        {issueLoading ? (
+          <div className="flex items-center gap-2 text-sm text-muted-foreground"><Loader2 className="h-4 w-4 animate-spin" /> Generando el árbol de causas…</div>
+        ) : tree ? (
+          <div className="text-sm">
+            <p className="font-bold">{tree.raiz}</p>
+            <div className="mt-2 space-y-2">
+              {tree.ramas?.map((r, i) => (
+                <div key={i} className="border-l-2 border-[#1aab99]/50 pl-3">
+                  <p className="font-medium">{r.causa}</p>
+                  <ul className="ml-4 list-disc text-muted-foreground">{r.sub?.map((s, j) => <li key={j}>{s}</li>)}</ul>
+                </div>
+              ))}
+            </div>
+          </div>
+        ) : (
+          <p className="text-sm text-muted-foreground">No se pudo generar el árbol.</p>
+        )}
       </div>
 
-      <Dialog open={issueOpen} onOpenChange={setIssueOpen}>
-        <DialogContent className="max-h-[80vh] overflow-y-auto">
-          <DialogHeader><DialogTitle>Issue tree — causa raíz</DialogTitle></DialogHeader>
-          {issueLoading ? (
-            <div className="flex items-center gap-2 py-8 text-sm text-muted-foreground"><Loader2 className="h-5 w-5 animate-spin" /> Generando con IA…</div>
-          ) : tree ? (
-            <div className="text-sm">
-              <p className="font-bold">{tree.raiz}</p>
-              <div className="mt-2 space-y-2">
-                {tree.ramas?.map((r, i) => (
-                  <div key={i} className="border-l-2 border-border pl-3">
-                    <p className="font-medium">{r.causa}</p>
-                    <ul className="ml-4 list-disc text-muted-foreground">{r.sub?.map((s, j) => <li key={j}>{s}</li>)}</ul>
-                  </div>
-                ))}
-              </div>
-            </div>
-          ) : (
-            <p className="py-6 text-sm text-muted-foreground">No se pudo generar el árbol. Intenta de nuevo.</p>
-          )}
-        </DialogContent>
-      </Dialog>
+      {/* Acciones */}
+      <div className="flex flex-wrap gap-2 print:hidden">
+        <Button variant="outline" onClick={() => window.print()}><Printer className="mr-1 h-4 w-4" /> Imprimir / PDF</Button>
+      </div>
     </div>
   );
 }

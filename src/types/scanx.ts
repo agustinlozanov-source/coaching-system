@@ -109,6 +109,7 @@ export type Financials = {
   ingresos?: number | null;
   costoVentas?: number | null;
   gastosOperativos?: number | null;
+  impuestos?: number | null;
   utilidadNeta?: number | null;
   activos?: number | null;
   pasivos?: number | null;
