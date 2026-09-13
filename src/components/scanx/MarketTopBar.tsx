@@ -24,23 +24,24 @@ export function MarketTopBar({ mercado, posicion }: { mercado: ContextoMercado |
   );
 
   return (
-    <div className="mb-5 overflow-x-auto rounded-xl border bg-card px-4 py-2.5">
-      <div className="flex items-center gap-5">
-        <div className="flex items-center gap-1.5 whitespace-nowrap">
-          <Building2 className="h-4 w-4 text-[#1aab99]" />
-          <span className="text-sm font-bold">{industria.sector ?? 'Tu industria'}</span>
-        </div>
-        <span className="h-4 w-px flex-shrink-0 bg-border" />
-        <Chip icon={<TrendingUp className="h-3.5 w-3.5" />} label="Crece" value={`${industria.crecimiento ?? '—'}%`} />
-        <Chip icon={<Activity className="h-3.5 w-3.5" />} label="Vida negocios" value={`${industria.esperanzaVida ?? '—'} años`} />
+    <div className="mb-5 rounded-xl border bg-card px-4 py-2.5">
+      <div className="mb-1.5 flex items-center gap-1.5">
+        <Building2 className="h-3.5 w-3.5 text-[#1aab99]" />
+        <span className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+          Datos de tu industria y mercado {industria.sector ? `· ${industria.sector}` : ''}
+        </span>
+      </div>
+      <div className="flex items-center gap-5 overflow-x-auto">
+        <Chip icon={<TrendingUp className="h-3.5 w-3.5" />} label="Crecimiento de la industria" value={`${industria.crecimiento ?? '—'}%`} />
+        <Chip icon={<Activity className="h-3.5 w-3.5" />} label="Vida prom. del negocio" value={`${industria.esperanzaVida ?? '—'} años`} />
         <span className="h-4 w-px flex-shrink-0 bg-border" />
         <Chip icon={<Activity className="h-3.5 w-3.5" />} label="Inflación" value={`${macro.inflacion ?? '—'}%`} />
-        <Chip icon={<DollarSign className="h-3.5 w-3.5" />} label="Tasa ref." value={`${macro.tasaReferencia ?? '—'}%`} />
-        <Chip icon={<DollarSign className="h-3.5 w-3.5" />} label="TC" value={`${macro.tipoCambio ?? '—'}`} />
+        <Chip icon={<DollarSign className="h-3.5 w-3.5" />} label="Tasa de referencia" value={`${macro.tasaReferencia ?? '—'}%`} />
+        <Chip icon={<DollarSign className="h-3.5 w-3.5" />} label="Tipo de cambio" value={`${macro.tipoCambio ?? '—'}`} />
         {posLabel && (
           <>
             <span className="h-4 w-px flex-shrink-0 bg-border" />
-            <span className={`whitespace-nowrap text-sm font-semibold ${posColor}`}>{posLabel}</span>
+            <span className={`whitespace-nowrap text-sm font-semibold ${posColor}`}>Tu empresa: {posLabel}</span>
           </>
         )}
       </div>

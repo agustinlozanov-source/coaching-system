@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Loader2, ArrowRight, ClipboardList, ChevronDown, ChevronUp } from 'lucide-react';
+import { Loader2, ArrowRight, ClipboardList } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -11,28 +11,55 @@ import { GlowButton } from '@/components/ui/glow-button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { InfoTip } from '@/components/ui/info-tip';
 import { crearDiagnostico, listDiagnosticos } from '@/lib/scanx/diagnostico';
-import { TIPO_EMPRESA, type Diagnostico, type PerfilContextual } from '@/types/scanx';
+import { TIPO_EMPRESA, AREAS_BASE, type Diagnostico, type PerfilContextual } from '@/types/scanx';
 
 export const dynamic = 'force-dynamic';
 
 const SECTORES = ['Servicios', 'Comercio / Retail', 'Manufactura', 'Tecnología / Software', 'Construcción', 'Salud', 'Educación', 'Alimentos y Bebidas', 'Logística', 'Otro'];
 const EMPLEADOS = ['1-5', '6-10', '11-25', '26-50', '51-100', '101-250', '250+'];
 const MOMENTOS = [
-  { v: 'arrancando', l: 'Arrancando' },
+  { v: 'arrancando', l: 'Arrancando / validando' },
   { v: 'creciendo_sin_control', l: 'Creciendo sin control' },
+  { v: 'creciendo_ordenado', l: 'Creciendo de forma ordenada' },
   { v: 'estable_estancada', l: 'Estable pero estancada' },
+  { v: 'estable_rentable', l: 'Estable y rentable' },
   { v: 'lista_escalar', l: 'Lista para escalar' },
-  { v: 'crisis', l: 'En crisis' },
+  { v: 'reinventandose', l: 'Reinventándose / pivote' },
+  { v: 'en_crisis', l: 'En crisis' },
+  { v: 'transicion', l: 'En transición / sucesión' },
 ];
 
-function Field({ label, children }: { label: string; children: React.ReactNode }) {
+const CANALES = ['WhatsApp', 'Slack', 'Teams', 'Telegram', 'Correo', 'Otro'];
+
+const TIPOS_SOCIEDAD = [
+  'SA de CV', 'S de RL de CV', 'SAPI de CV', 'SAS',
+  'Persona física con actividad empresarial', 'LLC (EE.UU.)',
+  'Inc. / Corp (EE.UU.)', 'Sociedad Limitada (España)', 'Otra',
+];
+
+const ALCANCES = [
+  { v: 'local', l: 'Local (una ciudad)' },
+  { v: 'regional', l: 'Regional' },
+  { v: 'nacional', l: 'Nacional' },
+  { v: 'multinacional', l: 'Multinacional' },
+];
+
+const URL_RE = /^https?:\/\/.+\..+/;
+
+function Field({ label, children }: { label: React.ReactNode; children: React.ReactNode }) {
   return (
     <div className="space-y-1.5">
       <Label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">{label}</Label>
       {children}
     </div>
   );
+}
+
+function toggleInArray(arr: string[] | undefined, value: string): string[] {
+  const list = arr ?? [];
+  return list.includes(value) ? list.filter((x) => x !== value) : [...list, value];
 }
 
 export default function DiagnosticosPage() {
@@ -42,7 +69,6 @@ export default function DiagnosticosPage() {
   const [modo, setModo] = useState<'list' | 'nuevo'>('list');
   const [creando, setCreando] = useState(false);
   const [p, setP] = useState<PerfilContextual>({});
-  const [verMas, setVerMas] = useState(false);
   const [acepta, setAcepta] = useState(false);
 
   useEffect(() => {
@@ -107,9 +133,6 @@ export default function DiagnosticosPage() {
                 <SelectContent>{EMPLEADOS.map((s) => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent>
               </Select>
             </Field>
-            <Field label="Clientes activos (aprox.)">
-              <Input value={p.clientesActivos ?? ''} onChange={(e) => setP({ ...p, clientesActivos: e.target.value })} placeholder="120" inputMode="numeric" />
-            </Field>
             <Field label="¿Cómo describes el momento actual?">
               <Select value={p.momento ?? ''} onValueChange={(v) => setP({ ...p, momento: v })}>
                 <SelectTrigger><SelectValue placeholder="Elige una opción" /></SelectTrigger>
@@ -118,142 +141,182 @@ export default function DiagnosticosPage() {
             </Field>
           </div>
 
-          <div className="mt-5 border-t pt-4">
-            <Button
-              variant="ghost"
-              onClick={() => setVerMas((v) => !v)}
-              className="flex items-center gap-2 text-sm font-semibold"
-            >
-              Detalles de la empresa (opcional)
-              {verMas ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
-            </Button>
+          <div className="mt-6">
+            <Label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Áreas de la empresa *</Label>
+            <p className="mt-1 text-xs text-muted-foreground">
+              Toda empresa tiene estas áreas aunque no exista un departamento o líder formal. Marca las que apliquen.
+            </p>
+            <div className="mt-2.5 flex flex-wrap gap-2">
+              {AREAS_BASE.map((a) => {
+                const activo = (p.areas ?? []).includes(a);
+                return (
+                  <button
+                    key={a}
+                    type="button"
+                    onClick={() => setP({ ...p, areas: toggleInArray(p.areas, a) })}
+                    className={`rounded-full border px-3 py-1.5 text-sm transition ${
+                      activo
+                        ? 'border-primary bg-primary text-primary-foreground ring-1 ring-primary'
+                        : 'border-border bg-background text-muted-foreground hover:border-primary/50'
+                    }`}
+                  >
+                    {a}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
 
-            {verMas && (
-              <div className="mt-4 space-y-6">
-                <div className="space-y-3">
-                  <h3 className="text-sm font-bold">Estructura legal y gobierno</h3>
-                  <div className="grid gap-4 sm:grid-cols-2">
-                    <Field label="Tipo de sociedad">
-                      <Input value={p.tipoSociedad ?? ''} onChange={(e) => setP({ ...p, tipoSociedad: e.target.value })} placeholder="SA de CV, S de RL…" />
-                    </Field>
-                    <Field label="¿Es empresa familiar?">
-                      <Select value={p.esFamiliar ?? ''} onValueChange={(v) => setP({ ...p, esFamiliar: v })}>
-                        <SelectTrigger><SelectValue placeholder="Elige una opción" /></SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="si">Sí</SelectItem>
-                          <SelectItem value="no">No</SelectItem>
-                          <SelectItem value="parcial">Parcialmente</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </Field>
-                    <Field label="Consejo de administración">
-                      <Select value={p.consejoAdmin ?? ''} onValueChange={(v) => setP({ ...p, consejoAdmin: v })}>
-                        <SelectTrigger><SelectValue placeholder="Elige una opción" /></SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="activo">Consejo activo</SelectItem>
-                          <SelectItem value="formal">Formal/inactivo</SelectItem>
-                          <SelectItem value="no">No tiene</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </Field>
-                    <Field label="Consejo técnico">
-                      <Select value={p.consejoTecnico ?? ''} onValueChange={(v) => setP({ ...p, consejoTecnico: v })}>
-                        <SelectTrigger><SelectValue placeholder="Elige una opción" /></SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="si">Sí</SelectItem>
-                          <SelectItem value="no">No</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </Field>
-                    <Field label="Asambleas">
-                      <Select value={p.asambleas ?? ''} onValueChange={(v) => setP({ ...p, asambleas: v })}>
-                        <SelectTrigger><SelectValue placeholder="Frecuencia" /></SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="trimestral">Trimestral</SelectItem>
-                          <SelectItem value="semestral">Semestral</SelectItem>
-                          <SelectItem value="anual">Anual</SelectItem>
-                          <SelectItem value="nunca">Nunca</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </Field>
-                    <Field label="Nº de socios">
-                      <Select value={p.socios ?? ''} onValueChange={(v) => setP({ ...p, socios: v })}>
-                        <SelectTrigger><SelectValue placeholder="Rango" /></SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="1">1</SelectItem>
-                          <SelectItem value="2-3">2-3</SelectItem>
-                          <SelectItem value="4-10">4-10</SelectItem>
-                          <SelectItem value="10+">10+</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </Field>
-                  </div>
-                </div>
+          <div className="mt-6 space-y-6 border-t pt-5">
+            <div className="space-y-3">
+              <h3 className="text-sm font-bold">Estructura legal y gobierno</h3>
+              <div className="grid gap-4 sm:grid-cols-2">
+                <Field label={<>Tipo de sociedad <InfoTip text="La figura legal con la que está constituida tu empresa." /></>}>
+                  <Select value={p.tipoSociedad ?? ''} onValueChange={(v) => setP({ ...p, tipoSociedad: v })}>
+                    <SelectTrigger><SelectValue placeholder="Elige una opción" /></SelectTrigger>
+                    <SelectContent>{TIPOS_SOCIEDAD.map((s) => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent>
+                  </Select>
+                </Field>
+                <Field label={<>¿Es empresa familiar? <InfoTip text="Si la propiedad y/o dirección está en manos de una familia." /></>}>
+                  <Select value={p.esFamiliar ?? ''} onValueChange={(v) => setP({ ...p, esFamiliar: v })}>
+                    <SelectTrigger><SelectValue placeholder="Elige una opción" /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="si">Sí</SelectItem>
+                      <SelectItem value="no">No</SelectItem>
+                      <SelectItem value="parcial">Parcialmente</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </Field>
+                <Field label={<>Consejo de administración <InfoTip text="Órgano que supervisa la dirección y toma decisiones estratégicas; rinde cuentas a los socios." /></>}>
+                  <Select value={p.consejoAdmin ?? ''} onValueChange={(v) => setP({ ...p, consejoAdmin: v })}>
+                    <SelectTrigger><SelectValue placeholder="Elige una opción" /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="activo">Consejo activo</SelectItem>
+                      <SelectItem value="formal">Formal/inactivo</SelectItem>
+                      <SelectItem value="no">No tiene</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </Field>
+                <Field label={<>Consejo técnico/consultivo <InfoTip text="Grupo de expertos externos que asesora al CEO sin ser socios." /></>}>
+                  <Select value={p.consejoTecnico ?? ''} onValueChange={(v) => setP({ ...p, consejoTecnico: v })}>
+                    <SelectTrigger><SelectValue placeholder="Elige una opción" /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="si">Sí</SelectItem>
+                      <SelectItem value="no">No</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </Field>
+                <Field label={<>Asambleas de socios <InfoTip text="Reuniones formales donde los socios/accionistas toman decisiones y aprueban resultados." /></>}>
+                  <Select value={p.asambleas ?? ''} onValueChange={(v) => setP({ ...p, asambleas: v })}>
+                    <SelectTrigger><SelectValue placeholder="Frecuencia" /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="trimestral">Trimestral</SelectItem>
+                      <SelectItem value="semestral">Semestral</SelectItem>
+                      <SelectItem value="anual">Anual</SelectItem>
+                      <SelectItem value="nunca">Nunca</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </Field>
+                <Field label="Nº de socios">
+                  <Select value={p.socios ?? ''} onValueChange={(v) => setP({ ...p, socios: v })}>
+                    <SelectTrigger><SelectValue placeholder="Rango" /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="1">1</SelectItem>
+                      <SelectItem value="2-3">2-3</SelectItem>
+                      <SelectItem value="4-10">4-10</SelectItem>
+                      <SelectItem value="10+">10+</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </Field>
+              </div>
+            </div>
 
-                <div className="space-y-3">
-                  <h3 className="text-sm font-bold">Perfil operativo-digital</h3>
-                  <div className="grid gap-4 sm:grid-cols-2">
-                    <Field label="Sitio web">
-                      <Input value={p.web ?? ''} onChange={(e) => setP({ ...p, web: e.target.value })} placeholder="https://…" />
-                    </Field>
-                    <Field label="Correo corporativo">
-                      <Select value={p.correoDominio ?? ''} onValueChange={(v) => setP({ ...p, correoDominio: v })}>
-                        <SelectTrigger><SelectValue placeholder="Elige una opción" /></SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="propio">Dominio propio</SelectItem>
-                          <SelectItem value="personal">Correo personal (Gmail/Hotmail)</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </Field>
-                    <Field label="Conmutador telefónico">
-                      <Select value={p.conmutador ?? ''} onValueChange={(v) => setP({ ...p, conmutador: v })}>
-                        <SelectTrigger><SelectValue placeholder="Elige una opción" /></SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="si">Sí, con extensiones</SelectItem>
-                          <SelectItem value="no">No, celular/una línea</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </Field>
-                    <Field label="Canales de comunicación interna">
-                      <Select value={p.canales ?? ''} onValueChange={(v) => setP({ ...p, canales: v })}>
-                        <SelectTrigger><SelectValue placeholder="Elige una opción" /></SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="whatsapp">WhatsApp</SelectItem>
-                          <SelectItem value="slack">Slack</SelectItem>
-                          <SelectItem value="teams">Teams</SelectItem>
-                          <SelectItem value="mixto">Mixto</SelectItem>
-                          <SelectItem value="ninguno">Ninguno</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </Field>
-                  </div>
-                </div>
-
-                <div className="space-y-3">
-                  <h3 className="text-sm font-bold">Ubicación y alcance</h3>
-                  <div className="grid gap-4 sm:grid-cols-2">
-                    <Field label="Dirección">
-                      <Input value={p.direccion ?? ''} onChange={(e) => setP({ ...p, direccion: e.target.value })} placeholder="Calle, ciudad" />
-                      <p className="text-xs text-muted-foreground">Pin en mapa (Google Maps) — integración pendiente</p>
-                    </Field>
-                    <Field label="Alcance geográfico">
-                      <Select value={p.alcance ?? ''} onValueChange={(v) => setP({ ...p, alcance: v })}>
-                        <SelectTrigger><SelectValue placeholder="Elige una opción" /></SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="local">Local (una ciudad)</SelectItem>
-                          <SelectItem value="regional">Regional</SelectItem>
-                          <SelectItem value="nacional">Nacional</SelectItem>
-                          <SelectItem value="multinacional">Multinacional</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </Field>
-                    <Field label="Nº de sucursales">
-                      <Input value={p.sucursales ?? ''} onChange={(e) => setP({ ...p, sucursales: e.target.value })} placeholder="0" inputMode="numeric" />
-                    </Field>
+            <div className="space-y-3">
+              <h3 className="text-sm font-bold">Perfil operativo-digital</h3>
+              <div className="grid gap-4 sm:grid-cols-2">
+                <Field label="Sitio web">
+                  <Input
+                    type="url"
+                    value={p.web ?? ''}
+                    onChange={(e) => setP({ ...p, web: e.target.value })}
+                    placeholder="https://…"
+                    className={p.web && !URL_RE.test(p.web) ? 'border-destructive focus-visible:ring-destructive' : ''}
+                  />
+                  {p.web && !URL_RE.test(p.web) && (
+                    <p className="text-xs text-destructive">Parece que falta el formato de URL (ej. https://tuempresa.com)</p>
+                  )}
+                </Field>
+                <Field label="Correo corporativo">
+                  <Select value={p.correoDominio ?? ''} onValueChange={(v) => setP({ ...p, correoDominio: v })}>
+                    <SelectTrigger><SelectValue placeholder="Elige una opción" /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="propio">Dominio propio</SelectItem>
+                      <SelectItem value="personal">Correo personal (Gmail/Hotmail)</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </Field>
+                <Field label="Conmutador telefónico">
+                  <Select value={p.conmutador ?? ''} onValueChange={(v) => setP({ ...p, conmutador: v })}>
+                    <SelectTrigger><SelectValue placeholder="Elige una opción" /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="si">Sí, con extensiones</SelectItem>
+                      <SelectItem value="no">No, celular/una línea</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </Field>
+                <div className="space-y-1.5 sm:col-span-2">
+                  <Label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Canales de comunicación</Label>
+                  <p className="text-xs text-muted-foreground">Elige todos los que usen (principal y secundarios).</p>
+                  <div className="flex flex-wrap gap-2 pt-0.5">
+                    {CANALES.map((c) => {
+                      const activo = (p.canales ?? []).includes(c);
+                      return (
+                        <button
+                          key={c}
+                          type="button"
+                          onClick={() => setP({ ...p, canales: toggleInArray(p.canales, c) })}
+                          className={`rounded-full border px-3 py-1.5 text-sm transition ${
+                            activo
+                              ? 'border-primary bg-primary text-primary-foreground ring-1 ring-primary'
+                              : 'border-border bg-background text-muted-foreground hover:border-primary/50'
+                          }`}
+                        >
+                          {c}
+                        </button>
+                      );
+                    })}
                   </div>
                 </div>
               </div>
-            )}
+            </div>
+
+            <div className="space-y-3">
+              <h3 className="text-sm font-bold">Ubicación y alcance</h3>
+              <div className="grid gap-4 sm:grid-cols-2">
+                <Field label="Dirección">
+                  <Input value={p.direccion ?? ''} onChange={(e) => setP({ ...p, direccion: e.target.value })} placeholder="Calle, ciudad" />
+                  <p className="text-xs text-muted-foreground">Pin en mapa (Google Maps) — integración pendiente</p>
+                </Field>
+                <Field label="Alcance comercial (dónde vendes)">
+                  <Select value={p.alcanceComercial ?? ''} onValueChange={(v) => setP({ ...p, alcanceComercial: v })}>
+                    <SelectTrigger><SelectValue placeholder="Elige una opción" /></SelectTrigger>
+                    <SelectContent>{ALCANCES.map((a) => <SelectItem key={a.v} value={a.v}>{a.l}</SelectItem>)}</SelectContent>
+                  </Select>
+                </Field>
+                <Field label="Alcance operativo (dónde operas)">
+                  <Select value={p.alcanceOperativo ?? ''} onValueChange={(v) => setP({ ...p, alcanceOperativo: v })}>
+                    <SelectTrigger><SelectValue placeholder="Elige una opción" /></SelectTrigger>
+                    <SelectContent>{ALCANCES.map((a) => <SelectItem key={a.v} value={a.v}>{a.l}</SelectItem>)}</SelectContent>
+                  </Select>
+                </Field>
+                <Field label="Puntos/sucursales de venta">
+                  <Input value={p.sucursalesVenta ?? ''} onChange={(e) => setP({ ...p, sucursalesVenta: e.target.value })} placeholder="0" inputMode="numeric" />
+                </Field>
+                <Field label="Plantas/sucursales operativas">
+                  <Input value={p.sucursalesOperativas ?? ''} onChange={(e) => setP({ ...p, sucursalesOperativas: e.target.value })} placeholder="0" inputMode="numeric" />
+                </Field>
+              </div>
+            </div>
           </div>
 
           <label className="mt-6 flex cursor-pointer items-start gap-2.5 rounded-lg border border-dashed p-3 text-sm">
@@ -265,7 +328,7 @@ export default function DiagnosticosPage() {
 
           <div className="mt-4 flex items-center justify-end gap-3">
             <Button variant="outline" onClick={() => setModo('list')} disabled={creando}>Cancelar</Button>
-            <GlowButton onClick={iniciar} disabled={!p.nombreEmpresa || !p.sector || !acepta} loading={creando} icon={<ArrowRight size={16} className="ml-0.5" />}>
+            <GlowButton onClick={iniciar} disabled={!p.nombreEmpresa || !p.sector || !acepta || !(p.areas && p.areas.length)} loading={creando} icon={<ArrowRight size={16} className="ml-0.5" />}>
               Comenzar
             </GlowButton>
           </div>

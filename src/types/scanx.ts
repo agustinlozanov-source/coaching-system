@@ -83,14 +83,24 @@ export type PerfilContextual = {
   web?: string;
   correoDominio?: string;    // propio | personal
   conmutador?: string;       // si | no
-  canales?: string;          // whatsapp | slack | teams | mixto | ninguno
+  canales?: string[];        // ['whatsapp','slack',...] selección múltiple
   // Ubicación y alcance
   direccion?: string;
   lat?: number;
   lng?: number;
-  alcance?: string;          // local | regional | nacional | multinacional
-  sucursales?: string;
+  alcanceComercial?: string; // local | regional | nacional | multinacional
+  alcanceOperativo?: string; // local | regional | nacional | multinacional
+  sucursalesVenta?: string;
+  sucursalesOperativas?: string;
+  // Áreas de la empresa (alimenta preguntas por área + multiperspectiva)
+  areas?: string[];
 };
+
+/** Áreas base de una empresa (existen por definición, aunque no haya depto formal). */
+export const AREAS_BASE = [
+  'Dirección / Estrategia', 'Comercial / Ventas', 'Marketing', 'Operaciones',
+  'Finanzas', 'Talento / RRHH', 'Tecnología / Sistemas', 'Servicio al cliente', 'Legal',
+];
 
 /** Estados financieros (captura manual o parseados de upload). */
 export type AddBack = { concepto: string; monto: number };

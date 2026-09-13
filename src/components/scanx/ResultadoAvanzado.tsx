@@ -87,7 +87,9 @@ export function ResultadoAvanzado({ diagId, resultado }: { diagId: string; resul
       {/* Confiabilidad */}
       <div className="rounded-2xl border bg-card p-5">
         <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Índice de confiabilidad por área</p>
-        <p className="mb-3 text-xs text-muted-foreground">Qué tan verificado está cada diagnóstico (densidad de respuestas + evidencia + congruencia).</p>
+        <p className="mb-3 text-xs text-muted-foreground">
+          Qué tan <b>sólido y verificado</b> está el diagnóstico de cada área. <b>Alto (verde)</b> = respondiste a fondo, con evidencia y otras perspectivas que coinciden → puedes actuar con confianza. <b>Bajo (rojo)</b> = falta verificar: sube evidencia o suma perspectivas para confirmarlo.
+        </p>
         <div className="grid gap-x-8 gap-y-1.5 sm:grid-cols-2">
           {confiabilidad.map((c) => (
             <div key={c.id} className="flex items-center gap-2 text-sm">
@@ -103,7 +105,10 @@ export function ResultadoAvanzado({ diagId, resultado }: { diagId: string; resul
 
       {/* Matriz BCG */}
       <div className="rounded-2xl border bg-card p-5">
-        <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground">Matriz BCG de procesos</p>
+        <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Matriz BCG de procesos</p>
+        <p className="mb-3 text-xs text-muted-foreground">
+          Cruza <b>madurez del proceso × impacto en el negocio</b>, para priorizar dónde invertir tu energía. <b>Estrella</b>: fuerte y clave, protégela. <b>Interrogación</b>: clave pero floja, tu prioridad de inversión. <b>Vaca</b>: sólida pero de bajo impacto, mantenla eficiente. <b>Perro</b>: floja y de bajo impacto, evalúa si vale la pena.
+        </p>
         <div className="grid gap-3 sm:grid-cols-2">
           <Quad emoji="⭐" titulo="Estrella" accion="Mantener y replicar" items={bcg.estrella} />
           <Quad emoji="❓" titulo="Interrogación" accion="Prioridad de inversión" items={bcg.interrogacion} />

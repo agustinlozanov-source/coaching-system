@@ -5,7 +5,6 @@ import Link from 'next/link';
 import { Loader2, Check, ChevronLeft, ArrowRight, BookOpen, X, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { GlowButton } from '@/components/ui/glow-button';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { RadarScanx } from '@/components/scanx/RadarScanx';
 import { ResultadoAvanzado } from '@/components/scanx/ResultadoAvanzado';
 import { MarketTopBar } from '@/components/scanx/MarketTopBar';
@@ -47,10 +46,10 @@ export default function DiagnosticoPage({ params }: { params: { id: string } }) 
   const [verResultado, setVerResultado] = useState(false);
   const [certezas, setCertezas] = useState<Record<string, string>>({});
   const [glos, setGlos] = useState<Termino | null>(null);
-  const [iaOpen, setIaOpen] = useState(false);
-  const [iaTitulo, setIaTitulo] = useState('');
-  const [iaTexto, setIaTexto] = useState('');
-  const [iaLoading, setIaLoading] = useState(false);
+  const [narrativa, setNarrativa] = useState('');
+  const [potencial, setPotencial] = useState('');
+  const [narrLoading, setNarrLoading] = useState(false);
+  const [potLoading, setPotLoading] = useState(false);
 
   useEffect(() => {
     (async () => {
@@ -87,14 +86,24 @@ export default function DiagnosticoPage({ params }: { params: { id: string } }) 
     if (idx < total - 1) setTimeout(() => setIdx((i) => Math.min(i + 1, total - 1)), 260);
   }
 
-  async function runIA(tarea: 'narrativa' | 'potencial', contexto: Record<string, unknown>, titulo: string) {
-    setIaTitulo(titulo); setIaTexto(''); setIaLoading(true); setIaOpen(true);
-    try {
-      const r = await fetch('/api/scanx/ia', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ tarea, contexto }) });
-      const j = await r.json();
-      setIaTexto(j.error ? `Error: ${j.error}` : (j.texto || 'Sin resultado.'));
-    } catch { setIaTexto('No se pudo generar.'); } finally { setIaLoading(false); }
-  }
+  // Narrativa + potencial se generan AUTOMÁTICamente al ver el resultado (sin botón).
+  useEffect(() => {
+    if (!verResultado || !diag?.resultado) return;
+    const r = diag.resultado;
+    if (!narrativa && !narrLoading) {
+      setNarrLoading(true);
+      fetch('/api/scanx/ia', { method: 'POST', headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ tarea: 'narrativa', contexto: { perfil: diag.perfil, dimensiones: r.dimensiones.map((d) => ({ nombre: d.nombre, valor: d.valor })), tipo: r.tipoEmpresa, top3: r.top3, mercado: diag.mercado } }) })
+        .then((x) => x.json()).then((j) => setNarrativa(j.error ? '' : (j.texto || ''))).catch(() => {}).finally(() => setNarrLoading(false));
+    }
+    if (!potencial && !potLoading) {
+      setPotLoading(true);
+      fetch('/api/scanx/ia', { method: 'POST', headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ tarea: 'potencial', contexto: { perfil: diag.perfil, resultado: { tipo: r.tipoEmpresa, promedio: r.promedioGeneral, top3: r.top3 }, mercado: diag.mercado } }) })
+        .then((x) => x.json()).then((j) => setPotencial(j.error ? '' : (j.texto || ''))).catch(() => {}).finally(() => setPotLoading(false));
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [verResultado, diag?.resultado]);
 
   async function finalizar() {
     setFinalizando(true);
@@ -123,16 +132,6 @@ export default function DiagnosticoPage({ params }: { params: { id: string } }) 
           </div>
         </>
       )}
-      <Dialog open={iaOpen} onOpenChange={setIaOpen}>
-        <DialogContent className="max-h-[80vh] overflow-y-auto">
-          <DialogHeader><DialogTitle>{iaTitulo}</DialogTitle></DialogHeader>
-          {iaLoading ? (
-            <div className="flex items-center gap-2 py-8 text-sm text-muted-foreground"><Loader2 className="h-5 w-5 animate-spin" /> Generando con IA…</div>
-          ) : (
-            <div className="whitespace-pre-wrap text-sm leading-relaxed">{iaTexto}</div>
-          )}
-        </DialogContent>
-      </Dialog>
     </>
   );
 
@@ -184,9 +183,10 @@ export default function DiagnosticoPage({ params }: { params: { id: string } }) 
           </div>
           <div className="flex flex-col gap-4">
             <div className="rounded-2xl border border-border bg-card p-5">
-              <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Clasificación</p>
+              <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Clasificación previa</p>
               <p className="mt-1 text-xl font-extrabold">Tipo {resultado.tipoEmpresa} · {tipo.nombre}</p>
               <p className="mt-2 text-sm text-muted-foreground">{tipo.descripcion}</p>
+              <p className="mt-2 text-xs text-amber-600 dark:text-amber-400">Clasificación previa — se afina al profundizar por área y sumar otras perspectivas.</p>
               {resultado.promedioGeneral != null && (
                 <p className="mt-3 text-sm">Promedio general: <span className="font-bold tabular-nums">{resultado.promedioGeneral.toFixed(2)}</span> / {VALOR_MAX.toFixed(2)}</p>
               )}
@@ -215,26 +215,30 @@ export default function DiagnosticoPage({ params }: { params: { id: string } }) 
 
         <ResultadoAvanzado diagId={id} resultado={resultado} />
 
-        {/* Insights IA */}
-        <div className="mt-6 flex flex-wrap gap-2">
-          <GlowButton icon={<Sparkles size={16} className="ml-0.5" />}
-            onClick={() => runIA('narrativa', { perfil: diag.perfil, dimensiones: resultado.dimensiones.map((d) => ({ nombre: d.nombre, valor: d.valor })), tipo: resultado.tipoEmpresa, top3: resultado.top3, mercado: diag.mercado }, 'Narrativa ejecutiva')}>
-            Narrativa ejecutiva (IA)
-          </GlowButton>
-          <Button variant="outline"
-            onClick={() => runIA('potencial', { perfil: diag.perfil, resultado: { tipo: resultado.tipoEmpresa, promedio: resultado.promedioGeneral, top3: resultado.top3 }, mercado: diag.mercado }, 'Potencial de escala')}>
-            <Sparkles className="mr-1 h-4 w-4" /> Potencial de escala (IA)
-          </Button>
+        {/* Narrativa ejecutiva (automática) */}
+        <div className="mt-6 rounded-2xl border bg-card p-5">
+          <div className="mb-2 flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-muted-foreground"><Sparkles className="h-3.5 w-3.5" /> Narrativa ejecutiva</div>
+          {narrLoading ? <div className="flex items-center gap-2 text-sm text-muted-foreground"><Loader2 className="h-4 w-4 animate-spin" /> Analizando tu empresa…</div>
+            : narrativa ? <div className="whitespace-pre-wrap text-sm leading-relaxed">{narrativa}</div>
+            : <p className="text-sm text-muted-foreground">No se pudo generar la narrativa.</p>}
         </div>
 
-        {/* Profundizar: capas de verificación */}
+        {/* Potencial de escala (automático) */}
+        <div className="mt-6 rounded-2xl border bg-card p-5">
+          <div className="mb-2 flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-muted-foreground"><Sparkles className="h-3.5 w-3.5" /> Potencial de escala</div>
+          {potLoading ? <div className="flex items-center gap-2 text-sm text-muted-foreground"><Loader2 className="h-4 w-4 animate-spin" /> Proyectando tu potencial…</div>
+            : potencial ? <div className="whitespace-pre-wrap text-sm leading-relaxed">{potencial}</div>
+            : <p className="text-sm text-muted-foreground">No se pudo generar el análisis de potencial.</p>}
+        </div>
+
+        {/* Profundizar */}
         <div className="mt-6 grid gap-3 sm:grid-cols-2">
           <Link href={`/scanx/diagnosticos/${id}/equipo`} className="glow-card group flex items-center justify-between rounded-xl border bg-card p-4 transition hover:-translate-y-0.5 hover:shadow-md">
-            <div><div className="font-semibold">Multiperspectiva (Capa 2)</div><div className="text-xs text-muted-foreground">Invita a tu equipo, clientes y proveedores</div></div>
+            <div><div className="font-semibold">Suma otras perspectivas</div><div className="text-xs text-muted-foreground">Invita a tu equipo, clientes y proveedores</div></div>
             <ArrowRight className="h-4 w-4 text-muted-foreground transition-transform group-hover:translate-x-0.5" />
           </Link>
           <Link href={`/scanx/diagnosticos/${id}/verificacion`} className="glow-card group flex items-center justify-between rounded-xl border bg-card p-4 transition hover:-translate-y-0.5 hover:shadow-md">
-            <div><div className="font-semibold">Verificación (Capa 3)</div><div className="text-xs text-muted-foreground">Evidencia + timed challenges + screen recording</div></div>
+            <div><div className="font-semibold">Comprueba con evidencia</div><div className="text-xs text-muted-foreground">Sube documentos y demuéstralo en vivo</div></div>
             <ArrowRight className="h-4 w-4 text-muted-foreground transition-transform group-hover:translate-x-0.5" />
           </Link>
         </div>
