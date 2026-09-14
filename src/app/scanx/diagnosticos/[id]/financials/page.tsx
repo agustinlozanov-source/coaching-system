@@ -16,14 +16,21 @@ import type { Diagnostico, Financials, AddBack } from '@/types/scanx';
 
 export const dynamic = 'force-dynamic';
 
-/** Campos financieros de captura manual. */
-const CAMPOS: { key: keyof Financials; label: string; hint?: string }[] = [
-  { key: 'ingresos', label: 'Ingresos (ventas)' },
-  { key: 'costoVentas', label: 'Costo de ventas' },
-  { key: 'gastosOperativos', label: 'Gastos operativos' },
-  { key: 'utilidadNeta', label: 'Utilidad neta' },
-  { key: 'activos', label: 'Activos totales' },
-  { key: 'pasivos', label: 'Pasivos totales' },
+/** Secuencia completa del estado de resultados (8.2). La utilidad bruta es
+ *  derivada (ingresos − costo de ventas): no se captura, se calcula. */
+type Slot =
+  | { kind: 'input'; key: keyof Financials; label: string; hint?: string }
+  | { kind: 'derived'; label: string; hint?: string };
+
+const SLOTS: Slot[] = [
+  { kind: 'input', key: 'ingresos', label: 'Ingresos (ventas)', hint: 'Todo lo que facturaste en el periodo.' },
+  { kind: 'input', key: 'costoVentas', label: 'Costo de ventas', hint: 'Costo directo de producir/entregar lo que vendes.' },
+  { kind: 'derived', label: 'Utilidad bruta', hint: 'Ingresos − costo de ventas (se calcula solo).' },
+  { kind: 'input', key: 'gastosOperativos', label: 'Gastos operativos', hint: 'Nómina, renta, marketing, administración…' },
+  { kind: 'input', key: 'impuestos', label: 'Impuestos', hint: 'ISR y demás impuestos del periodo.' },
+  { kind: 'input', key: 'utilidadNeta', label: 'Utilidad neta', hint: 'Lo que queda al final, después de todo.' },
+  { kind: 'input', key: 'activos', label: 'Activos totales', hint: 'Todo lo que la empresa posee.' },
+  { kind: 'input', key: 'pasivos', label: 'Pasivos totales', hint: 'Todo lo que la empresa debe.' },
 ];
 
 /** Número o null desde un input de texto. */
@@ -62,6 +69,10 @@ export default function FinancialsPage({ params }: { params: { id: string } }) {
   const sector = diag?.perfil?.sector;
   const moneda = fin.moneda || 'MXN';
   const valuacion = useMemo(() => calcularValuacion(fin, sector), [fin, sector]);
+  const utilidadBruta = useMemo(() => {
+    const i = fin.ingresos, c = fin.costoVentas;
+    return typeof i === 'number' && typeof c === 'number' && !isNaN(i) && !isNaN(c) ? i - c : null;
+  }, [fin.ingresos, fin.costoVentas]);
 
   const medianaMargen = diag?.mercado?.industria?.medianaMargen;
   const comparacion = useMemo(
@@ -155,8 +166,13 @@ export default function FinancialsPage({ params }: { params: { id: string } }) {
         <h1 className="mt-3 flex items-center gap-2 text-2xl font-bold tracking-tight">
           <DollarSign className="h-6 w-6 text-muted-foreground" /> Financieros y valuación
         </h1>
-        <p className="mt-1 text-sm text-muted-foreground">
+        <p className="mt-1 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
           {diag.perfil?.nombreEmpresa ?? 'Empresa'}
+        </p>
+        <p className="mt-2 max-w-2xl text-sm leading-relaxed text-muted-foreground">
+          Con tus cifras estimamos <span className="font-medium text-foreground">cuánto vale tu empresa hoy</span> y cómo se compara con tu industria.
+          No necesitas tenerlo todo: cada campo que completas afina el rango y, de paso, te muestra
+          <span className="font-medium text-foreground"> qué información se necesita para valuar un negocio</span>. Nada de esto se comparte; es tu punto de partida.
         </p>
       </div>
 
@@ -198,19 +214,30 @@ export default function FinancialsPage({ params }: { params: { id: string } }) {
               </div>
 
               <div className="grid gap-4 sm:grid-cols-2">
-                {CAMPOS.map((c) => (
-                  <div key={c.key} className="space-y-1.5">
-                    <Label htmlFor={c.key}>{c.label}</Label>
-                    <Input
-                      id={c.key}
-                      type="number"
-                      inputMode="decimal"
-                      placeholder="0"
-                      value={(fin[c.key] as number | null | undefined) ?? ''}
-                      onChange={(e) => setCampo(c.key, e.target.value)}
-                    />
-                  </div>
-                ))}
+                {SLOTS.map((s, i) =>
+                  s.kind === 'derived' ? (
+                    <div key={`d-${i}`} className="space-y-1.5">
+                      <Label className="flex items-center gap-1 text-muted-foreground">{s.label}</Label>
+                      <div className="flex h-10 items-center rounded-md border border-dashed bg-muted/40 px-3 text-sm font-semibold tabular-nums">
+                        {utilidadBruta == null ? <span className="font-normal text-muted-foreground">Se calcula solo</span> : fmt(utilidadBruta)}
+                      </div>
+                      {s.hint && <p className="text-[11px] text-muted-foreground">{s.hint}</p>}
+                    </div>
+                  ) : (
+                    <div key={s.key} className="space-y-1.5">
+                      <Label htmlFor={s.key}>{s.label}</Label>
+                      <Input
+                        id={s.key}
+                        type="number"
+                        inputMode="decimal"
+                        placeholder="0"
+                        value={(fin[s.key] as number | null | undefined) ?? ''}
+                        onChange={(e) => setCampo(s.key, e.target.value)}
+                      />
+                      {s.hint && <p className="text-[11px] text-muted-foreground">{s.hint}</p>}
+                    </div>
+                  ),
+                )}
               </div>
             </CardContent>
           </Card>

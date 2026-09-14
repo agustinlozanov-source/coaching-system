@@ -215,7 +215,7 @@ export default function DiagnosticoPage({ params }: { params: { id: string } }) 
     const money = (v: number | null) => v == null ? '—' : new Intl.NumberFormat('es-MX', { style: 'currency', currency: diag.financials?.moneda || 'MXN', maximumFractionDigits: 0 }).format(v);
     return (
       <div className="mx-auto max-w-3xl">
-        <MarketTopBar mercado={diag.mercado} posicion={posMercado} />
+        <MarketTopBar mercado={diag.mercado} posicion={posMercado} diagId={id} />
         <div className="text-center">
           <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Resultado del diagnóstico</p>
           <h1 className="mt-1 text-2xl font-bold">{diag.perfil.nombreEmpresa || 'Tu empresa'}</h1>
@@ -341,7 +341,7 @@ export default function DiagnosticoPage({ params }: { params: { id: string } }) 
   // ── Flujo de escenarios ────────────────────────────────────────────
   return (
     <div className="mx-auto max-w-5xl">
-      <MarketTopBar mercado={diag?.mercado ?? null} />
+      <MarketTopBar mercado={diag?.mercado ?? null} diagId={id} />
       {/* Progreso */}
       <div className="mb-6">
         <div className="mb-1.5 flex items-center justify-between text-xs text-muted-foreground">

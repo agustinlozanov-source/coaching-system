@@ -1,11 +1,10 @@
 import type { ContextoMercado, IndustriaCtx, MacroCtx, PerfilContextual } from '@/types/scanx';
 
 /**
- * Contexto de mercado para el diagnóstico. Por ahora usa valores SEMBRADOS
- * (razonables) por país/sector. INTEGRACIÓN PENDIENTE: sustituir por lecturas
- * en vivo de INEGI/DANE/INDEC/INE/IBGE (industria) y Banxico/FRED/BM (macro).
- * La forma de los datos ya es la definitiva, así que conectar la API real es
- * cambiar la fuente aquí, sin tocar la UI.
+ * Contexto de mercado inicial (punto de partida) por país/sector. NO se conectan
+ * APIs externas: el usuario edita estos datos a mano o los estima con IA en
+ * /scanx/diagnosticos/[id]/mercado (información pública). Estos valores solo
+ * pre-cargan el formulario para que no arranque vacío.
  */
 
 const MACRO: Record<string, MacroCtx> = {
@@ -33,7 +32,7 @@ const INDUSTRIA_DEFAULT = { crecimiento: 4.0, esperanzaVida: 8.0, medianaMargen:
 export function getContextoMercado(perfil: PerfilContextual): ContextoMercado {
   const macro = { ...(MACRO[perfil.pais ?? ''] ?? MACRO_DEFAULT), actualizado: new Date().toISOString().slice(0, 10) };
   const ind = INDUSTRIA[perfil.sector ?? ''] ?? INDUSTRIA_DEFAULT;
-  const industria: IndustriaCtx = { sector: perfil.sector, ...ind, fuente: 'INEGI/estimado (pendiente integración)' };
+  const industria: IndustriaCtx = { sector: perfil.sector, ...ind, fuente: 'Estimación inicial · edítala con tus datos' };
   return { macro, industria };
 }
 

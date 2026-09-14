@@ -62,6 +62,17 @@ ${ctx}`, 1000);
       const tree = p?.raiz && Array.isArray(p?.ramas) ? p : null;
       return NextResponse.json({ tree }, { status: 200 });
     }
+    if (tarea === 'mercado') {
+      const ctx = JSON.stringify(body.contexto ?? {}).slice(0, 2000);
+      const out = await claude(`Eres analista económico de SCALEx. Con tu conocimiento de fuentes públicas (bancos centrales, institutos de estadística, reportes de industria), estima los indicadores de contexto para esta empresa (JSON: pais, ciudad, sector). NO inventes precisión falsa: son estimaciones de orden de magnitud recientes.
+Devuelve SOLO JSON:
+{"macro":{"inflacion":number,"tasaReferencia":number,"tipoCambio":number},"industria":{"crecimiento":number,"esperanzaVida":number,"medianaMargen":number},"fuente":string (breve, ej. "Estimado IA · Banxico/INEGI, orden de magnitud"),"nota":string (1 frase: recuérdale al usuario verificar con fuentes oficiales y editar si tiene datos mejores)}.
+- inflacion/tasaReferencia/crecimiento/medianaMargen en % (número), tipoCambio en unidades de moneda local por USD, esperanzaVida en años.
+CONTEXTO:
+${ctx}`, 700);
+      const p = parseJSON(out);
+      return NextResponse.json({ mercado: p ?? null }, { status: 200 });
+    }
     if (tarea === 'potencial') {
       const ctx = JSON.stringify(body.contexto ?? {}).slice(0, 7000);
       const out = await claude(`Con el diagnóstico + contexto de mercado/ubicación (JSON), escribe el DIAGNÓSTICO DE POTENCIAL DE ESCALA (español, 2-3 párrafos): si el modelo escala con sucursales/producto/franquicia/tecnología/cambio de modelo, la comparativa local vs regional, y qué sigue una vez resueltos los problemas. Concreto y accionable, sin preámbulo.\nCONTEXTO:\n${ctx}`, 1000);

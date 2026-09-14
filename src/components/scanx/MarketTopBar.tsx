@@ -1,14 +1,15 @@
 'use client';
 
-import { TrendingUp, Activity, DollarSign, Building2 } from 'lucide-react';
+import Link from 'next/link';
+import { TrendingUp, Activity, DollarSign, Building2, Pencil } from 'lucide-react';
 import type { ContextoMercado } from '@/types/scanx';
 
 /**
  * Top bar persistente de contexto de mercado. Muestra sector + crecimiento de la
- * industria + indicadores macro. Datos sembrados (ver src/lib/scanx/mercado.ts);
- * la integración con INEGI/Banxico sustituye la fuente sin tocar esta UI.
+ * industria + indicadores macro. Los datos son información pública que el usuario
+ * edita a mano o estima con IA (ver /scanx/diagnosticos/[id]/mercado). Sin APIs externas.
  */
-export function MarketTopBar({ mercado, posicion }: { mercado: ContextoMercado | null; posicion?: 'arriba' | 'media' | 'abajo' | null }) {
+export function MarketTopBar({ mercado, posicion, diagId }: { mercado: ContextoMercado | null; posicion?: 'arriba' | 'media' | 'abajo' | null; diagId?: string }) {
   if (!mercado) return null;
   const { macro, industria } = mercado;
 
@@ -30,6 +31,11 @@ export function MarketTopBar({ mercado, posicion }: { mercado: ContextoMercado |
         <span className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
           Datos de tu industria y mercado {industria.sector ? `· ${industria.sector}` : ''}
         </span>
+        {diagId && (
+          <Link href={`/scanx/diagnosticos/${diagId}/mercado`} className="ml-auto flex items-center gap-1 text-[11px] font-medium text-primary hover:underline print:hidden">
+            <Pencil className="h-3 w-3" /> Actualizar datos
+          </Link>
+        )}
       </div>
       <div className="flex items-center gap-5 overflow-x-auto">
         <Chip icon={<TrendingUp className="h-3.5 w-3.5" />} label="Crecimiento de la industria" value={`${industria.crecimiento ?? '—'}%`} />
