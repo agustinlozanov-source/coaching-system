@@ -85,7 +85,7 @@ export default function DiagnosticosPage() {
     setCreando(true);
     try {
       const id = await crearDiagnostico({ ...p, sistemaClasificacion: sistemaDe(p.paisIso2) });
-      router.push(`/scanx/diagnosticos/${id}`);
+      router.push(`/scanx/diagnosticos/${id}/dx21`);
     } catch {
       setCreando(false);
     }
@@ -345,7 +345,7 @@ export default function DiagnosticosPage() {
       ) : (
         <div className="space-y-2">
           {diagnosticos.map((d) => (
-            <Link key={d.id} href={`/scanx/diagnosticos/${d.id}`}
+            <Link key={d.id} href={`/scanx/diagnosticos/${d.id}${d.dx21 ? '/dx21' : ''}`}
               className="glow-card group flex items-center justify-between rounded-xl border bg-card p-4 transition hover:-translate-y-0.5 hover:shadow-md">
               <div>
                 <div className="font-semibold">{d.perfil.nombreEmpresa || 'Empresa'}</div>

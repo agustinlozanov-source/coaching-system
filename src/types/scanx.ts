@@ -100,6 +100,12 @@ export type PerfilContextual = {
   sucursalesOperativas?: string;
   // Áreas de la empresa (alimenta preguntas por área + multiperspectiva)
   areas?: string[];
+  // Perfil DX21 (contexto ampliado)
+  etapaVida?: string;      // startup | crecimiento | madurez | transformacion | crisis
+  modeloNegocio?: string;  // b2b | b2c | b2b2c | mixto
+  exporta?: string;        // si | no
+  ingresosRango?: string;  // rango de ingresos anuales
+  mercados?: string;       // local | regional | nacional | internacional
 };
 
 /** Áreas base de una empresa (existen por definición, aunque no haya depto formal). */
@@ -190,6 +196,7 @@ export type Diagnostico = {
   financials: Financials | null;
   mercado: ContextoMercado | null;
   analisis: AnalisisIA | null;
+  dx21: import('@/lib/scanx/dx21').DX21State | null;
   createdAt: string;
   updatedAt: string;
   completedAt: string | null;

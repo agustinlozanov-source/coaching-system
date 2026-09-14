@@ -8,6 +8,18 @@ export type LenteId = 'D' | 'Dp' | 'Ds';
 /** Respuestas del diagnóstico: por sub-dimensión, un valor 0-4 por lente. */
 export type RespuestasDX21 = Record<string, Partial<Record<LenteId, number>>>;
 
+/** Estado completo del diagnóstico DX21 persistido en scanx_diagnosticos.dx21. */
+export type PlanAccion = { inmediato: string[]; corto: string[]; mediano: string[] };
+export type DX21State = {
+  respuestas: RespuestasDX21;
+  cualitativo?: Record<string, string>;   // dimId -> nota cualitativa
+  narrativa?: string;                      // resultados fase 1 (IA)
+  plan?: PlanAccion | null;                // plan de acción (IA)
+  firma?: string;                          // hash de inputs para no recalcular IA
+  tabsCompletos?: string[];                // ids de tabs completados (progresión bloqueada)
+  completedAt?: string | null;
+};
+
 export const LENTES: { id: LenteId; nombre: string; pregunta: string }[] = [
   { id: 'D', nombre: 'Diseño', pregunta: '¿Lo tienen pensado?' },
   { id: 'Dp', nombre: 'Despliegue', pregunta: '¿Lo están haciendo?' },

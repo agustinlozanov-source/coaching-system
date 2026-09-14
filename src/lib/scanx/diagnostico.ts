@@ -19,6 +19,7 @@ function mapDiag(row: any): Diagnostico {
     financials: (row.financials ?? null) as Diagnostico['financials'],
     mercado: (row.mercado ?? null) as Diagnostico['mercado'],
     analisis: (row.analisis ?? null) as Diagnostico['analisis'],
+    dx21: (row.dx21 ?? null) as Diagnostico['dx21'],
     createdAt: row.created_at,
     updatedAt: row.updated_at,
     completedAt: row.completed_at ?? null,
@@ -84,6 +85,14 @@ export async function guardarMercado(id: string, mercado: unknown): Promise<void
 export async function guardarAnalisis(id: string, analisis: AnalisisIA): Promise<void> {
   const supabase = createClient();
   const { error } = await supabase.from('scanx_diagnosticos').update({ analisis }).eq('id', id);
+  if (error) throw error;
+}
+
+/** Persiste el estado del diagnóstico DX21 (respuestas por lente, cualitativo,
+ *  narrativa/plan, progresión de tabs). Se guarda el blob completo. */
+export async function guardarDX21(id: string, dx21: import('@/types/scanx').Diagnostico['dx21']): Promise<void> {
+  const supabase = createClient();
+  const { error } = await supabase.from('scanx_diagnosticos').update({ dx21 }).eq('id', id);
   if (error) throw error;
 }
 

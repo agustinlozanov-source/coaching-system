@@ -95,6 +95,23 @@ ${ctx}`, 700);
       const out = await claude(`Con el diagnóstico + contexto de mercado/ubicación (JSON), escribe el DIAGNÓSTICO DE POTENCIAL DE ESCALA (español, 2-3 párrafos): si el modelo escala con sucursales/producto/franquicia/tecnología/cambio de modelo, la comparativa local vs regional, y qué sigue una vez resueltos los problemas. Concreto y accionable, sin preámbulo.\nCONTEXTO:\n${ctx}`, 1000);
       return NextResponse.json({ texto: out }, { status: 200 });
     }
+    if (tarea === 'dx21-insight') {
+      // Micro-insight del consultor al completar una dimensión (panel derecho).
+      const ctx = JSON.stringify(body.contexto ?? {}).slice(0, 2000);
+      const out = await claude(`Eres un consultor DX21 acompañando un autodiagnóstico. Acaban de completar una dimensión (JSON: pilar, dimension, lentes {D=Diseño,Dp=Despliegue,Ds=Desempeño} 0-4, brecha). Da UN micro-insight breve (1-2 frases, español, tono cercano de consultor), observación preliminar que genere curiosidad sobre el resultado final. No repitas los números crudos; interpreta el patrón (ej. diseño fuerte pero despliegue flojo). Sin preámbulo.\nCONTEXTO:\n${ctx}`, 200);
+      return NextResponse.json({ texto: out }, { status: 200 });
+    }
+    if (tarea === 'dx21-narrativa') {
+      const ctx = JSON.stringify(body.contexto ?? {}).slice(0, 9000);
+      const out = await claude(`Eres un consultor SCALEx presentando resultados de un diagnóstico DX21 (7 pilares × 3 lentes, escala 0-4). Con el JSON (perfil, score general, madurez, pilares con score/lentes/brecha, brecha dominante, correlaciones), escribe una NARRATIVA EJECUTIVA (español, 4-6 párrafos) como lo haría un consultor real: diagnóstico general y qué significa, 2-3 fortalezas con contexto, 2-3 áreas críticas con su impacto, el hallazgo de correlación más relevante, y el patrón de brechas dominante (diseño/ejecución/efectividad). Interpreta, no listes cifras. Sin preámbulo.\nDIAGNÓSTICO:\n${ctx}`, 1600);
+      return NextResponse.json({ texto: out }, { status: 200 });
+    }
+    if (tarea === 'dx21-plan') {
+      const ctx = JSON.stringify(body.contexto ?? {}).slice(0, 8000);
+      const out = await claude(`Con el diagnóstico DX21 (JSON: pilares con score/brecha, correlaciones, perfil), genera un PLAN DE ACCIÓN priorizado. Devuelve SOLO JSON: {"inmediato": string[], "corto": string[], "mediano": string[]} — acciones concretas y accionables agrupadas por horizonte (inmediato = 0-30 días, corto = 1-3 meses, mediano = 3-12 meses). 2-4 acciones por horizonte, cada una una frase clara que ataque las brechas más severas. Español.\nDIAGNÓSTICO:\n${ctx}`, 1200);
+      const p = parseJSON(out) ?? {};
+      return NextResponse.json({ plan: { inmediato: p.inmediato ?? [], corto: p.corto ?? [], mediano: p.mediano ?? [] } }, { status: 200 });
+    }
     return NextResponse.json({ error: 'Tarea no reconocida.' }, { status: 200 });
   } catch (err: any) {
     return NextResponse.json({ error: err?.message || 'Error de IA.' }, { status: 200 });
