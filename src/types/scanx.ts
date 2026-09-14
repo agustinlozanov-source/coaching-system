@@ -66,8 +66,10 @@ export const TIPO_EMPRESA: Record<TipoEmpresa, { nombre: string; descripcion: st
 export type PerfilContextual = {
   nombreEmpresa?: string;
   sector?: string;
-  pais?: string;
-  ciudad?: string;
+  pais?: string;         // nombre del país (es)
+  paisIso2?: string;     // ISO-2 para cargar estados/ciudades y rehidratar
+  estado?: string;       // estado/provincia/departamento… (nomenclatura por país)
+  ciudad?: string;       // municipio / ciudad
   anioFundacion?: string;
   empleados?: string;    // rango
   clientesActivos?: string;

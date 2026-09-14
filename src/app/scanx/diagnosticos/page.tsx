@@ -12,6 +12,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { InfoTip } from '@/components/ui/info-tip';
+import { GeoCascade } from '@/components/scanx/GeoCascade';
 import { crearDiagnostico, listDiagnosticos } from '@/lib/scanx/diagnostico';
 import { TIPO_EMPRESA, AREAS_BASE, type Diagnostico, type PerfilContextual } from '@/types/scanx';
 
@@ -118,12 +119,10 @@ export default function DiagnosticosPage() {
                 <SelectContent>{SECTORES.map((s) => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent>
               </Select>
             </Field>
-            <Field label="País">
-              <Input value={p.pais ?? ''} onChange={(e) => setP({ ...p, pais: e.target.value })} placeholder="México" />
-            </Field>
-            <Field label="Ciudad">
-              <Input value={p.ciudad ?? ''} onChange={(e) => setP({ ...p, ciudad: e.target.value })} placeholder="CDMX" />
-            </Field>
+            <GeoCascade
+              value={{ pais: p.pais, paisIso2: p.paisIso2, estado: p.estado, ciudad: p.ciudad }}
+              onChange={(patch) => setP((prev) => ({ ...prev, ...patch }))}
+            />
             <Field label="Año de fundación">
               <Input value={p.anioFundacion ?? ''} onChange={(e) => setP({ ...p, anioFundacion: e.target.value })} placeholder="2018" inputMode="numeric" />
             </Field>
