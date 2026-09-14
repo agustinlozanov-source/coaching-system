@@ -1,5 +1,5 @@
 import type { Financials, Valuacion } from '@/types/scanx';
-import { multiploDe } from './mercado';
+import { multiploDe } from './clasificacion';
 
 const n = (v: number | null | undefined) => (typeof v === 'number' && !isNaN(v) ? v : null);
 
@@ -10,8 +10,8 @@ const n = (v: number | null | undefined) => (typeof v === 'number' && !isNaN(v) 
  * El EBITDA normalizado suma los add-backs (gastos no recurrentes/no operativos).
  * NOTA: aproximación de PyME; la lógica formal se migrará del motor de Avalluo.
  */
-export function calcularValuacion(fin: Financials | null | undefined, sector?: string): Valuacion {
-  const multiplo = multiploDe(sector);
+export function calcularValuacion(fin: Financials | null | undefined, sectorCode?: string): Valuacion {
+  const multiplo = multiploDe(sectorCode);
   if (!fin) return { ebitda: null, ebitdaNormalizado: null, margenOperativo: null, multiplo, valorMin: null, valorMax: null };
 
   const ingresos = n(fin.ingresos);

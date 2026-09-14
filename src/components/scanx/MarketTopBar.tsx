@@ -28,17 +28,18 @@ export function MarketTopBar({ mercado, posicion, diagId }: { mercado: ContextoM
     <div className="mb-5 rounded-xl border bg-card px-4 py-2.5">
       <div className="mb-1.5 flex items-center gap-1.5">
         <Building2 className="h-3.5 w-3.5 text-[#1aab99]" />
-        <span className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
-          Datos de tu industria y mercado {industria.sector ? `· ${industria.sector}` : ''}
+        <span className="truncate text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+          Datos de tu mercado {industria.sector ? `· ${industria.sector}` : ''}{industria.industria ? ` › ${industria.industria}` : ''}
         </span>
         {diagId && (
-          <Link href={`/scanx/diagnosticos/${diagId}/mercado`} className="ml-auto flex items-center gap-1 text-[11px] font-medium text-primary hover:underline print:hidden">
+          <Link href={`/scanx/diagnosticos/${diagId}/mercado`} className="ml-auto flex flex-shrink-0 items-center gap-1 text-[11px] font-medium text-primary hover:underline print:hidden">
             <Pencil className="h-3 w-3" /> Actualizar datos
           </Link>
         )}
       </div>
       <div className="flex items-center gap-5 overflow-x-auto">
-        <Chip icon={<TrendingUp className="h-3.5 w-3.5" />} label="Crecimiento de la industria" value={`${industria.crecimiento ?? '—'}%`} />
+        <Chip icon={<TrendingUp className="h-3.5 w-3.5" />} label="Crece el sector" value={`${industria.crecimientoSector ?? industria.crecimiento ?? '—'}%`} />
+        <Chip icon={<TrendingUp className="h-3.5 w-3.5" />} label="Crece tu industria" value={`${industria.crecimientoIndustria ?? industria.crecimiento ?? '—'}%`} />
         <Chip icon={<Activity className="h-3.5 w-3.5" />} label="Vida prom. del negocio" value={`${industria.esperanzaVida ?? '—'} años`} />
         <span className="h-4 w-px flex-shrink-0 bg-border" />
         <Chip icon={<Activity className="h-3.5 w-3.5" />} label="Inflación" value={`${macro.inflacion ?? '—'}%`} />

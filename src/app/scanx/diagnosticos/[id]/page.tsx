@@ -210,7 +210,7 @@ export default function DiagnosticoPage({ params }: { params: { id: string } }) 
     const top = resultado.top3
       .map((tid) => resultado.dimensiones.find((d) => d.id === tid))
       .filter((x): x is ResultadoDimension => !!x);
-    const valuacion = calcularValuacion(diag.financials, diag.perfil.sector);
+    const valuacion = calcularValuacion(diag.financials, diag.perfil.sectorCode);
     const posMercado = vsMediana(valuacion.margenOperativo, diag.mercado?.industria?.medianaMargen);
     const money = (v: number | null) => v == null ? '—' : new Intl.NumberFormat('es-MX', { style: 'currency', currency: diag.financials?.moneda || 'MXN', maximumFractionDigits: 0 }).format(v);
     return (

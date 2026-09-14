@@ -66,9 +66,9 @@ export default function FinancialsPage({ params }: { params: { id: string } }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
-  const sector = diag?.perfil?.sector;
+  const sectorCode = diag?.perfil?.sectorCode;
   const moneda = fin.moneda || 'MXN';
-  const valuacion = useMemo(() => calcularValuacion(fin, sector), [fin, sector]);
+  const valuacion = useMemo(() => calcularValuacion(fin, sectorCode), [fin, sectorCode]);
   const utilidadBruta = useMemo(() => {
     const i = fin.ingresos, c = fin.costoVentas;
     return typeof i === 'number' && typeof c === 'number' && !isNaN(i) && !isNaN(c) ? i - c : null;

@@ -1,6 +1,7 @@
 // SCANx · IA de diagnóstico (server-only). Llama a Claude vía fetch.
 // tareas: narrativa, contradiccion, emergente, issuetree, potencial.
 import { NextRequest, NextResponse } from 'next/server';
+import { INDUSTRIAS, industriaPorCode } from '@/lib/scanx/clasificacion';
 
 export const dynamic = 'force-dynamic';
 const ANTHROPIC_URL = 'https://api.anthropic.com/v1/messages';
@@ -62,12 +63,28 @@ ${ctx}`, 1000);
       const tree = p?.raiz && Array.isArray(p?.ramas) ? p : null;
       return NextResponse.json({ tree }, { status: 200 });
     }
+    if (tarea === 'clasificacion') {
+      const desc = String(body?.contexto?.descripcion ?? '').slice(0, 800);
+      const sistema = String(body?.contexto?.sistema ?? 'ISIC/CIIU Rev. 4');
+      if (!desc.trim()) return NextResponse.json({ industriaCode: null }, { status: 200 });
+      const lista = INDUSTRIAS.map((d) => `${d.code} ${d.nombre}`).join('\n');
+      const out = await claude(`Clasifica la actividad de una empresa según ${sistema} (alineado a ISIC/CIIU Rev. 4). Elige la DIVISIÓN (industria) que mejor corresponde de la lista. Devuelve SOLO JSON: {"industriaCode":"NN"} con el código de 2 dígitos EXACTO de la lista. Si dudas entre varias, elige la más específica al giro principal.
+DESCRIPCIÓN DE LA EMPRESA:
+${desc}
+
+LISTA (código  nombre):
+${lista}`, 120);
+      const p = parseJSON(out);
+      const code = p?.industriaCode != null ? String(p.industriaCode).padStart(2, '0') : null;
+      return NextResponse.json({ industriaCode: industriaPorCode(code) ? code : null }, { status: 200 });
+    }
     if (tarea === 'mercado') {
       const ctx = JSON.stringify(body.contexto ?? {}).slice(0, 2000);
-      const out = await claude(`Eres analista económico de SCALEx. Con tu conocimiento de fuentes públicas (bancos centrales, institutos de estadística, reportes de industria), estima los indicadores de contexto para esta empresa (JSON: pais, ciudad, sector). NO inventes precisión falsa: son estimaciones de orden de magnitud recientes.
+      const out = await claude(`Eres analista económico de SCALEx. Con tu conocimiento de fuentes públicas (bancos centrales, institutos de estadística, reportes de industria), estima los indicadores de contexto para esta empresa (JSON: pais, ciudad, sector, industria). NO inventes precisión falsa: son estimaciones de orden de magnitud recientes.
 Devuelve SOLO JSON:
-{"macro":{"inflacion":number,"tasaReferencia":number,"tipoCambio":number},"industria":{"crecimiento":number,"esperanzaVida":number,"medianaMargen":number},"fuente":string (breve, ej. "Estimado IA · Banxico/INEGI, orden de magnitud"),"nota":string (1 frase: recuérdale al usuario verificar con fuentes oficiales y editar si tiene datos mejores)}.
-- inflacion/tasaReferencia/crecimiento/medianaMargen en % (número), tipoCambio en unidades de moneda local por USD, esperanzaVida en años.
+{"macro":{"inflacion":number,"tasaReferencia":number,"tipoCambio":number},"industria":{"crecimientoSector":number,"crecimientoIndustria":number,"esperanzaVida":number,"medianaMargen":number},"fuente":string (breve, ej. "Estimado IA · Banxico/INEGI, orden de magnitud"),"nota":string (1 frase: recuérdale al usuario verificar con fuentes oficiales y editar si tiene datos mejores)}.
+- crecimientoSector = del macro-sector; crecimientoIndustria = de la subdivisión específica (pueden diferir).
+- inflacion/tasaReferencia/crecimiento*/medianaMargen en % (número), tipoCambio en unidades de moneda local por USD, esperanzaVida en años.
 CONTEXTO:
 ${ctx}`, 700);
       const p = parseJSON(out);

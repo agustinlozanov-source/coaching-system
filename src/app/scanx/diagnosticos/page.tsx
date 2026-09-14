@@ -13,12 +13,13 @@ import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { InfoTip } from '@/components/ui/info-tip';
 import { GeoCascade } from '@/components/scanx/GeoCascade';
+import { SectorIndustria } from '@/components/scanx/SectorIndustria';
+import { sistemaDe } from '@/lib/scanx/clasificacion';
 import { crearDiagnostico, listDiagnosticos } from '@/lib/scanx/diagnostico';
 import { TIPO_EMPRESA, AREAS_BASE, type Diagnostico, type PerfilContextual } from '@/types/scanx';
 
 export const dynamic = 'force-dynamic';
 
-const SECTORES = ['Servicios', 'Comercio / Retail', 'Manufactura', 'Tecnología / Software', 'Construcción', 'Salud', 'Educación', 'Alimentos y Bebidas', 'Logística', 'Otro'];
 const EMPLEADOS = ['1-5', '6-10', '11-25', '26-50', '51-100', '101-250', '250+'];
 const MOMENTOS = [
   { v: 'arrancando', l: 'Arrancando / validando' },
@@ -83,7 +84,7 @@ export default function DiagnosticosPage() {
     if (!p.nombreEmpresa || !p.sector) return;
     setCreando(true);
     try {
-      const id = await crearDiagnostico(p);
+      const id = await crearDiagnostico({ ...p, sistemaClasificacion: sistemaDe(p.paisIso2) });
       router.push(`/scanx/diagnosticos/${id}`);
     } catch {
       setCreando(false);
@@ -113,19 +114,18 @@ export default function DiagnosticosPage() {
             <Field label="Nombre de la empresa *">
               <Input value={p.nombreEmpresa ?? ''} onChange={(e) => setP({ ...p, nombreEmpresa: e.target.value })} placeholder="Mi empresa S.A." />
             </Field>
-            <Field label="Sector *">
-              <Select value={p.sector ?? ''} onValueChange={(v) => setP({ ...p, sector: v })}>
-                <SelectTrigger><SelectValue placeholder="Elige un sector" /></SelectTrigger>
-                <SelectContent>{SECTORES.map((s) => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent>
-              </Select>
+            <Field label="Año de fundación">
+              <Input value={p.anioFundacion ?? ''} onChange={(e) => setP({ ...p, anioFundacion: e.target.value })} placeholder="2018" inputMode="numeric" />
             </Field>
+            <SectorIndustria
+              value={{ sector: p.sector, sectorCode: p.sectorCode, industria: p.industria, industriaCode: p.industriaCode }}
+              paisIso2={p.paisIso2}
+              onChange={(patch) => setP((prev) => ({ ...prev, ...patch }))}
+            />
             <GeoCascade
               value={{ pais: p.pais, paisIso2: p.paisIso2, estado: p.estado, ciudad: p.ciudad }}
               onChange={(patch) => setP((prev) => ({ ...prev, ...patch }))}
             />
-            <Field label="Año de fundación">
-              <Input value={p.anioFundacion ?? ''} onChange={(e) => setP({ ...p, anioFundacion: e.target.value })} placeholder="2018" inputMode="numeric" />
-            </Field>
             <Field label="Nº de empleados">
               <Select value={p.empleados ?? ''} onValueChange={(v) => setP({ ...p, empleados: v })}>
                 <SelectTrigger><SelectValue placeholder="Rango" /></SelectTrigger>

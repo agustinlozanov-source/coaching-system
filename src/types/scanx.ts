@@ -65,7 +65,11 @@ export const TIPO_EMPRESA: Record<TipoEmpresa, { nombre: string; descripcion: st
 /** Perfil contextual de la empresa (se completa antes de diagnosticar). */
 export type PerfilContextual = {
   nombreEmpresa?: string;
-  sector?: string;
+  sector?: string;              // nombre de la sección ISIC/CIIU (macro)
+  sectorCode?: string;          // code de sección (A..U)
+  industria?: string;           // nombre de la división (específica)
+  industriaCode?: string;       // code de división (01..99)
+  sistemaClasificacion?: string; // SCIAN/NAICS/CNAE/CIIU/NACE según país
   pais?: string;         // nombre del país (es)
   paisIso2?: string;     // ISO-2 para cargar estados/ciudades y rehidratar
   estado?: string;       // estado/provincia/departamento… (nomenclatura por país)
@@ -134,8 +138,11 @@ export type MacroCtx = {
   tipoCambio?: number; petroleo?: number; fuente?: string; actualizado?: string;
 };
 export type IndustriaCtx = {
-  sector?: string; crecimiento?: number; esperanzaVida?: number;
-  medianaMargen?: number; fuente?: string;
+  sector?: string; industria?: string;
+  crecimiento?: number;          // crecimiento de la industria (compat)
+  crecimientoSector?: number;    // crecimiento del sector (macro)
+  crecimientoIndustria?: number; // crecimiento de la industria (específico)
+  esperanzaVida?: number; medianaMargen?: number; fuente?: string;
 };
 export type ContextoMercado = { macro: MacroCtx; industria: IndustriaCtx };
 

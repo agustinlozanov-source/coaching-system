@@ -61,14 +61,16 @@ export default function MercadoPage({ params }: { params: { id: string } }) {
     try {
       const r = await fetch('/api/scanx/ia', {
         method: 'POST', headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ tarea: 'mercado', contexto: { pais: diag?.perfil?.pais, ciudad: diag?.perfil?.ciudad, sector: diag?.perfil?.sector } }),
+        body: JSON.stringify({ tarea: 'mercado', contexto: { pais: diag?.perfil?.pais, ciudad: diag?.perfil?.ciudad, sector: diag?.perfil?.sector, industria: diag?.perfil?.industria } }),
       });
       const j = await r.json();
       const m = j.mercado;
       if (!m) { toast({ variant: 'destructive', title: 'Sin estimación', description: 'La IA no devolvió datos. Captúralos manualmente.' }); return; }
+      const cs = m.industria?.crecimientoSector ?? m.industria?.crecimiento;
+      const ci = m.industria?.crecimientoIndustria ?? m.industria?.crecimiento;
       setMkt((prev) => ({
         macro: { ...prev.macro, inflacion: m.macro?.inflacion, tasaReferencia: m.macro?.tasaReferencia, tipoCambio: m.macro?.tipoCambio, fuente: m.fuente || 'Estimado IA', actualizado: new Date().toISOString().slice(0, 10) },
-        industria: { ...prev.industria, sector: diag?.perfil?.sector, crecimiento: m.industria?.crecimiento, esperanzaVida: m.industria?.esperanzaVida, medianaMargen: m.industria?.medianaMargen, fuente: m.fuente || 'Estimado IA' },
+        industria: { ...prev.industria, sector: diag?.perfil?.sector, industria: diag?.perfil?.industria, crecimientoSector: cs, crecimientoIndustria: ci, crecimiento: ci, esperanzaVida: m.industria?.esperanzaVida, medianaMargen: m.industria?.medianaMargen, fuente: m.fuente || 'Estimado IA' },
       }));
       setNota(m.nota || 'Son estimaciones de orden de magnitud. Verifícalas con fuentes oficiales y edítalas si tienes datos mejores.');
       toast({ title: 'Datos estimados', description: 'Revísalos y ajústalos antes de guardar.' });
@@ -158,10 +160,11 @@ export default function MercadoPage({ params }: { params: { id: string } }) {
       <div className="space-y-6">
         <Card>
           <CardContent className="space-y-4 pt-6">
-            <h2 className="text-sm font-semibold">Tu industria</h2>
-            <div className="grid gap-4 sm:grid-cols-3">
-              <CampoInd k="crecimiento" label="Crecimiento de la industria" sufijo="% anual" hint="Cuánto crece el sector por año." />
-              <CampoInd k="esperanzaVida" label="Vida promedio del negocio" sufijo="años" hint="Cuánto dura un negocio típico del sector." />
+            <h2 className="text-sm font-semibold">Tu sector e industria</h2>
+            <div className="grid gap-4 sm:grid-cols-2">
+              <CampoInd k="crecimientoSector" label="Crecimiento del sector" sufijo="% anual" hint="Cuánto crece el macro-sector por año." />
+              <CampoInd k="crecimientoIndustria" label="Crecimiento de tu industria" sufijo="% anual" hint="Cuánto crece tu subdivisión específica." />
+              <CampoInd k="esperanzaVida" label="Vida promedio del negocio" sufijo="años" hint="Cuánto dura un negocio típico." />
               <CampoInd k="medianaMargen" label="Margen operativo mediano" sufijo="%" hint="Margen típico del sector, para comparar." />
             </div>
           </CardContent>

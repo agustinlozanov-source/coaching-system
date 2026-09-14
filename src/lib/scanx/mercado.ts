@@ -1,4 +1,5 @@
 import type { ContextoMercado, IndustriaCtx, MacroCtx, PerfilContextual } from '@/types/scanx';
+import { CRECIMIENTO_SECTOR, MARGEN_SECTOR, VIDA_SECTOR } from './clasificacion';
 
 /**
  * Contexto de mercado inicial (punto de partida) por país/sector. NO se conectan
@@ -16,37 +17,24 @@ const MACRO: Record<string, MacroCtx> = {
 };
 const MACRO_DEFAULT: MacroCtx = { inflacion: 5.0, tasaReferencia: 8.0, cetes: 7.5, tipoCambio: 1, petroleo: 72, fuente: 'estimado' };
 
-const INDUSTRIA: Record<string, Omit<IndustriaCtx, 'sector'>> = {
-  'Servicios': { crecimiento: 4.5, esperanzaVida: 7.8, medianaMargen: 12 },
-  'Comercio / Retail': { crecimiento: 3.2, esperanzaVida: 6.9, medianaMargen: 8 },
-  'Manufactura': { crecimiento: 2.8, esperanzaVida: 9.2, medianaMargen: 11 },
-  'Tecnología / Software': { crecimiento: 12.0, esperanzaVida: 6.2, medianaMargen: 20 },
-  'Construcción': { crecimiento: 3.5, esperanzaVida: 8.1, medianaMargen: 9 },
-  'Salud': { crecimiento: 6.0, esperanzaVida: 10.5, medianaMargen: 14 },
-  'Educación': { crecimiento: 3.0, esperanzaVida: 9.8, medianaMargen: 10 },
-  'Alimentos y Bebidas': { crecimiento: 4.0, esperanzaVida: 7.4, medianaMargen: 10 },
-  'Logística': { crecimiento: 5.5, esperanzaVida: 8.0, medianaMargen: 9 },
-};
-const INDUSTRIA_DEFAULT = { crecimiento: 4.0, esperanzaVida: 8.0, medianaMargen: 11 };
-
+/**
+ * Semilla de industria a partir de la sección ISIC/CIIU del perfil. El sector y
+ * la industria alimentan el top bar con crecimientos distintos (macro vs específico).
+ * Los valores son punto de partida; el usuario/IA los editan en /mercado.
+ */
 export function getContextoMercado(perfil: PerfilContextual): ContextoMercado {
   const macro = { ...(MACRO[perfil.pais ?? ''] ?? MACRO_DEFAULT), actualizado: new Date().toISOString().slice(0, 10) };
-  const ind = INDUSTRIA[perfil.sector ?? ''] ?? INDUSTRIA_DEFAULT;
-  const industria: IndustriaCtx = { sector: perfil.sector, ...ind, fuente: 'Estimación inicial · edítala con tus datos' };
+  const code = perfil.sectorCode ?? '';
+  const crecSector = CRECIMIENTO_SECTOR[code] ?? 4.0;
+  const industria: IndustriaCtx = {
+    sector: perfil.sector,
+    industria: perfil.industria,
+    crecimientoSector: crecSector,
+    crecimientoIndustria: crecSector,       // arranca igual al sector; editable
+    crecimiento: crecSector,                // compat
+    esperanzaVida: VIDA_SECTOR[code] ?? 8.0,
+    medianaMargen: MARGEN_SECTOR[code] ?? 11,
+    fuente: 'Estimación inicial · edítala con tus datos',
+  };
   return { macro, industria };
 }
-
-/** Múltiplos de valuación por sector (sobre EBITDA normalizado). Migrar de Avalluo. */
-export const MULTIPLOS: Record<string, number> = {
-  'Servicios': 3.5,
-  'Comercio / Retail': 3.0,
-  'Manufactura': 4.0,
-  'Tecnología / Software': 5.5,
-  'Construcción': 3.2,
-  'Salud': 4.5,
-  'Educación': 3.8,
-  'Alimentos y Bebidas': 4.0,
-  'Logística': 3.6,
-};
-export const MULTIPLO_DEFAULT = 3.8;
-export const multiploDe = (sector?: string) => MULTIPLOS[sector ?? ''] ?? MULTIPLO_DEFAULT;
