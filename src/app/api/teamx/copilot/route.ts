@@ -53,7 +53,9 @@ export async function POST(req: NextRequest) {
       },
       body: JSON.stringify({
         model: process.env.ANTHROPIC_MODEL || 'claude-sonnet-5',
-        max_tokens: 1024,
+        max_tokens: 3000,
+        tools: [HERRAMIENTA],
+        tool_choice: { type: 'tool', name: HERRAMIENTA.name },
         messages: [{ role: 'user', content: prompt }],
       }),
     });
@@ -85,16 +87,27 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  const textBlock = Array.isArray(data?.content)
-    ? data.content.find((b: any) => b?.type === 'text')
-    : null;
-  const raw: string = textBlock?.text ?? '';
+  const bloques: any[] = Array.isArray(data?.content) ? data.content : [];
+  const usoHerramienta = bloques.find((b: any) => b?.type === 'tool_use');
+  const texto: string = bloques.find((b: any) => b?.type === 'text')?.text ?? '';
 
-  const parsed = parseCopilotJson(raw);
+  // Camino normal: el modelo contestó llamando a la herramienta, así que el
+  // JSON ya viene validado por la API. El texto suelto solo es el plan B por si
+  // algún modelo ignora tool_choice.
+  const parsed = normalizar(usoHerramienta?.input) ?? parseCopilotJson(texto);
+
   if (!parsed) {
-    console.error('[teamx/copilot] Respuesta no parseable como JSON:', raw);
+    const motivo =
+      data?.stop_reason === 'max_tokens'
+        ? 'se quedó sin espacio a media respuesta'
+        : `respondió en un formato inesperado (${data?.stop_reason ?? 'sin motivo'})`;
+    console.error('[teamx/copilot] Sin sugerencia utilizable:', {
+      stop_reason: data?.stop_reason,
+      tipos: bloques.map((b: any) => b?.type),
+      texto: texto.slice(0, 600),
+    });
     return NextResponse.json(
-      { error: 'El copiloto respondió en un formato inesperado. Intenta de nuevo.' },
+      { error: `El copiloto ${motivo}. Intenta de nuevo.` },
       { status: 200 }
     );
   }
@@ -136,31 +149,77 @@ Genera lo siguiente, adaptado específicamente a este contexto (evita preguntas 
 2. Entre 2 y 3 observaciones o patrones relevantes que se desprenden de estos datos.
 3. Un plan de acción de 3 a 4 semanas, con una acción concreta y verificable por semana (cada elemento del array debe empezar con "Semana N: ").
 
-Responde ÚNICAMENTE con un objeto JSON válido, sin texto adicional antes o después, sin bloques de código markdown, con exactamente esta forma:
-{"preguntas": ["...", "...", "..."], "observaciones": ["...", "..."], "plan": ["Semana 1: ...", "Semana 2: ..."]}
+Entrega tu respuesta llamando a la herramienta entregar_sugerencia. No escribas nada fuera de la herramienta.
 
-Responde en español, con tono cercano y profesional, y sé conciso.`;
+Escribe en español, con tono cercano y profesional, y sé conciso.`;
+}
+
+// Pedir la respuesta como llamada a herramienta en vez de como texto: la API
+// valida la forma del JSON antes de devolverlo, así que ya no depende de que
+// el modelo se acuerde de no escribir una línea de cortesía antes de la llave.
+const HERRAMIENTA = {
+  name: 'entregar_sugerencia',
+  description: 'Entrega los insumos para la sesión de coaching.',
+  input_schema: {
+    type: 'object' as const,
+    properties: {
+      preguntas: {
+        type: 'array',
+        items: { type: 'string' },
+        description: 'Exactamente 3 preguntas poderosas.',
+      },
+      observaciones: {
+        type: 'array',
+        items: { type: 'string' },
+        description: 'Entre 2 y 3 observaciones o patrones.',
+      },
+      plan: {
+        type: 'array',
+        items: { type: 'string' },
+        description: 'De 3 a 4 acciones, cada una empezando con "Semana N: ".',
+      },
+    },
+    required: ['preguntas', 'observaciones', 'plan'],
+  },
+};
+
+/** Acepta cualquier objeto con las tres listas y lo deja en texto plano. */
+function normalizar(obj: any): CopilotResponse | null {
+  if (!obj || typeof obj !== 'object') return null;
+  if (!Array.isArray(obj.preguntas) || !Array.isArray(obj.observaciones) || !Array.isArray(obj.plan)) {
+    return null;
+  }
+  const lista = (xs: unknown[]) => xs.map((x) => String(x).trim()).filter(Boolean);
+  const r = {
+    preguntas: lista(obj.preguntas),
+    observaciones: lista(obj.observaciones),
+    plan: lista(obj.plan),
+  };
+  return r.preguntas.length || r.observaciones.length || r.plan.length ? r : null;
 }
 
 function parseCopilotJson(raw: string): CopilotResponse | null {
   if (!raw) return null;
-  let text = raw.trim();
+  const texto = raw.trim();
 
-  // Defensivo: por si el modelo envuelve la respuesta en fences de markdown.
-  const fenced = text.match(/```(?:json)?\s*([\s\S]*?)\s*```/i);
-  if (fenced) text = fenced[1].trim();
+  const intentos = [texto];
 
-  try {
-    const obj = JSON.parse(text);
-    if (obj && Array.isArray(obj.preguntas) && Array.isArray(obj.observaciones) && Array.isArray(obj.plan)) {
-      return {
-        preguntas: obj.preguntas.map((s: unknown) => String(s)),
-        observaciones: obj.observaciones.map((s: unknown) => String(s)),
-        plan: obj.plan.map((s: unknown) => String(s)),
-      };
+  // Por si el modelo envuelve la respuesta en fences de markdown.
+  const fenced = texto.match(/```(?:json)?\s*([\s\S]*?)\s*```/i);
+  if (fenced) intentos.push(fenced[1].trim());
+
+  // Por si la precede una línea de cortesía: se recorta de la primera llave a la última.
+  const a = texto.indexOf('{');
+  const b = texto.lastIndexOf('}');
+  if (a !== -1 && b > a) intentos.push(texto.slice(a, b + 1));
+
+  for (const intento of intentos) {
+    try {
+      const r = normalizar(JSON.parse(intento));
+      if (r) return r;
+    } catch {
+      // siguiente intento
     }
-  } catch {
-    // cae al return null
   }
   return null;
 }
