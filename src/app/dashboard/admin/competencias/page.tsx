@@ -1,163 +1,185 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { useOrganization } from '@/contexts/OrganizationContext';
+/**
+ * Editor del tablero de evaluación: dimensiones y sus aspectos.
+ *
+ * Antes esta pantalla editaba `teamx_secciones_competencias`, una tabla que el
+ * tablero nunca leyó — el hook que la consumía, useCompetencias, no lo importa
+ * nadie. Se podían crear y borrar competencias ahí y ninguna evaluación
+ * cambiaba. Ahora edita teamx_dimensiones y teamx_aspectos, que es lo que el
+ * tablero sí usa.
+ *
+ * Borrar es borrar: una dimensión se lleva sus aspectos por el cascade del
+ * esquema. Las evaluaciones ya hechas no se tocan, porque cada una congela su
+ * configuración en config_snapshot al crearse.
+ */
+
+import { useCallback, useEffect, useState } from 'react';
+import { createClient } from '@/lib/supabase/client';
+import { getActiveOrgId } from '@/lib/teamx/org';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
-import { loadSeccionesRaw, saveSeccion } from '@/lib/teamx/config';
-import { Timestamp } from '@/lib/firestore-compat';
-import { AlertCircle, CheckCircle2, Loader2, Plus, Trash2, Edit2, X } from 'lucide-react';
-import { SeccionCompetencias, CompetenciaConfig } from '@/types/competencia';
-import { getDefaultSecciones } from '@/lib/constants/competencias';
+import { AlertCircle, Check, Loader2, Pencil, Plus, Trash2, Upload, X } from 'lucide-react';
+import Link from 'next/link';
+
+type Aspecto = { id: string; nombre: string; descripcion: string | null; orden: number };
+type Dimension = {
+  id: string;
+  nombre: string;
+  descripcion: string | null;
+  color: string;
+  peso: number;
+  orden: number;
+  naturaleza: 'competencia' | 'kpi';
+  aspectos: Aspecto[];
+};
+
+const COLORES = ['#3533cd', '#1aab99', '#8b5cf6', '#ec4899', '#f59e0b', '#14806a', '#ef4444', '#0ea5a3'];
 
 export default function CompetenciasPage() {
-  const { organization, refreshOrganization } = useOrganization();
   const { toast } = useToast();
-  const [isSaving, setIsSaving] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
-  const [secciones, setSecciones] = useState<SeccionCompetencias[]>([]);
-  const [editingSectionId, setEditingSectionId] = useState<string | null>(null);
-  const [editingCompId, setEditingCompId] = useState<string | null>(null);
-  const [newSection, setNewSection] = useState({
-    nombre: '',
-  });
-  const [newComp, setNewComp] = useState({
-    nombre: '',
-    descripcion: '',
-    sectionId: '',
-  });
+  const [orgId, setOrgId] = useState<string | null>(null);
+  const [dims, setDims] = useState<Dimension[] | null>(null);
+  const [ocupado, setOcupado] = useState<string | null>(null);
 
-  useEffect(() => {
-    loadSecciones();
-  }, [organization]);
+  // Edición en sitio
+  const [editDim, setEditDim] = useState<string | null>(null);
+  const [borrador, setBorrador] = useState<Partial<Dimension>>({});
+  const [editAsp, setEditAsp] = useState<string | null>(null);
+  const [textoAsp, setTextoAsp] = useState('');
+  const [descAsp, setDescAsp] = useState('');
 
-  const loadSecciones = async () => {
-    if (!organization) return;
+  // Altas
+  const [nuevaDim, setNuevaDim] = useState('');
+  const [abriendoDim, setAbriendoDim] = useState(false);
+  const [nuevoAsp, setNuevoAsp] = useState<{ dimId: string; texto: string } | null>(null);
 
-    try {
-      setIsLoading(true);
-      const rows = await loadSeccionesRaw(organization.id);
+  const cargar = useCallback(async () => {
+    const supabase = createClient();
+    const id = await getActiveOrgId();
+    setOrgId(id);
+    if (!id) { setDims([]); return; }
 
-      if (rows.length === 0) {
-        setSecciones(getDefaultSecciones(organization.id));
-      } else {
-        const data: SeccionCompetencias[] = rows.map((row) => ({
-          id: row.id,
-          organizationId: row.organizacion_id,
-          nombre: row.nombre,
-          descripcion: row.descripcion ?? undefined,
-          orden: row.orden,
-          activo: row.activo,
-          competencias: row.competencias ?? [],
-          createdAt: Timestamp.fromISO(row.created_at) ?? Timestamp.now(),
-          updatedAt: Timestamp.fromISO(row.updated_at) ?? Timestamp.now(),
-        }));
-        setSecciones(data.sort((a, b) => (a.orden || 0) - (b.orden || 0)));
-      }
-    } catch (error) {
-      console.error('Error:', error);
-      toast({
-        title: 'Error',
-        description: 'No se pudo cargar las competencias',
-        variant: 'destructive',
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  };
+    const { data: filas } = await supabase
+      .from('teamx_dimensiones').select('*')
+      .eq('organizacion_id', id).eq('activo', true).order('orden');
 
-  const handleAddCompetencia = async () => {
-    if (!newComp.nombre.trim() || !newComp.sectionId) {
-      toast({
-        title: 'Error',
-        description: 'Nombre de competencia y sección son requeridos',
-        variant: 'destructive',
-      });
-      return;
-    }
+    const ids = (filas ?? []).map((d: any) => d.id);
+    const { data: asp } = ids.length
+      ? await supabase.from('teamx_aspectos').select('*').in('dimension_id', ids).eq('activo', true).order('orden')
+      : { data: [] as any[] };
 
-    try {
-      setIsSaving(true);
-      const section = secciones.find((s) => s.id === newComp.sectionId);
-      if (!section) return;
+    const porDim = new Map<string, Aspecto[]>();
+    (asp ?? []).forEach((a: any) => {
+      const arr = porDim.get(a.dimension_id) ?? [];
+      arr.push({ id: a.id, nombre: a.nombre, descripcion: a.descripcion ?? null, orden: a.orden });
+      porDim.set(a.dimension_id, arr);
+    });
 
-      const newCompetencia: CompetenciaConfig = {
-        id: `comp_${Date.now()}`,
-        nombre: newComp.nombre,
-        descripcion: newComp.descripcion,
-        requerida: true,
-        orden: (section.competencias?.length || 0),
-        activo: true,
-      };
+    setDims((filas ?? []).map((d: any) => ({
+      id: d.id, nombre: d.nombre, descripcion: d.descripcion ?? null, color: d.color ?? '#1aab99',
+      peso: Number(d.peso ?? 1), orden: d.orden, naturaleza: d.naturaleza,
+      aspectos: porDim.get(d.id) ?? [],
+    })));
+  }, []);
 
-      const updatedSection = {
-        ...section,
-        competencias: [...(section.competencias || []), newCompetencia],
-      };
+  useEffect(() => { cargar(); }, [cargar]);
 
-      await saveSeccion(organization!.id, updatedSection);
+  function fallo(e: any) {
+    toast({ title: 'No se pudo guardar', description: e?.message ?? '', variant: 'destructive' });
+  }
 
-      setSecciones(
-        secciones.map((s) => (s.id === section.id ? updatedSection : s))
-      );
-      setNewComp({ nombre: '', descripcion: '', sectionId: '' });
+  /* ── Dimensiones ─────────────────────────────────────────────────────── */
 
-      toast({
-        title: 'Éxito',
-        description: 'Competencia agregada correctamente',
-      });
-    } catch (error) {
-      console.error('Error:', error);
-      toast({
-        title: 'Error',
-        description: 'No se pudo agregar la competencia',
-        variant: 'destructive',
-      });
-    } finally {
-      setIsSaving(false);
-    }
-  };
+  async function crearDim() {
+    const nombre = nuevaDim.trim();
+    if (!nombre || !orgId) return;
+    setOcupado('nueva-dim');
+    const orden = (dims?.length ?? 0) + 1;
+    const { error } = await createClient().from('teamx_dimensiones').insert({
+      organizacion_id: orgId, nombre, orden,
+      color: COLORES[orden % COLORES.length], naturaleza: 'competencia', peso: 1, activo: true,
+    });
+    setOcupado(null);
+    if (error) return fallo(error);
+    setNuevaDim(''); setAbriendoDim(false);
+    await cargar();
+  }
 
-  const handleDeleteCompetencia = async (sectionId: string, compId: string) => {
-    if (!window.confirm('¿Eliminar esta competencia?')) return;
+  async function guardarDim(d: Dimension) {
+    const nombre = (borrador.nombre ?? d.nombre).trim();
+    if (!nombre) return;
+    setOcupado(d.id);
+    const { error } = await createClient().from('teamx_dimensiones').update({
+      nombre,
+      descripcion: (borrador.descripcion ?? d.descripcion ?? '').trim() || null,
+      color: borrador.color ?? d.color,
+      naturaleza: borrador.naturaleza ?? d.naturaleza,
+      peso: Number(borrador.peso ?? d.peso) || 1,
+      updated_at: new Date().toISOString(),
+    }).eq('id', d.id);
+    setOcupado(null);
+    if (error) return fallo(error);
+    setEditDim(null); setBorrador({});
+    await cargar();
+  }
 
-    try {
-      setIsSaving(true);
-      const section = secciones.find((s) => s.id === sectionId);
-      if (!section) return;
+  async function borrarDim(d: Dimension) {
+    const cuantos = d.aspectos.length;
+    const aviso = cuantos
+      ? `¿Borrar "${d.nombre}"?\n\nSe lleva sus ${cuantos} aspecto${cuantos === 1 ? '' : 's'}. Las evaluaciones ya hechas no se tocan.`
+      : `¿Borrar "${d.nombre}"?\n\nLas evaluaciones ya hechas no se tocan.`;
+    if (!window.confirm(aviso)) return;
+    setOcupado(d.id);
+    const { error } = await createClient().from('teamx_dimensiones').delete().eq('id', d.id);
+    setOcupado(null);
+    if (error) return fallo(error);
+    await cargar();
+  }
 
-      const updatedSection = {
-        ...section,
-        competencias: section.competencias.filter((c) => c.id !== compId),
-      };
+  /* ── Aspectos ────────────────────────────────────────────────────────── */
 
-      await saveSeccion(organization!.id, updatedSection);
+  async function crearAsp() {
+    if (!nuevoAsp) return;
+    const nombre = nuevoAsp.texto.trim();
+    if (!nombre) return;
+    const dim = dims?.find((x) => x.id === nuevoAsp.dimId);
+    setOcupado(nuevoAsp.dimId);
+    const { error } = await createClient().from('teamx_aspectos').insert({
+      dimension_id: nuevoAsp.dimId, nombre, orden: (dim?.aspectos.length ?? 0) + 1, activo: true,
+    });
+    setOcupado(null);
+    if (error) return fallo(error);
+    setNuevoAsp(null);
+    await cargar();
+  }
 
-      setSecciones(
-        secciones.map((s) => (s.id === section.id ? updatedSection : s))
-      );
+  async function guardarAsp(id: string) {
+    const nombre = textoAsp.trim();
+    if (!nombre) return;
+    setOcupado(id);
+    const { error } = await createClient().from('teamx_aspectos')
+      .update({ nombre, descripcion: descAsp.trim() || null, updated_at: new Date().toISOString() })
+      .eq('id', id);
+    setOcupado(null);
+    if (error) return fallo(error);
+    setEditAsp(null);
+    await cargar();
+  }
 
-      toast({
-        title: 'Éxito',
-        description: 'Competencia eliminada',
-      });
-    } catch (error) {
-      console.error('Error:', error);
-      toast({
-        title: 'Error',
-        description: 'No se pudo eliminar la competencia',
-        variant: 'destructive',
-      });
-    } finally {
-      setIsSaving(false);
-    }
-  };
+  async function borrarAsp(a: Aspecto) {
+    if (!window.confirm(`¿Borrar "${a.nombre}"?`)) return;
+    setOcupado(a.id);
+    const { error } = await createClient().from('teamx_aspectos').delete().eq('id', a.id);
+    setOcupado(null);
+    if (error) return fallo(error);
+    await cargar();
+  }
 
-  if (isLoading) {
+  if (dims === null) {
     return (
       <div className="flex items-center justify-center py-12">
         <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
@@ -167,133 +189,229 @@ export default function CompetenciasPage() {
 
   return (
     <div className="space-y-6">
-      {/* Info */}
       <Card className="border-blue-200 bg-blue-50">
         <CardContent className="pt-6">
           <div className="flex gap-3">
-            <AlertCircle className="h-5 w-5 text-blue-600 flex-shrink-0 mt-0.5" />
-            <div>
-              <p className="font-medium text-sm">Tip</p>
+            <AlertCircle className="mt-0.5 h-5 w-5 flex-shrink-0 text-blue-600" />
+            <div className="space-y-1">
+              <p className="text-sm font-medium">Esto es el tablero de evaluación</p>
               <p className="text-sm text-muted-foreground">
-                Las competencias se agrupan en secciones. Cada sección contiene un conjunto de habilidades relacionadas.
+                Cada <strong>dimensión</strong> es un bloque del tablero y cada{' '}
+                <strong>aspecto</strong> es una línea que el coach califica. Lo que cambies aquí
+                aplica a las evaluaciones nuevas; las anteriores conservan su configuración.
+              </p>
+              <p className="text-sm text-muted-foreground">
+                Las de tipo <strong>KPI</strong> no entran al promedio de competencias.
               </p>
             </div>
           </div>
         </CardContent>
       </Card>
 
-      {/* Secciones */}
       <div className="space-y-4">
-        {secciones.map((seccion) => (
-          <Card key={seccion.id}>
-            <CardHeader>
-              <CardTitle className="text-lg">{seccion.nombre}</CardTitle>
-              <CardDescription>
-                {seccion.competencias.length} competencias
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {/* Lista de competencias */}
-              <div className="space-y-2">
-                {seccion.competencias.map((comp) => (
-                  <div
-                    key={comp.id}
-                    className="flex items-start gap-4 p-3 border rounded-lg hover:bg-gray-50"
-                  >
-                    <div className="flex-1">
-                      <p className="font-medium">{comp.nombre}</p>
-                      {comp.descripcion && (
-                        <p className="text-sm text-muted-foreground">{comp.descripcion}</p>
-                      )}
-                      <p className="text-xs text-gray-500 mt-1">ID: {comp.id}</p>
+        {dims.map((d) => {
+          const editando = editDim === d.id;
+          return (
+            <Card key={d.id}>
+              <CardContent className="pt-6">
+                {editando ? (
+                  <div className="grid gap-4 sm:grid-cols-[1fr_140px_110px_90px]">
+                    <div className="space-y-1.5">
+                      <Label className="text-xs uppercase tracking-wide text-muted-foreground">Nombre</Label>
+                      <Input
+                        autoFocus
+                        value={borrador.nombre ?? d.nombre}
+                        onChange={(e) => setBorrador({ ...borrador, nombre: e.target.value })}
+                      />
                     </div>
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      onClick={() => handleDeleteCompetencia(seccion.id, comp.id)}
-                      disabled={isSaving}
-                      className="text-red-600 hover:text-red-700 hover:bg-red-50"
-                    >
-                      <Trash2 className="h-4 w-4" />
+                    <div className="space-y-1.5">
+                      <Label className="text-xs uppercase tracking-wide text-muted-foreground">Tipo</Label>
+                      <select
+                        value={borrador.naturaleza ?? d.naturaleza}
+                        onChange={(e) => setBorrador({ ...borrador, naturaleza: e.target.value as any })}
+                        className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
+                      >
+                        <option value="competencia">Competencia</option>
+                        <option value="kpi">KPI</option>
+                      </select>
+                    </div>
+                    <div className="space-y-1.5">
+                      <Label className="text-xs uppercase tracking-wide text-muted-foreground">Peso</Label>
+                      <Input
+                        type="number" min="0.1" step="0.1"
+                        value={borrador.peso ?? d.peso}
+                        onChange={(e) => setBorrador({ ...borrador, peso: Number(e.target.value) })}
+                      />
+                    </div>
+                    <div className="space-y-1.5">
+                      <Label className="text-xs uppercase tracking-wide text-muted-foreground">Color</Label>
+                      <input
+                        type="color"
+                        value={borrador.color ?? d.color}
+                        onChange={(e) => setBorrador({ ...borrador, color: e.target.value })}
+                        className="h-10 w-full cursor-pointer rounded-md border bg-background"
+                      />
+                    </div>
+                    <div className="space-y-1.5 sm:col-span-4">
+                      <Label className="text-xs uppercase tracking-wide text-muted-foreground">
+                        Descripción
+                      </Label>
+                      <Input
+                        value={borrador.descripcion ?? d.descripcion ?? ''}
+                        onChange={(e) => setBorrador({ ...borrador, descripcion: e.target.value })}
+                        placeholder="Para qué sirve esta dimensión"
+                      />
+                    </div>
+                    <div className="flex items-center gap-2 sm:col-span-4">
+                      <Button size="sm" onClick={() => guardarDim(d)} disabled={ocupado === d.id}>
+                        {ocupado === d.id
+                          ? <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          : <Check className="mr-2 h-4 w-4" />}
+                        Guardar
+                      </Button>
+                      <Button size="sm" variant="ghost" onClick={() => { setEditDim(null); setBorrador({}); }}>
+                        Cancelar
+                      </Button>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-3">
+                    <span className="h-8 w-1.5 flex-shrink-0 rounded-full" style={{ backgroundColor: d.color }} />
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate font-semibold">{d.nombre}</p>
+                      {d.descripcion && (
+                        <p className="truncate text-xs text-muted-foreground">{d.descripcion}</p>
+                      )}
+                      <p className="text-xs text-muted-foreground">
+                        {d.aspectos.length} aspecto{d.aspectos.length === 1 ? '' : 's'}
+                        {d.naturaleza === 'kpi' && ' · KPI'}
+                        {d.peso !== 1 && ` · peso ${d.peso}`}
+                      </p>
+                    </div>
+                    <Button size="sm" variant="ghost" title="Editar"
+                      onClick={() => { setEditDim(d.id); setBorrador({}); }}>
+                      <Pencil className="h-4 w-4" />
+                    </Button>
+                    <Button size="sm" variant="ghost" title="Borrar" disabled={ocupado === d.id}
+                      onClick={() => borrarDim(d)}
+                      className="text-red-600 hover:bg-red-50 hover:text-red-700">
+                      {ocupado === d.id ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
                     </Button>
                   </div>
-                ))}
-              </div>
+                )}
 
-              {/* Agregar competencia a esta sección */}
-              {newComp.sectionId === seccion.id ? (
-                <div className="border-t pt-4 space-y-3">
-                  <div className="space-y-2">
-                    <Label htmlFor={`comp-name-${seccion.id}`}>Nombre de Competencia</Label>
-                    <Input
-                      id={`comp-name-${seccion.id}`}
-                      value={newComp.nombre}
-                      onChange={(e) => setNewComp({ ...newComp, nombre: e.target.value })}
-                      placeholder="Ej: Liderazgo, Comunicación, etc"
-                      autoFocus
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor={`comp-desc-${seccion.id}`}>Descripción (Opcional)</Label>
-                    <Textarea
-                      id={`comp-desc-${seccion.id}`}
-                      value={newComp.descripcion}
-                      onChange={(e) => setNewComp({ ...newComp, descripcion: e.target.value })}
-                      placeholder="Describe qué evalúa esta competencia..."
-                      className="min-h-20"
-                    />
-                  </div>
-                  <div className="flex gap-2">
-                    <Button
-                      onClick={handleAddCompetencia}
-                      disabled={isSaving}
-                      size="sm"
-                    >
-                      <Plus className="h-4 w-4 mr-2" />
-                      Agregar
+                <div className="mt-4 space-y-1.5 border-t pt-4">
+                  {d.aspectos.map((a) => (
+                    <div key={a.id} className="flex items-center gap-2 rounded-md px-2 py-1.5 hover:bg-muted/50">
+                      {editAsp === a.id ? (
+                        <>
+                          <div className="flex-1 space-y-1">
+                            <Input
+                              autoFocus value={textoAsp}
+                              onChange={(e) => setTextoAsp(e.target.value)}
+                              onKeyDown={(e) => { if (e.key === 'Enter') guardarAsp(a.id); if (e.key === 'Escape') setEditAsp(null); }}
+                              className="h-8"
+                            />
+                            <Input
+                              value={descAsp}
+                              onChange={(e) => setDescAsp(e.target.value)}
+                              onKeyDown={(e) => { if (e.key === 'Enter') guardarAsp(a.id); if (e.key === 'Escape') setEditAsp(null); }}
+                              placeholder="Cómo se sabe que se cumple (opcional)"
+                              className="h-7 text-xs"
+                            />
+                          </div>
+                          <Button size="sm" variant="ghost" onClick={() => guardarAsp(a.id)} disabled={ocupado === a.id}>
+                            <Check className="h-4 w-4 text-emerald-600" />
+                          </Button>
+                          <Button size="sm" variant="ghost" onClick={() => setEditAsp(null)}>
+                            <X className="h-4 w-4" />
+                          </Button>
+                        </>
+                      ) : (
+                        <>
+                          <span className="flex-1 text-sm">
+                            {a.nombre}
+                            {a.descripcion && (
+                              <span className="block text-xs text-muted-foreground">{a.descripcion}</span>
+                            )}
+                          </span>
+                          <Button size="sm" variant="ghost" title="Editar"
+                            onClick={() => { setEditAsp(a.id); setTextoAsp(a.nombre); setDescAsp(a.descripcion ?? ''); }}>
+                            <Pencil className="h-3.5 w-3.5" />
+                          </Button>
+                          <Button size="sm" variant="ghost" title="Borrar" disabled={ocupado === a.id}
+                            onClick={() => borrarAsp(a)}
+                            className="text-red-600 hover:bg-red-50 hover:text-red-700">
+                            {ocupado === a.id ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Trash2 className="h-3.5 w-3.5" />}
+                          </Button>
+                        </>
+                      )}
+                    </div>
+                  ))}
+
+                  {nuevoAsp?.dimId === d.id ? (
+                    <div className="flex items-center gap-2 pt-1">
+                      <Input
+                        autoFocus placeholder="Ej: Reunión de alineación semanal"
+                        value={nuevoAsp.texto}
+                        onChange={(e) => setNuevoAsp({ ...nuevoAsp, texto: e.target.value })}
+                        onKeyDown={(e) => { if (e.key === 'Enter') crearAsp(); if (e.key === 'Escape') setNuevoAsp(null); }}
+                        className="h-8"
+                      />
+                      <Button size="sm" onClick={crearAsp} disabled={ocupado === d.id}>Agregar</Button>
+                      <Button size="sm" variant="ghost" onClick={() => setNuevoAsp(null)}>Cancelar</Button>
+                    </div>
+                  ) : (
+                    <Button size="sm" variant="ghost" className="text-muted-foreground"
+                      onClick={() => setNuevoAsp({ dimId: d.id, texto: '' })}>
+                      <Plus className="mr-1.5 h-3.5 w-3.5" /> Agregar aspecto
                     </Button>
-                    <Button
-                      variant="outline"
-                      onClick={() => {
-                        setNewComp({ nombre: '', descripcion: '', sectionId: '' });
-                      }}
-                      disabled={isSaving}
-                      size="sm"
-                    >
-                      Cancelar
-                    </Button>
-                  </div>
+                  )}
                 </div>
-              ) : (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setNewComp({ ...newComp, sectionId: seccion.id })}
-                  className="w-full"
-                >
-                  <Plus className="h-4 w-4 mr-2" />
-                  Agregar Competencia
-                </Button>
-              )}
-            </CardContent>
-          </Card>
-        ))}
+              </CardContent>
+            </Card>
+          );
+        })}
       </div>
 
-      {/* Info de guardado */}
-      <Card className="border-amber-200 bg-amber-50">
-        <CardContent className="pt-6">
-          <div className="flex gap-3">
-            <AlertCircle className="h-5 w-5 text-amber-600 flex-shrink-0 mt-0.5" />
-            <div>
-              <p className="font-medium text-sm">Nota sobre persistencia</p>
-              <p className="text-sm text-muted-foreground">
-                Los cambios se guardan automáticamente en Firestore. Si deseas agregar nuevas secciones, contacta al equipo de soporte.
-              </p>
+      <Link href="/dashboard/admin/competencias/importar">
+        <Button variant="outline" className="w-full border-dashed">
+          <Upload className="mr-2 h-4 w-4" /> Traer un tablero escrito
+        </Button>
+      </Link>
+
+      {abriendoDim ? (
+        <Card>
+          <CardContent className="flex flex-wrap items-end gap-3 pt-6">
+            <div className="min-w-[260px] flex-1 space-y-1.5">
+              <Label htmlFor="nd">Nombre de la dimensión</Label>
+              <Input
+                id="nd" autoFocus placeholder="Ej: Planeación y Organización"
+                value={nuevaDim}
+                onChange={(e) => setNuevaDim(e.target.value)}
+                onKeyDown={(e) => { if (e.key === 'Enter') crearDim(); if (e.key === 'Escape') setAbriendoDim(false); }}
+              />
             </div>
-          </div>
-        </CardContent>
-      </Card>
+            <Button onClick={crearDim} disabled={ocupado === 'nueva-dim'}>
+              {ocupado === 'nueva-dim'
+                ? <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                : <Plus className="mr-2 h-4 w-4" />}
+              Crear
+            </Button>
+            <Button variant="ghost" onClick={() => { setAbriendoDim(false); setNuevaDim(''); }}>Cancelar</Button>
+          </CardContent>
+        </Card>
+      ) : (
+        <Button variant="outline" onClick={() => setAbriendoDim(true)}>
+          <Plus className="mr-2 h-4 w-4" /> Nueva dimensión
+        </Button>
+      )}
+
+      {dims.length === 0 && (
+        <p className="py-6 text-center text-sm text-muted-foreground">
+          Este tablero está vacío. Crea la primera dimensión.
+        </p>
+      )}
     </div>
   );
 }
