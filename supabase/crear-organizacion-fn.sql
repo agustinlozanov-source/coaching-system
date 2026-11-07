@@ -10,9 +10,10 @@
 -- política de escritura. Por eso lo primero que hace es verificar quién llama.
 
 create or replace function crear_organizacion_admin(
-  p_nombre text,
-  p_email  text,
-  p_apps   text[] default array['teamx']
+  p_nombre     text,
+  p_email      text,
+  p_apps       text[] default array['teamx'],
+  p_incluirme  boolean default true
 )
 returns table (org_id uuid, org_nombre text)
 language plpgsql
@@ -62,6 +63,14 @@ begin
   insert into miembros_organizacion (organizacion_id, user_id, rol_en_org, estado)
   values (v_org, v_user, 'dueno', 'activo');
 
+  -- El selector de organización solo lista aquellas donde eres miembro: ser
+  -- admin global no te mete en ninguna. Sin esto, creas la organización de un
+  -- cliente y después no la puedes abrir para configurársela.
+  if p_incluirme and auth.uid() is not null and auth.uid() <> v_user then
+    insert into miembros_organizacion (organizacion_id, user_id, rol_en_org, estado)
+    values (v_org, auth.uid(), 'consultor', 'activo');
+  end if;
+
   -- Escala, ciclo activo y las siete dimensiones de SCALEx.
   perform teamx_seed_defaults(v_org);
 
@@ -76,5 +85,9 @@ begin
 end;
 $$;
 
-revoke all on function crear_organizacion_admin(text, text, text[]) from public;
-grant execute on function crear_organizacion_admin(text, text, text[]) to authenticated;
+-- La firma cambió (se le agregó p_incluirme), así que la vieja de tres
+-- argumentos se queda huérfana en la base. Se borra para que no haya dos.
+drop function if exists crear_organizacion_admin(text, text, text[]);
+
+revoke all on function crear_organizacion_admin(text, text, text[], boolean) from public;
+grant execute on function crear_organizacion_admin(text, text, text[], boolean) to authenticated;

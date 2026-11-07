@@ -33,6 +33,7 @@ export function AdminAccesosApp() {
   const [nombre, setNombre] = useState('');
   const [correo, setCorreo] = useState('');
   const [appsNuevas, setAppsNuevas] = useState<Set<string>>(new Set(['teamx']));
+  const [incluirme, setIncluirme] = useState(true);
   const [creando, setCreando] = useState(false);
   const [errorAlta, setErrorAlta] = useState('');
   const [recienCreada, setRecienCreada] = useState<string | null>(null);
@@ -87,6 +88,7 @@ export function AdminAccesosApp() {
     setNombre('');
     setCorreo('');
     setAppsNuevas(new Set(['teamx']));
+    setIncluirme(true);
   }
 
   async function crear(e: React.FormEvent) {
@@ -98,6 +100,7 @@ export function AdminAccesosApp() {
       p_nombre: nombre,
       p_email: correo,
       p_apps: Array.from(appsNuevas),
+      p_incluirme: incluirme,
     });
 
     if (error) {
@@ -290,6 +293,21 @@ export function AdminAccesosApp() {
               })}
             </div>
           </div>
+
+          <label className="mt-4 flex items-start gap-2.5 text-sm text-[var(--sx-text)]">
+            <input
+              type="checkbox"
+              checked={incluirme}
+              onChange={(e) => setIncluirme(e.target.checked)}
+              className="mt-0.5 h-4 w-4 accent-[#1aab99]"
+            />
+            <span>
+              Agregarme como consultor
+              <span className="mt-0.5 block text-xs text-[var(--sx-text-dim)]">
+                Sin esto la organización no te aparece en el selector y no la puedes abrir.
+              </span>
+            </span>
+          </label>
 
           {errorAlta && (
             <p className="mt-4 flex items-start gap-2 rounded-lg bg-red-500/10 p-3 text-sm text-red-400">
