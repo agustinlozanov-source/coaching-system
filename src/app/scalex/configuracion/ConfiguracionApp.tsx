@@ -4,9 +4,10 @@ import { Fragment, useCallback, useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import {
   Building2, Users, User as UserIcon, Plus, UserPlus, UserMinus, X, Loader2,
-  ChevronRight, UserCircle, Lock, CheckCircle2, AlertCircle, Trash2,
+  ChevronRight, UserCircle, Lock, CheckCircle2, AlertCircle, Trash2, LogIn,
 } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
+import { setActiveOrgId } from '@/lib/teamx/org';
 
 /* ── Tipos (espejo del portal: perfiles, organizaciones, RPCs) ──────────── */
 type Perfil = { id: string; nombre: string | null; apellido: string | null; email: string | null; rol_global: string | null };
@@ -179,7 +180,7 @@ export function ConfiguracionApp() {
       </div>
 
       {tab === 'orgs' && esAdmin && (
-        <OrgsTab onNuevaOrg={() => setNuevaOrgOpen(true)} />
+        <OrgsTab toast={toast} onNuevaOrg={() => setNuevaOrgOpen(true)} />
       )}
       {tab === 'equipo' && esDueno && (
         <EquipoTab orgId={miOrgId} orgNombre={miOrgNombre} onNuevoColab={() => setNuevoColabOpen(true)} toast={toast} />
@@ -224,7 +225,7 @@ export function ConfiguracionApp() {
 /* ══════════════════════════════════════════════════════════════════════════
    TAB A — ORGANIZACIONES (Admin)  · tabla listar_organizaciones_admin
    ══════════════════════════════════════════════════════════════════════════ */
-function OrgsTab({ onNuevaOrg }: { onNuevaOrg: () => void }) {
+function OrgsTab({ onNuevaOrg, toast }: { onNuevaOrg: () => void; toast: (t: string, type?: 'success' | 'error') => void }) {
   const [orgs, setOrgs] = useState<OrgAdminRow[] | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [expanded, setExpanded] = useState<string | null>(null);
@@ -239,6 +240,7 @@ function OrgsTab({ onNuevaOrg }: { onNuevaOrg: () => void }) {
   // Apps contratadas por organización, desde org_herramientas.
   const [ent, setEnt] = useState<Record<string, Set<string>>>({});
   const [guardando, setGuardando] = useState<string | null>(null);
+  const [entrando, setEntrando] = useState<string | null>(null);
 
   const cargarOrgs = useCallback(async () => {
     const supabase = createClient();
@@ -304,6 +306,24 @@ function OrgsTab({ onNuevaOrg }: { onNuevaOrg: () => void }) {
     }
   }
 
+  // Entrar a una organización como entraría el cliente: nos damos de alta
+  // como consultor si hace falta, fijamos la cookie de organización activa y
+  // abrimos TEAMx. Sin lo primero, el selector no la lista y no hay forma de
+  // llegar a ella.
+  async function entrar(orgId: string, nombre: string | null) {
+    setEntrando(orgId);
+    const supabase = createClient();
+    const { error } = await supabase.rpc('unirme_a_org_admin', { p_org: orgId });
+    if (error) {
+      setEntrando(null);
+      toast(error.message || 'No se pudo entrar a la organización.', 'error');
+      return;
+    }
+    setActiveOrgId(orgId);
+    toast(`Entrando a ${nombre || 'la organización'}…`);
+    window.location.href = '/dashboard';
+  }
+
   function pedirBorrar(orgId: string) {
     setConfirmando((prev) => (prev === orgId ? null : orgId));
     setTextoConfirma('');
@@ -346,20 +366,20 @@ function OrgsTab({ onNuevaOrg }: { onNuevaOrg: () => void }) {
         <table className="w-full border-collapse text-left">
           <thead>
             <tr className="border-b border-[var(--sx-border)] bg-[var(--sx-card-hover)]">
-              {['Empresa', 'Dueño', 'Email', 'Ciudad', 'Sector', 'Creada', 'Apps', '', ''].map((h, i) => (
+              {['Empresa', 'Dueño', 'Email', 'Ciudad', 'Sector', 'Creada', 'Apps', '', '', ''].map((h, i) => (
                 <th key={h + i} className="whitespace-nowrap px-4 py-2.5 text-[11px] font-bold uppercase tracking-wide text-[var(--sx-text-dim)]">{h}</th>
               ))}
             </tr>
           </thead>
           <tbody>
             {error && (
-              <tr><td colSpan={9} className="p-8 text-center text-sm text-red-400">Error: {error}</td></tr>
+              <tr><td colSpan={10} className="p-8 text-center text-sm text-red-400">Error: {error}</td></tr>
             )}
             {!error && orgs === null && (
-              <tr><td colSpan={9} className="p-8 text-center text-sm text-[var(--sx-text-dim)]">Cargando organizaciones…</td></tr>
+              <tr><td colSpan={10} className="p-8 text-center text-sm text-[var(--sx-text-dim)]">Cargando organizaciones…</td></tr>
             )}
             {!error && orgs !== null && orgs.length === 0 && (
-              <tr><td colSpan={9} className="p-8 text-center text-sm text-[var(--sx-text-dim)]">Sin organizaciones registradas</td></tr>
+              <tr><td colSpan={10} className="p-8 text-center text-sm text-[var(--sx-text-dim)]">Sin organizaciones registradas</td></tr>
             )}
             {orgs?.map((org) => {
               const oid = org.org_id ?? org.id ?? '';
@@ -399,6 +419,18 @@ function OrgsTab({ onNuevaOrg }: { onNuevaOrg: () => void }) {
                   </td>
                   <td className="px-4 py-3">
                     <button
+                      onClick={() => entrar(oid, org.nombre)}
+                      disabled={entrando === oid}
+                      className="flex items-center gap-1.5 rounded-lg border border-[var(--sx-border)] px-2.5 py-1.5 text-[11px] font-semibold text-[var(--sx-text-muted)] transition hover:bg-[var(--sx-card-hover)] hover:text-[var(--sx-text)] disabled:opacity-40"
+                    >
+                      {entrando === oid
+                        ? <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                        : <LogIn className="h-3.5 w-3.5" />}
+                      Entrar
+                    </button>
+                  </td>
+                  <td className="px-4 py-3">
+                    <button
                       onClick={() => toggleEquipo(oid)}
                       className="flex items-center gap-1.5 rounded-lg border border-[var(--sx-border)] px-2.5 py-1.5 text-[11px] font-semibold text-[var(--sx-text-muted)] transition hover:bg-[var(--sx-card-hover)] hover:text-[var(--sx-text)]"
                     >
@@ -419,7 +451,7 @@ function OrgsTab({ onNuevaOrg }: { onNuevaOrg: () => void }) {
 
                 {confirmando === oid && (
                   <tr className="border-b border-[var(--sx-border)] bg-red-500/[0.05]">
-                    <td colSpan={9} className="px-5 py-4">
+                    <td colSpan={10} className="px-5 py-4">
                       <p className="text-sm text-[var(--sx-text)]">
                         Esto borra <b>{org.nombre}</b> y todo lo que cuelga de ella: su equipo,
                         sus accesos, y los empleados, evaluaciones, sesiones, ciclos y
@@ -467,7 +499,7 @@ function OrgsTab({ onNuevaOrg }: { onNuevaOrg: () => void }) {
                 )}
                 {expanded === oid && (
                   <tr className="border-b border-[var(--sx-border)] bg-[var(--sx-card-hover)]">
-                    <td colSpan={9} className="px-5 py-4">
+                    <td colSpan={10} className="px-5 py-4">
                       <div className="mb-2.5 text-[11px] font-bold uppercase tracking-wide text-[var(--sx-text-dim)]">Equipo de {org.nombre}</div>
                       <div className="flex flex-wrap gap-2">
                         {equipos[oid] === 'loading' && <span className="text-xs text-[var(--sx-text-dim)]">Cargando…</span>}
