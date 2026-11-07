@@ -41,7 +41,7 @@ export function EmpleadoSelector({
   onSelect,
   empleadosConEvaluacionReciente = [],
 }: EmpleadoSelectorProps) {
-  const empleados = useEmpleadosRealtime();
+  const { empleados } = useEmpleadosRealtime();
   const { getEvaluacionesByEmpleado } = useEvaluaciones();
 
   const [searchTerm, setSearchTerm] = useState('');
@@ -210,15 +210,15 @@ export function EmpleadoSelector({
       {/* Contador */}
       <div className="text-sm text-muted-foreground">
         {empleadosFiltrados.length === 1
-          ? '1 empleado encontrado'
-          : `${empleadosFiltrados.length} empleados encontrados`}
+          ? '1 persona encontrada'
+          : `${empleadosFiltrados.length} personas encontradas`}
       </div>
 
       {/* Grid de Empleados */}
       {empleadosFiltrados.length === 0 ? (
         <div className="text-center py-12">
           <AlertCircle className="h-12 w-12 text-muted-foreground mx-auto mb-4 opacity-50" />
-          <p className="text-muted-foreground">No se encontraron empleados</p>
+          <p className="text-muted-foreground">No se encontraron personas</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -309,7 +309,7 @@ export function EmpleadoSelector({
                     locale: es,
                     addSuffix: true,
                   })}. ¿Deseas continuar creando una nueva evaluación?`
-                : 'Este empleado fue evaluado recientemente. ¿Deseas continuar?'}
+                : 'Esta persona fue evaluada recientemente. ¿Deseas continuar?'}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <div className="flex gap-3">

@@ -254,7 +254,7 @@ export function downloadCsv(filename: string, content: string) {
 
 export function csvIndividual(empleadoNombre: string, points: EvalPoint[]): string {
   const dimNombres = Array.from(new Set(points.flatMap((p) => p.dims.map((d) => d.nombre))));
-  const header = ['Empleado', 'Fecha', 'Semana', 'Estado', 'Promedio general %', 'Eficiencia %', ...dimNombres];
+  const header = ['Persona', 'Fecha', 'Semana', 'Estado', 'Promedio general %', 'Eficiencia %', ...dimNombres];
   const rows = points.map((p) => [
     empleadoNombre, p.fecha, p.semana, p.estado, p.promedioGeneral, p.eficiencia,
     ...dimNombres.map((nombre) => p.dims.find((d) => d.nombre === nombre)?.pct ?? ''),
@@ -272,7 +272,7 @@ export interface FilaEquipoCsv {
 }
 
 export function csvEquipo(filas: FilaEquipoCsv[]): string {
-  const header = ['Empleado', 'Fecha', 'Semana', 'Estado', 'Promedio general %', 'Eficiencia %'];
+  const header = ['Persona', 'Fecha', 'Semana', 'Estado', 'Promedio general %', 'Eficiencia %'];
   const rows = filas.map((f) => [f.empleado, f.fecha, f.semana, f.estado, f.general, f.eficiencia]);
   return toCsv([header, ...rows]);
 }

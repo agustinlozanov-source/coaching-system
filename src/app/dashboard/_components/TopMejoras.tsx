@@ -37,7 +37,7 @@ export function TopMejoras({
               <AvatarFallback>{dashIniciales(nombres[e.empleadoId] ?? '?')}</AvatarFallback>
             </Avatar>
             <div className="min-w-0 flex-1">
-              <p className="cursor-pointer truncate text-sm font-medium hover:underline">{nombres[e.empleadoId] ?? 'Empleado'}</p>
+              <p className="cursor-pointer truncate text-sm font-medium hover:underline">{nombres[e.empleadoId] ?? 'Persona'}</p>
               <p className="text-xs text-muted-foreground">
                 {e.anterior}% → {e.actual}%
               </p>

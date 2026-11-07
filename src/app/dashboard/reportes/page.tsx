@@ -49,7 +49,7 @@ export default function ReportesPage() {
         .slice()
         .sort((a, b) => a.fecha.localeCompare(b.fecha));
       const points = evalsEmpleado.map(toEvalPoint);
-      const nombre = empleadoActual?.nombre ?? 'empleado';
+      const nombre = empleadoActual?.nombre ?? 'persona';
       downloadCsv(`reporte-individual-${nombre.replace(/\s+/g, '_')}.csv`, csvIndividual(nombre, points));
     } else {
       const nombreEmpleado = new Map(empleados.map((e) => [e.id, e.nombre]));

@@ -160,7 +160,7 @@ export default function OrganizacionPage() {
       <Card>
         <CardHeader>
           <CardTitle>Categorías Configuradas</CardTitle>
-          <CardDescription>Tipos de empleados definidos en tu organización</CardDescription>
+          <CardDescription>Tipos de personas definidas en tu organización</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="space-y-2">

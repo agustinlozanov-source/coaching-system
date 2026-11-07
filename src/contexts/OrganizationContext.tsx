@@ -20,7 +20,7 @@ interface OrganizationContextType {
 }
 
 const DEFAULT_CONFIG = {
-  nombreEmpleado: 'Empleado',
+  nombreEmpleado: 'Persona',
   nombreCoach: 'Coach',
   nombrePuesto: 'Puesto',
   nombreDepartamento: 'Departamento',
@@ -128,7 +128,7 @@ export function OrganizationProvider({ children }: { children: ReactNode }) {
       .filter((cat) => cat.activa)
       .map((cat) => cat.nombre);
 
-  const getNombreEmpleado = () => organization?.configuracion.nombreEmpleado || 'Empleado';
+  const getNombreEmpleado = () => organization?.configuracion.nombreEmpleado || 'Persona';
   const getNombreCoach = () => organization?.configuracion.nombreCoach || 'Coach';
   const getNombrePuesto = () => organization?.configuracion.nombrePuesto || 'Puesto';
   const getNombreDepartamento = () => organization?.configuracion.nombreDepartamento || 'Departamento';

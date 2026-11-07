@@ -82,8 +82,8 @@ function GladiadoresContent() {
       <EmptyState
         icon={<Users className="h-10 w-10 text-muted-foreground" />}
         titulo="Todavía no hay gladiadores en el equipo"
-        mensaje="Agrega empleados activos para que aparezcan en el tablero."
-        cta={<Button onClick={() => router.push('/dashboard/empleados')}>Ir a Empleados</Button>}
+        mensaje="Agrega personas activas para que aparezcan en el tablero."
+        cta={<Button onClick={() => router.push('/dashboard/empleados')}>Ir a Personas</Button>}
       />
     );
   }

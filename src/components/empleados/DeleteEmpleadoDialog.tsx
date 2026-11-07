@@ -45,7 +45,7 @@ export function DeleteEmpleadoDialog({
       console.error('Error al eliminar empleado:', error);
       toast({
         title: 'Error',
-        description: 'No se pudo eliminar el empleado. Intenta de nuevo.',
+        description: 'No se pudo eliminar a la persona. Intenta de nuevo.',
         variant: 'destructive',
       });
     } finally {

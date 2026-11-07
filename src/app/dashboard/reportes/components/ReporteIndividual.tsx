@@ -91,7 +91,7 @@ export function ReporteIndividual({ empleados, evaluaciones, empleadoId, onChang
   const equipoPorDim = useMemo(() => promedioPorDimension(ultimasEquipo), [ultimasEquipo]);
   const comparacionData = dims.map((d) => ({
     dim: d.nombre,
-    Empleado: ultimoPunto?.dims.find((x) => x.id === d.id)?.pct ?? 0,
+    Persona: ultimoPunto?.dims.find((x) => x.id === d.id)?.pct ?? 0,
     Equipo: equipoPorDim[d.id]?.pct ?? 0,
   }));
 
@@ -108,14 +108,14 @@ export function ReporteIndividual({ empleados, evaluaciones, empleadoId, onChang
               </AvatarFallback>
             </Avatar>
             <div>
-              <div className="text-lg font-bold">{empleado?.nombre ?? 'Selecciona un empleado'}</div>
+              <div className="text-lg font-bold">{empleado?.nombre ?? 'Selecciona una persona'}</div>
               <div className="text-sm text-muted-foreground">{empleado?.cargo || '—'}</div>
             </div>
           </div>
           <div className="w-full sm:w-64 print:hidden">
             <Select value={empleadoId} onValueChange={onChangeEmpleado}>
               <SelectTrigger>
-                <SelectValue placeholder="Elige un empleado" />
+                <SelectValue placeholder="Elige una persona" />
               </SelectTrigger>
               <SelectContent>
                 {empleados.map((e) => (
@@ -131,7 +131,7 @@ export function ReporteIndividual({ empleados, evaluaciones, empleadoId, onChang
         <Card>
           <CardContent className="flex flex-col items-center py-16 text-center">
             <AlertTriangle className="h-10 w-10 text-muted-foreground" />
-            <h3 className="mt-3 font-bold">Sin evaluaciones para este empleado</h3>
+            <h3 className="mt-3 font-bold">Sin evaluaciones para esta persona</h3>
             <p className="mt-1 text-sm text-muted-foreground">
               Cuando tenga al menos una evaluación, aquí verás su evolución y comparación con el equipo.
             </p>
@@ -220,7 +220,7 @@ export function ReporteIndividual({ empleados, evaluaciones, empleadoId, onChang
             <Card className="print:break-inside-avoid">
               <CardHeader>
                 <CardTitle>Vs. promedio del equipo</CardTitle>
-                <CardDescription>Última evaluación de {empleado?.nombre ?? 'el empleado'} contra el promedio de la organización.</CardDescription>
+                <CardDescription>Última evaluación de {empleado?.nombre ?? 'la persona'} contra el promedio de la organización.</CardDescription>
               </CardHeader>
               <CardContent>
                 {comparacionData.length === 0 ? (
@@ -233,7 +233,7 @@ export function ReporteIndividual({ empleados, evaluaciones, empleadoId, onChang
                       <YAxis domain={[0, 100]} fontSize={12} />
                       <Tooltip />
                       <Legend />
-                      <Bar dataKey="Empleado" fill="#059669" radius={[4, 4, 0, 0]} />
+                      <Bar dataKey="Persona" fill="#059669" radius={[4, 4, 0, 0]} />
                       <Bar dataKey="Equipo" fill="#9ca3af" radius={[4, 4, 0, 0]} />
                     </BarChart>
                   </ResponsiveContainer>

@@ -162,8 +162,17 @@ export async function deleteEmpleado(id: string): Promise<void> {
 }
 
 /** Lista de empleados en tiempo real (Supabase Realtime). */
-export function useEmpleadosRealtime(): Empleado[] {
+/**
+ * Devuelve la lista y si la primera carga ya terminó.
+ *
+ * `cargando` existe porque quien consume esto no puede deducirlo de la lista:
+ * una organización sin nadie da un arreglo vacío, igual que una que todavía no
+ * responde. La pantalla de personas usaba `empleados.length === 0` como
+ * «cargando» y se quedaba girando para siempre en una organización nueva.
+ */
+export function useEmpleadosRealtime(): { empleados: Empleado[]; cargando: boolean } {
   const [empleados, setEmpleados] = useState<Empleado[]>([]);
+  const [cargando, setCargando] = useState(true);
 
   useEffect(() => {
     let active = true;
@@ -175,6 +184,8 @@ export function useEmpleadosRealtime(): Empleado[] {
         if (active) setEmpleados(data);
       } catch {
         if (active) setEmpleados([]);
+      } finally {
+        if (active) setCargando(false);
       }
     };
     load();
@@ -190,7 +201,7 @@ export function useEmpleadosRealtime(): Empleado[] {
     };
   }, []);
 
-  return empleados;
+  return { empleados, cargando };
 }
 
 export function useEmpleados() {

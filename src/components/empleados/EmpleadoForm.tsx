@@ -152,7 +152,7 @@ export function EmpleadoForm({
           <Label htmlFor="nombre">Nombre *</Label>
           <Input
             id="nombre"
-            placeholder="Nombre del empleado"
+            placeholder="Nombre de la persona"
             disabled={isLoading}
             {...register('nombre')}
           />
@@ -166,7 +166,7 @@ export function EmpleadoForm({
           <Label htmlFor="cargo">Cargo *</Label>
           <Input
             id="cargo"
-            placeholder="Cargo del empleado"
+            placeholder="Cargo de la persona"
             disabled={isLoading}
             {...register('cargo')}
           />
@@ -227,7 +227,7 @@ export function EmpleadoForm({
           <Label htmlFor="telefono">Teléfono</Label>
           <Input
             id="telefono"
-            placeholder="Teléfono del empleado"
+            placeholder="Teléfono de la persona"
             disabled={isLoading}
             {...register('telefono')}
           />

@@ -52,7 +52,7 @@ export function EmpleadoDialog({
       console.error('Error al guardar empleado:', error);
       toast({
         title: 'Error',
-        description: 'No se pudo guardar el empleado. Intenta de nuevo.',
+        description: 'No se pudo guardar la persona. Intenta de nuevo.',
         variant: 'destructive',
       });
     }
@@ -63,12 +63,12 @@ export function EmpleadoDialog({
       <DialogContent className="max-w-[600px] w-full">
         <DialogHeader>
           <DialogTitle>
-            {isEdit ? 'Editar Empleado' : 'Nuevo Empleado'}
+            {isEdit ? 'Editar persona' : 'Nueva persona'}
           </DialogTitle>
           <DialogDescription>
             {isEdit
-              ? 'Actualiza la información del empleado'
-              : 'Completa el formulario para crear un nuevo empleado'}
+              ? 'Actualiza la información de la persona'
+              : 'Completa el formulario para dar de alta a una persona'}
           </DialogDescription>
         </DialogHeader>
         <div className="mt-4">

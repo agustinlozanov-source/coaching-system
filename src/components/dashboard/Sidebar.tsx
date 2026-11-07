@@ -25,7 +25,7 @@ import { useRouter } from 'next/navigation';
 
 const menuItems = [
   { label: 'Dashboard', icon: LayoutDashboard, href: '/dashboard' },
-  { label: 'Empleados', icon: Users, href: '/dashboard/empleados' },
+  { label: 'Personas', icon: Users, href: '/dashboard/empleados' },
   { label: 'Evaluaciones', icon: ClipboardCheck, href: '/dashboard/evaluaciones' },
   { label: 'Sesiones', icon: MessagesSquare, href: '/dashboard/sesiones' },
   { label: 'Equipo', icon: Users2, href: '/dashboard/equipo' },

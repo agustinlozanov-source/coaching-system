@@ -348,7 +348,7 @@ export function SesionEditor({ sesionId }: { sesionId: string }) {
             </CardHeader>
             <CardContent className="space-y-4">
               {!prevEval ? (
-                <p className="py-6 text-center text-sm text-muted-foreground">Este empleado aún no tiene una evaluación para revisar.</p>
+                <p className="py-6 text-center text-sm text-muted-foreground">Esta persona aún no tiene una evaluación para revisar.</p>
               ) : (
                 <>
                   <p className="text-xs text-muted-foreground">Semana {prevEval.semana ?? '—'} · {prevEval.fecha}</p>

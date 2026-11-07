@@ -83,7 +83,7 @@ export default function EvaluacionesPage() {
             <table className="w-full text-sm">
               <thead className="border-b bg-muted/40 text-xs uppercase text-muted-foreground">
                 <tr>
-                  <th className="p-3 text-left">Empleado</th>
+                  <th className="p-3 text-left">Persona</th>
                   <th className="p-3 text-left">Semana</th>
                   <th className="p-3 text-left">Fecha</th>
                   <th className="p-3 text-left">Estado</th>

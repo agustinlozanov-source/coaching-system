@@ -40,7 +40,7 @@ export function AttentionList({
               <AvatarFallback>{dashIniciales(nombres[e.empleadoId] ?? '?')}</AvatarFallback>
             </Avatar>
             <div className="min-w-0 flex-1">
-              <p className="cursor-pointer truncate text-sm font-medium hover:underline">{nombres[e.empleadoId] ?? 'Empleado'}</p>
+              <p className="cursor-pointer truncate text-sm font-medium hover:underline">{nombres[e.empleadoId] ?? 'Persona'}</p>
               <div className="mt-1 flex flex-wrap gap-1">
                 {e.reasons.map((r) => {
                   const info = REASON_INFO[r];

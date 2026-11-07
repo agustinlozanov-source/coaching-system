@@ -78,14 +78,14 @@ function NuevaContent() {
 
       {empleados.length === 0 ? (
         <Card><CardContent className="py-12 text-center">
-          <p className="text-muted-foreground">Aún no tienes empleados. Agrega uno primero.</p>
-          <Button className="mt-4" onClick={() => router.push('/dashboard/empleados')}>Ir a Empleados</Button>
+          <p className="text-muted-foreground">Aún no tienes personas. Agrega una primero.</p>
+          <Button className="mt-4" onClick={() => router.push('/dashboard/empleados')}>Ir a Personas</Button>
         </CardContent></Card>
       ) : (
         <>
           <div className="relative mb-4">
             <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-            <Input placeholder="Buscar empleado…" value={q} onChange={(e) => setQ(e.target.value)} className="pl-9" />
+            <Input placeholder="Buscar persona…" value={q} onChange={(e) => setQ(e.target.value)} className="pl-9" />
           </div>
 
           <div className="mb-6 grid gap-2 sm:grid-cols-2">

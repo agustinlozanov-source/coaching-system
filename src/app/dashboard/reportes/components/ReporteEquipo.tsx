@@ -87,7 +87,7 @@ export function ReporteEquipo({ empleados, evaluaciones }: Props) {
         <Card><CardContent className="py-5">
           <div className="text-xs font-semibold uppercase text-muted-foreground">Promedio general</div>
           <div className="mt-1 text-3xl font-extrabold tabular-nums">{promedioEquipo ?? '—'}{promedioEquipo != null ? '%' : ''}</div>
-          <p className="mt-1 text-xs text-muted-foreground">Última evaluación de cada empleado</p>
+          <p className="mt-1 text-xs text-muted-foreground">Última evaluación de cada persona</p>
         </CardContent></Card>
         <Card><CardContent className="py-5">
           <div className="text-xs font-semibold uppercase text-muted-foreground">Eficiencia promedio</div>
@@ -171,7 +171,7 @@ export function ReporteEquipo({ empleados, evaluaciones }: Props) {
       {/* Tabla de empleados */}
       <Card className="print:break-inside-avoid">
         <CardHeader>
-          <CardTitle className="flex items-center gap-2"><Users className="h-4 w-4" /> Empleados</CardTitle>
+          <CardTitle className="flex items-center gap-2"><Users className="h-4 w-4" /> Personas</CardTitle>
           <CardDescription>{empleados.length} empleados activos.</CardDescription>
         </CardHeader>
         <CardContent className="p-0">
@@ -179,7 +179,7 @@ export function ReporteEquipo({ empleados, evaluaciones }: Props) {
             <table className="w-full text-sm">
               <thead className="border-b bg-muted/40 text-xs uppercase text-muted-foreground">
                 <tr>
-                  <th className="p-3 text-left">Empleado</th>
+                  <th className="p-3 text-left">Persona</th>
                   <th className="p-3 text-left">Cargo</th>
                   <th className="p-3 text-left">Última evaluación</th>
                   <th className="p-3 text-right">Evaluaciones</th>

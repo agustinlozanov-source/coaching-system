@@ -97,7 +97,7 @@ export default function EquipoPage() {
           <p className="text-muted-foreground">Roster, madurez y desarrollo de tu equipo.</p>
         </div>
         <Button onClick={() => router.push('/dashboard/empleados')}>
-          <Plus className="mr-2 h-4 w-4" /> Gestionar empleados
+          <Plus className="mr-2 h-4 w-4" /> Gestionar personas
         </Button>
       </div>
 
@@ -109,12 +109,12 @@ export default function EquipoPage() {
         <Card>
           <CardContent className="flex flex-col items-center py-16 text-center">
             <Users2 className="h-10 w-10 text-muted-foreground" />
-            <h3 className="mt-3 font-bold">Aún no hay empleados en el equipo</h3>
+            <h3 className="mt-3 font-bold">Aún no hay personas en el equipo</h3>
             <p className="mt-1 text-sm text-muted-foreground">
               Agrega personas a tu organización para ver el roster, su madurez y su curva de aprendizaje.
             </p>
             <Button className="mt-4" onClick={() => router.push('/dashboard/empleados')}>
-              <Plus className="mr-2 h-4 w-4" /> Ir a Empleados
+              <Plus className="mr-2 h-4 w-4" /> Ir a Personas
             </Button>
           </CardContent>
         </Card>

@@ -94,7 +94,7 @@ export default function SesionesPage() {
       <div className="mb-6 flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold">Sesiones</h1>
-          <p className="text-muted-foreground">Sesiones de coaching: agenda, notas y acuerdos por empleado.</p>
+          <p className="text-muted-foreground">Sesiones de coaching: agenda, notas y acuerdos por persona.</p>
         </div>
         <GlowButton onClick={abrirDialog} disabled={loading || empleados.length === 0}>
           Nueva sesión
@@ -122,7 +122,7 @@ export default function SesionesPage() {
           <h3 className="mt-3 font-bold">Aún no hay sesiones de coaching</h3>
           <p className="mt-1 text-sm text-muted-foreground">
             {empleados.length === 0
-              ? 'Agrega empleados primero para poder agendar una sesión.'
+              ? 'Agrega personas primero para poder agendar una sesión.'
               : 'Crea la primera sesión: la agenda se sugiere sola desde la última evaluación.'}
           </p>
           {empleados.length > 0 && (
@@ -135,7 +135,7 @@ export default function SesionesPage() {
             <table className="w-full text-sm">
               <thead className="border-b bg-muted/40 text-xs uppercase text-muted-foreground">
                 <tr>
-                  <th className="p-3 text-left">Empleado</th>
+                  <th className="p-3 text-left">Persona</th>
                   <th className="p-3 text-left">Fecha</th>
                   <th className="p-3 text-left">Estado</th>
                   <th className="p-3 text-right">Duración</th>
@@ -179,9 +179,9 @@ export default function SesionesPage() {
           </DialogHeader>
           <div className="space-y-4 py-2">
             <div>
-              <Label className="mb-1 block text-xs font-semibold uppercase text-muted-foreground">Empleado</Label>
+              <Label className="mb-1 block text-xs font-semibold uppercase text-muted-foreground">Persona</Label>
               <Select value={empleadoId} onValueChange={setEmpleadoId}>
-                <SelectTrigger><SelectValue placeholder="Elige un empleado" /></SelectTrigger>
+                <SelectTrigger><SelectValue placeholder="Elige una persona" /></SelectTrigger>
                 <SelectContent>
                   {empleados.map((e) => (
                     <SelectItem key={e.id} value={e.id}>{e.nombre}{e.cargo ? ` · ${e.cargo}` : ''}</SelectItem>

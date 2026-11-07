@@ -34,7 +34,7 @@ export default function AdminPage() {
     },
     {
       title: 'Categorías',
-      description: 'Crea, edita y elimina categorías de empleados (Ejecutivo, Asesor, etc)',
+      description: 'Crea, edita y elimina categorías de personas (Ejecutivo, Asesor, etc)',
       icon: <Tags className="h-6 w-6" />,
       href: '/dashboard/admin/categorias',
       color: 'text-purple-600 bg-purple-50',
@@ -162,13 +162,13 @@ export default function AdminPage() {
         </CardHeader>
         <CardContent className="space-y-2 text-sm">
           <p>
-            <strong>Categorías:</strong> Define los tipos de empleados en tu organización (roles, niveles, departamentos)
+            <strong>Categorías:</strong> Define los tipos de personas en tu organización (roles, niveles, departamentos)
           </p>
           <p>
             <strong>Escalas:</strong> Personaliza cómo se califica el desempeño (1-5, numérico, o como prefieras)
           </p>
           <p>
-            <strong>Competencias:</strong> Configura qué habilidades evaluarás según la categoría del empleado
+            <strong>Competencias:</strong> Configura qué habilidades evaluarás según la categoría de la persona
           </p>
         </CardContent>
       </Card>

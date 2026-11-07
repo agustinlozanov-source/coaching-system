@@ -53,7 +53,7 @@ export default function EmpleadoDetailPage({ params }: PageProps) {
         setError(null);
         const data = await getEmpleadoById(params.id);
         if (!data) {
-          setError('Empleado no encontrado');
+          setError('Persona no encontrada');
         } else {
           setEmpleado(data);
           // Cargar evaluaciones del empleado
@@ -84,7 +84,7 @@ export default function EmpleadoDetailPage({ params }: PageProps) {
     return (
       <div className="flex flex-col items-center justify-center py-12 space-y-4">
         <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-        <p className="text-muted-foreground">Cargando información del empleado...</p>
+        <p className="text-muted-foreground">Cargando información de la persona...</p>
       </div>
     );
   }
@@ -99,13 +99,13 @@ export default function EmpleadoDetailPage({ params }: PageProps) {
             onClick={() => router.push('/dashboard/empleados')}
           >
             <ArrowLeft className="h-4 w-4 mr-2" />
-            Volver a empleados
+            Volver a personas
           </Button>
         </div>
         <Card>
           <CardContent className="py-12 text-center">
             <p className="text-lg font-semibold text-muted-foreground mb-4">
-              {error || 'Empleado no encontrado'}
+              {error || 'Persona no encontrada'}
             </p>
             <Button onClick={() => router.push('/dashboard/empleados')}>
               Volver a la lista

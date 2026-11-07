@@ -117,7 +117,7 @@ export function EvaluacionesTable({
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             {/* Filtro Empleado */}
             <div>
-              <label className="text-sm font-medium mb-2 block">Empleado</label>
+              <label className="text-sm font-medium mb-2 block">Persona</label>
               <Select value={filtroEmpleado} onValueChange={setFiltroEmpleado}>
                 <SelectTrigger>
                   <SelectValue />
@@ -203,7 +203,7 @@ export function EvaluacionesTable({
             <TableHeader className="bg-gray-50">
               <TableRow>
                 <TableHead>Fecha</TableHead>
-                <TableHead>Empleado</TableHead>
+                <TableHead>Persona</TableHead>
                 <TableHead>Coach</TableHead>
                 <TableHead>Estado</TableHead>
                 <TableHead>Efectividad</TableHead>

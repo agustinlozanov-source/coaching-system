@@ -35,7 +35,7 @@ export function EmpleadoTable({
     return (
       <div className="flex items-center justify-center py-12 text-center">
         <div>
-          <p className="text-muted-foreground">No hay empleados registrados</p>
+          <p className="text-muted-foreground">No hay personas registradas</p>
         </div>
       </div>
     );

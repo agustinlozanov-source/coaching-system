@@ -21,7 +21,7 @@ import { Empleado } from '@/types/empleado';
 export const dynamic = 'force-dynamic';
 
 export default function EmpleadosPage() {
-  const empleados = useEmpleadosRealtime();
+  const { empleados, cargando: isLoading } = useEmpleadosRealtime();
   const [selectedEmpleado, setSelectedEmpleado] = useState<Empleado | null>(null);
   const [showDialog, setShowDialog] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -91,29 +91,28 @@ export default function EmpleadosPage() {
     // Los datos se actualizarán automáticamente gracias a useEmpleadosRealtime
   };
 
-  const isLoading = empleados.length === 0;
 
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold font-jakarta">Empleados</h1>
+          <h1 className="text-3xl font-bold font-jakarta">Personas</h1>
           <p className="text-muted-foreground mt-1">
             Gestiona tu equipo de trabajo
           </p>
         </div>
         <GlowButton onClick={handleNewEmpleado}>
-          Nuevo Empleado
+          Nueva persona
         </GlowButton>
       </div>
 
       <Card>
         <CardHeader>
-          <CardTitle>Lista de Empleados</CardTitle>
+          <CardTitle>Lista de personas</CardTitle>
           <CardDescription>
             {isLoading
-              ? 'Cargando empleados...'
-              : `Mostrando ${filteredEmpleados.length} de ${empleados.length} empleado${empleados.length !== 1 ? 's' : ''}`}
+              ? 'Cargando personas...'
+              : `Mostrando ${filteredEmpleados.length} de ${empleados.length} persona${empleados.length !== 1 ? 's' : ''}`}
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -157,7 +156,7 @@ export default function EmpleadosPage() {
           {isLoading ? (
             <div className="flex flex-col items-center justify-center py-12">
               <Loader2 className="h-8 w-8 animate-spin text-muted-foreground mb-2" />
-              <p className="text-muted-foreground">Cargando empleados...</p>
+              <p className="text-muted-foreground">Cargando personas...</p>
             </div>
           ) : (
             <EmpleadoTable
