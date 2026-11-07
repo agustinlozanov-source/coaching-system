@@ -10,8 +10,12 @@ import { createClient } from '@/lib/supabase/client';
 
 /* ── Tipos (espejo del portal: perfiles, organizaciones, RPCs) ──────────── */
 type Perfil = { id: string; nombre: string | null; apellido: string | null; email: string | null; rol_global: string | null };
+// listar_organizaciones_admin devuelve la llave como `org_id`. Esta pantalla
+// la tenía declarada como `id`, así que venía vacía en todos los renglones y
+// «Equipo» abría todos a la vez. Se aceptan las dos por si el RPC cambia.
 type OrgAdminRow = {
-  id: string; nombre: string | null; dueno_nombre: string | null; dueno_email: string | null;
+  org_id?: string; id?: string;
+  nombre: string | null; dueno_nombre: string | null; dueno_email: string | null;
   ciudad: string | null; sector: string | null; created_at: string | null;
 };
 type EquipoMiembro = {
@@ -301,8 +305,10 @@ function OrgsTab({ onNuevaOrg }: { onNuevaOrg: () => void }) {
             {!error && orgs !== null && orgs.length === 0 && (
               <tr><td colSpan={8} className="p-8 text-center text-sm text-[var(--sx-text-dim)]">Sin organizaciones registradas</td></tr>
             )}
-            {orgs?.map((org) => (
-              <Fragment key={org.id}>
+            {orgs?.map((org) => {
+              const oid = org.org_id ?? org.id ?? '';
+              return (
+              <Fragment key={oid}>
                 <tr className="border-b border-[var(--sx-border)] transition hover:bg-[var(--sx-card-hover)]">
                   <td className="px-4 py-3 text-sm font-semibold text-[var(--sx-text)]">{org.nombre || '—'}</td>
                   <td className="px-4 py-3 text-sm text-[var(--sx-text-muted)]">{org.dueno_nombre || '—'}</td>
@@ -312,7 +318,7 @@ function OrgsTab({ onNuevaOrg }: { onNuevaOrg: () => void }) {
                   <td className="px-4 py-3 text-[11px] text-[var(--sx-text-dim)]">{formatFecha(org.created_at)}</td>
                   <td className="px-4 py-3">
                     <button
-                      onClick={() => toggleEquipo(org.id)}
+                      onClick={() => toggleEquipo(oid)}
                       className="flex items-center gap-1.5 rounded-lg border border-[var(--sx-border)] px-2.5 py-1.5 text-[11px] font-semibold text-[var(--sx-text-muted)] transition hover:bg-[var(--sx-card-hover)] hover:text-[var(--sx-text)]"
                     >
                       <Users className="h-3.5 w-3.5" /> Equipo
@@ -320,9 +326,9 @@ function OrgsTab({ onNuevaOrg }: { onNuevaOrg: () => void }) {
                   </td>
                   <td className="px-4 py-3">
                     <button
-                      onClick={() => pedirBorrar(org.id)}
+                      onClick={() => pedirBorrar(oid)}
                       aria-label={`Borrar ${org.nombre}`}
-                      aria-expanded={confirmando === org.id}
+                      aria-expanded={confirmando === oid}
                       className="rounded-lg p-2 text-[var(--sx-text-dim)] transition hover:bg-red-500/10 hover:text-red-400"
                     >
                       <Trash2 className="h-3.5 w-3.5" />
@@ -330,7 +336,7 @@ function OrgsTab({ onNuevaOrg }: { onNuevaOrg: () => void }) {
                   </td>
                 </tr>
 
-                {confirmando === org.id && (
+                {confirmando === oid && (
                   <tr className="border-b border-[var(--sx-border)] bg-red-500/[0.05]">
                     <td colSpan={8} className="px-5 py-4">
                       <p className="text-sm text-[var(--sx-text)]">
@@ -355,7 +361,7 @@ function OrgsTab({ onNuevaOrg }: { onNuevaOrg: () => void }) {
                           className="min-w-[240px] rounded-lg border border-[var(--sx-border)] bg-[var(--sx-input)] px-3 py-2 text-sm text-[var(--sx-text)] outline-none focus:border-red-400"
                         />
                         <button
-                          onClick={() => borrar(org.id)}
+                          onClick={() => borrar(oid)}
                           disabled={borrando || textoConfirma.trim() !== (org.nombre || '')}
                           className="inline-flex items-center gap-2 rounded-lg bg-red-500 px-4 py-2 text-xs font-bold text-white transition hover:bg-red-600 disabled:cursor-not-allowed disabled:opacity-40"
                         >
@@ -363,7 +369,7 @@ function OrgsTab({ onNuevaOrg }: { onNuevaOrg: () => void }) {
                           {borrando ? 'Borrando…' : 'Borrar definitivamente'}
                         </button>
                         <button
-                          onClick={() => pedirBorrar(org.id)}
+                          onClick={() => pedirBorrar(oid)}
                           className="text-xs font-semibold text-[var(--sx-text-muted)] transition hover:text-[var(--sx-text)]"
                         >
                           Cancelar
@@ -378,16 +384,16 @@ function OrgsTab({ onNuevaOrg }: { onNuevaOrg: () => void }) {
                     </td>
                   </tr>
                 )}
-                {expanded === org.id && (
+                {expanded === oid && (
                   <tr className="border-b border-[var(--sx-border)] bg-[var(--sx-card-hover)]">
                     <td colSpan={8} className="px-5 py-4">
                       <div className="mb-2.5 text-[11px] font-bold uppercase tracking-wide text-[var(--sx-text-dim)]">Equipo de {org.nombre}</div>
                       <div className="flex flex-wrap gap-2">
-                        {equipos[org.id] === 'loading' && <span className="text-xs text-[var(--sx-text-dim)]">Cargando…</span>}
-                        {Array.isArray(equipos[org.id]) && (equipos[org.id] as EquipoMiembro[]).length === 0 && (
+                        {equipos[oid] === 'loading' && <span className="text-xs text-[var(--sx-text-dim)]">Cargando…</span>}
+                        {Array.isArray(equipos[oid]) && (equipos[oid] as EquipoMiembro[]).length === 0 && (
                           <span className="text-xs text-[var(--sx-text-dim)]">Sin miembros registrados</span>
                         )}
-                        {Array.isArray(equipos[org.id]) && (equipos[org.id] as EquipoMiembro[]).map((m) => (
+                        {Array.isArray(equipos[oid]) && (equipos[oid] as EquipoMiembro[]).map((m) => (
                           <div key={m.user_id} className="flex items-center gap-2 rounded-lg border border-[var(--sx-border)] bg-[var(--sx-input)] px-3 py-1.5">
                             <span className="flex h-[26px] w-[26px] flex-shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-[#1aab99] to-[#3533cd] text-[9px] font-extrabold text-white">
                               {getIniciales(m.nombre, m.apellido)}
@@ -403,7 +409,8 @@ function OrgsTab({ onNuevaOrg }: { onNuevaOrg: () => void }) {
                   </tr>
                 )}
               </Fragment>
-            ))}
+              );
+            })}
           </tbody>
         </table>
       </div>
