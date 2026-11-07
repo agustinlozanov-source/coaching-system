@@ -4,7 +4,7 @@ import { Fragment, useCallback, useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import {
   Building2, Users, User as UserIcon, Plus, UserPlus, UserMinus, X, Loader2,
-  ChevronRight, UserCircle, Lock, CheckCircle2, AlertCircle,
+  ChevronRight, UserCircle, Lock, CheckCircle2, AlertCircle, Trash2,
 } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 
@@ -218,6 +218,12 @@ function OrgsTab({ onNuevaOrg }: { onNuevaOrg: () => void }) {
   const [expanded, setExpanded] = useState<string | null>(null);
   const [equipos, setEquipos] = useState<Record<string, EquipoMiembro[] | 'loading'>>({});
 
+  // Borrado. El nombre se escribe a mano a propósito: esto no se deshace.
+  const [confirmando, setConfirmando] = useState<string | null>(null);
+  const [textoConfirma, setTextoConfirma] = useState('');
+  const [borrando, setBorrando] = useState(false);
+  const [errorBorrar, setErrorBorrar] = useState('');
+
   const cargarOrgs = useCallback(async () => {
     const supabase = createClient();
     const { data, error } = await supabase.rpc('listar_organizaciones_admin');
@@ -238,6 +244,32 @@ function OrgsTab({ onNuevaOrg }: { onNuevaOrg: () => void }) {
     }
   }
 
+  function pedirBorrar(orgId: string) {
+    setConfirmando((prev) => (prev === orgId ? null : orgId));
+    setTextoConfirma('');
+    setErrorBorrar('');
+  }
+
+  async function borrar(orgId: string) {
+    setBorrando(true);
+    setErrorBorrar('');
+    const supabase = createClient();
+    const { error } = await supabase.rpc('borrar_organizacion_admin', {
+      p_org: orgId,
+      p_confirmacion: textoConfirma,
+    });
+    if (error) {
+      setErrorBorrar(error.message || 'No se pudo borrar la organización.');
+      setBorrando(false);
+      return;
+    }
+    setBorrando(false);
+    setConfirmando(null);
+    setTextoConfirma('');
+    if (expanded === orgId) setExpanded(null);
+    await cargarOrgs();
+  }
+
   return (
     <div>
       <div className="mb-4 flex items-center justify-between">
@@ -254,20 +286,20 @@ function OrgsTab({ onNuevaOrg }: { onNuevaOrg: () => void }) {
         <table className="w-full border-collapse text-left">
           <thead>
             <tr className="border-b border-[var(--sx-border)] bg-[var(--sx-card-hover)]">
-              {['Empresa', 'Dueño', 'Email', 'Ciudad', 'Sector', 'Creada', ''].map((h) => (
-                <th key={h} className="whitespace-nowrap px-4 py-2.5 text-[11px] font-bold uppercase tracking-wide text-[var(--sx-text-dim)]">{h}</th>
+              {['Empresa', 'Dueño', 'Email', 'Ciudad', 'Sector', 'Creada', '', ''].map((h, i) => (
+                <th key={h + i} className="whitespace-nowrap px-4 py-2.5 text-[11px] font-bold uppercase tracking-wide text-[var(--sx-text-dim)]">{h}</th>
               ))}
             </tr>
           </thead>
           <tbody>
             {error && (
-              <tr><td colSpan={7} className="p-8 text-center text-sm text-red-400">Error: {error}</td></tr>
+              <tr><td colSpan={8} className="p-8 text-center text-sm text-red-400">Error: {error}</td></tr>
             )}
             {!error && orgs === null && (
-              <tr><td colSpan={7} className="p-8 text-center text-sm text-[var(--sx-text-dim)]">Cargando organizaciones…</td></tr>
+              <tr><td colSpan={8} className="p-8 text-center text-sm text-[var(--sx-text-dim)]">Cargando organizaciones…</td></tr>
             )}
             {!error && orgs !== null && orgs.length === 0 && (
-              <tr><td colSpan={7} className="p-8 text-center text-sm text-[var(--sx-text-dim)]">Sin organizaciones registradas</td></tr>
+              <tr><td colSpan={8} className="p-8 text-center text-sm text-[var(--sx-text-dim)]">Sin organizaciones registradas</td></tr>
             )}
             {orgs?.map((org) => (
               <Fragment key={org.id}>
@@ -286,10 +318,69 @@ function OrgsTab({ onNuevaOrg }: { onNuevaOrg: () => void }) {
                       <Users className="h-3.5 w-3.5" /> Equipo
                     </button>
                   </td>
+                  <td className="px-4 py-3">
+                    <button
+                      onClick={() => pedirBorrar(org.id)}
+                      aria-label={`Borrar ${org.nombre}`}
+                      aria-expanded={confirmando === org.id}
+                      className="rounded-lg p-2 text-[var(--sx-text-dim)] transition hover:bg-red-500/10 hover:text-red-400"
+                    >
+                      <Trash2 className="h-3.5 w-3.5" />
+                    </button>
+                  </td>
                 </tr>
+
+                {confirmando === org.id && (
+                  <tr className="border-b border-[var(--sx-border)] bg-red-500/[0.05]">
+                    <td colSpan={8} className="px-5 py-4">
+                      <p className="text-sm text-[var(--sx-text)]">
+                        Esto borra <b>{org.nombre}</b> y todo lo que cuelga de ella: su equipo,
+                        sus accesos, y los empleados, evaluaciones, sesiones, ciclos y
+                        diagnósticos que tenga en TEAMx, SCANx y BOARDx.{' '}
+                        <b className="text-red-400">No se puede deshacer.</b>
+                      </p>
+                      <p className="mt-1.5 text-xs text-[var(--sx-text-dim)]">
+                        La cuenta de {org.dueno_email || 'su dueño'} no se borra; solo deja de
+                        pertenecer a esta organización.
+                      </p>
+                      <p className="mt-2.5 text-xs text-[var(--sx-text-muted)]">
+                        Para confirmar, escribe el nombre tal cual:
+                      </p>
+                      <div className="mt-2 flex flex-wrap items-center gap-2">
+                        <input
+                          autoFocus
+                          value={textoConfirma}
+                          onChange={(e) => setTextoConfirma(e.target.value)}
+                          placeholder={org.nombre || ''}
+                          className="min-w-[240px] rounded-lg border border-[var(--sx-border)] bg-[var(--sx-input)] px-3 py-2 text-sm text-[var(--sx-text)] outline-none focus:border-red-400"
+                        />
+                        <button
+                          onClick={() => borrar(org.id)}
+                          disabled={borrando || textoConfirma.trim() !== (org.nombre || '')}
+                          className="inline-flex items-center gap-2 rounded-lg bg-red-500 px-4 py-2 text-xs font-bold text-white transition hover:bg-red-600 disabled:cursor-not-allowed disabled:opacity-40"
+                        >
+                          {borrando && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
+                          {borrando ? 'Borrando…' : 'Borrar definitivamente'}
+                        </button>
+                        <button
+                          onClick={() => pedirBorrar(org.id)}
+                          className="text-xs font-semibold text-[var(--sx-text-muted)] transition hover:text-[var(--sx-text)]"
+                        >
+                          Cancelar
+                        </button>
+                      </div>
+                      {errorBorrar && (
+                        <p className="mt-3 flex items-start gap-2 rounded-lg bg-red-500/10 p-3 text-xs text-red-400">
+                          <AlertCircle className="mt-0.5 h-3.5 w-3.5 shrink-0" />
+                          {errorBorrar}
+                        </p>
+                      )}
+                    </td>
+                  </tr>
+                )}
                 {expanded === org.id && (
                   <tr className="border-b border-[var(--sx-border)] bg-[var(--sx-card-hover)]">
-                    <td colSpan={7} className="px-5 py-4">
+                    <td colSpan={8} className="px-5 py-4">
                       <div className="mb-2.5 text-[11px] font-bold uppercase tracking-wide text-[var(--sx-text-dim)]">Equipo de {org.nombre}</div>
                       <div className="flex flex-wrap gap-2">
                         {equipos[org.id] === 'loading' && <span className="text-xs text-[var(--sx-text-dim)]">Cargando…</span>}
