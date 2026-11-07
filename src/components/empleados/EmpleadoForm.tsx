@@ -1,8 +1,9 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { getCoaches } from '@/hooks/useEmpleados';
+import { useOrganization } from '@/contexts/OrganizationContext';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Loader2, Camera } from 'lucide-react';
 import { Empleado, EmpleadoFormData } from '@/types/empleado';
@@ -33,6 +34,7 @@ export function EmpleadoForm({
   onSave,
   onCancel,
 }: EmpleadoFormProps) {
+  const { organization } = useOrganization();
   const [isLoading, setIsLoading] = useState(false);
   const [coaches, setCoaches] = useState<{ id: string; nombre: string }[]>([]);
   const [uploading, setUploading] = useState(false);
@@ -79,7 +81,7 @@ export function EmpleadoForm({
     defaultValues: {
       nombre: empleado?.nombre || '',
       cargo: empleado?.cargo || '',
-      categorias: empleado?.categorias || { puesto: 'Asesor' },
+      categorias: empleado?.categorias || {},
       fechaIngreso: empleado
         ? new Date(empleado.fechaIngreso.toDate())
         : new Date(),
@@ -94,6 +96,24 @@ export function EmpleadoForm({
   const photoURL = watch('photoURL');
 
   const categorias = watch('categorias');
+
+  /**
+   * Los puestos salen de Administración → Categorías. Antes estaban escritos a
+   * mano aquí —Ejecutivo, Telemarketing, Asesor—, así que cambiar las
+   * categorías no movía nada en esta lista.
+   *
+   * El puesto que ya traía la persona se conserva aunque su categoría se haya
+   * borrado o renombrado: perder el dato en silencio sería peor que mostrar
+   * una opción de más.
+   */
+  const puestos = useMemo(() => {
+    const defs = Object.values(organization?.configuracion?.categorias ?? {})
+      .filter((c: any) => c?.activa !== false && c?.nombre)
+      .sort((a: any, b: any) => (a.posicion ?? 0) - (b.posicion ?? 0))
+      .map((c: any) => c.nombre as string);
+    const actual = categorias?.puesto;
+    return actual && !defs.includes(actual) ? [actual, ...defs] : defs;
+  }, [organization, categorias]);
   const activo = watch('activo');
 
   const handlePuestoChange = (value: string) => {
@@ -178,16 +198,21 @@ export function EmpleadoForm({
         {/* Puesto */}
         <div className="space-y-2">
           <Label htmlFor="puesto">Puesto *</Label>
-          <Select value={categorias?.puesto || 'Asesor'} onValueChange={handlePuestoChange}>
-            <SelectTrigger id="puesto" disabled={isLoading}>
-              <SelectValue placeholder="Selecciona un puesto" />
+          <Select value={categorias?.puesto || ''} onValueChange={handlePuestoChange}>
+            <SelectTrigger id="puesto" disabled={isLoading || puestos.length === 0}>
+              <SelectValue placeholder={puestos.length ? 'Selecciona un puesto' : 'No hay categorías todavía'} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="Ejecutivo">Ejecutivo</SelectItem>
-              <SelectItem value="Telemarketing">Telemarketing</SelectItem>
-              <SelectItem value="Asesor">Asesor</SelectItem>
+              {puestos.map((nombre) => (
+                <SelectItem key={nombre} value={nombre}>{nombre}</SelectItem>
+              ))}
             </SelectContent>
           </Select>
+          {puestos.length === 0 && (
+            <p className="text-xs text-muted-foreground">
+              Define los puestos en Administración → Categorías.
+            </p>
+          )}
           {errors.categorias && (
             <p className="text-sm text-red-600">Error en categorías</p>
           )}
