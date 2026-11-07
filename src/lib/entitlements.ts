@@ -2,17 +2,24 @@ import type { SupabaseClient } from '@supabase/supabase-js';
 
 /**
  * Control de acceso por App (entitlements).
- * El launcher muestra las 2 tarjetas siempre (marketing), pero solo deja ENTRAR
- * a la app que la organización activa tenga contratada. El admin global omite el
- * gating. Los accesos se gestionan en /scalex/admin/accesos.
+ * El launcher muestra las cuatro tarjetas siempre (marketing), pero solo deja
+ * ENTRAR a las apps que la organización activa tenga contratadas. El admin
+ * global omite el gating.
+ *
+ * La organización se da de alta una sola vez en /scalex/admin/accesos y de ahí
+ * en adelante lo único que cambia es qué apps tiene prendidas. No existe "la
+ * organización de TEAMx" aparte de "la de SCALEx": es la misma, con distintas
+ * casillas encendidas.
  */
-export const APPS = ['scalex', 'teamx'] as const;
+export const APPS = ['scalex', 'teamx', 'boardx'] as const;
 export type AppSlug = (typeof APPS)[number];
 
 /** App requerida para una ruta protegida, o null si la ruta no exige entitlement. */
 export function appDeRuta(pathname: string): AppSlug | null {
   if (pathname.startsWith('/scalex')) return 'scalex';
   if (pathname.startsWith('/dashboard')) return 'teamx';
+  if (pathname.startsWith('/boardx')) return 'boardx';
+  // SCANx no lleva entitlement a propósito: es la puerta de entrada gratuita.
   return null;
 }
 
