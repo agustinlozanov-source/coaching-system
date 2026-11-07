@@ -1,8 +1,8 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { Fragment, useEffect, useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
-import { AlertCircle, Loader2, Plus, RefreshCw, ShieldX, X } from 'lucide-react';
+import { AlertCircle, Loader2, Plus, RefreshCw, ShieldX, Trash2, X } from 'lucide-react';
 
 type Org = {
   org_id: string;
@@ -37,6 +37,12 @@ export function AdminAccesosApp() {
   const [creando, setCreando] = useState(false);
   const [errorAlta, setErrorAlta] = useState('');
   const [recienCreada, setRecienCreada] = useState<string | null>(null);
+
+  // Borrado
+  const [confirmando, setConfirmando] = useState<string | null>(null);
+  const [textoConfirma, setTextoConfirma] = useState('');
+  const [borrando, setBorrando] = useState(false);
+  const [errorBorrar, setErrorBorrar] = useState('');
 
   async function cargar() {
     setLoading(true);
@@ -113,6 +119,34 @@ export function AdminAccesosApp() {
     setRecienCreada(nueva?.org_id ?? null);
     setCreando(false);
     cerrarAlta();
+    await cargar();
+  }
+
+  function pedirBorrar(orgId: string) {
+    setConfirmando((prev) => (prev === orgId ? null : orgId));
+    setTextoConfirma('');
+    setErrorBorrar('');
+  }
+
+  async function borrar(orgId: string) {
+    setBorrando(true);
+    setErrorBorrar('');
+
+    const { error } = await supabase.rpc('borrar_organizacion_admin', {
+      p_org: orgId,
+      p_confirmacion: textoConfirma,
+    });
+
+    if (error) {
+      setErrorBorrar(error.message || 'No se pudo borrar la organización.');
+      setBorrando(false);
+      return;
+    }
+
+    setBorrando(false);
+    setConfirmando(null);
+    setTextoConfirma('');
+    if (recienCreada === orgId) setRecienCreada(null);
     await cargar();
   }
 
@@ -347,12 +381,13 @@ export function AdminAccesosApp() {
                   {a.nombre}
                 </th>
               ))}
+              <th className="p-3 text-right font-semibold">Borrar</th>
             </tr>
           </thead>
           <tbody>
             {orgs.map((o) => (
+              <Fragment key={o.org_id}>
               <tr
-                key={o.org_id}
                 className="border-t border-[var(--sx-border)]"
                 style={
                   o.org_id === recienCreada
@@ -388,7 +423,66 @@ export function AdminAccesosApp() {
                     </td>
                   );
                 })}
+                <td className="p-3 text-right">
+                  <button
+                    type="button"
+                    onClick={() => pedirBorrar(o.org_id)}
+                    aria-label={`Borrar ${o.nombre}`}
+                    aria-expanded={confirmando === o.org_id}
+                    className="rounded-lg p-2 text-[var(--sx-text-dim)] transition hover:bg-red-500/10 hover:text-red-400"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </button>
+                </td>
               </tr>
+
+              {confirmando === o.org_id && (
+                <tr className="border-t border-[var(--sx-border)] bg-red-500/[0.04]">
+                  <td colSpan={APPS.length + 2} className="p-4">
+                    <p className="text-sm text-[var(--sx-text)]">
+                      Esto borra <b>{o.nombre}</b> y todo lo que cuelga de ella: sus{' '}
+                      {o.total_miembros} miembros, sus accesos, y los empleados, evaluaciones,
+                      sesiones, ciclos y diagnósticos que tenga en TEAMx, SCANx y BOARDx.{' '}
+                      <b className="text-red-400">No se puede deshacer.</b>
+                    </p>
+                    <p className="mt-2 text-sm text-[var(--sx-text-muted)]">
+                      Para confirmar, escribe el nombre tal cual:
+                    </p>
+                    <div className="mt-2 flex flex-wrap items-center gap-2">
+                      <input
+                        autoFocus
+                        value={textoConfirma}
+                        onChange={(e) => setTextoConfirma(e.target.value)}
+                        placeholder={o.nombre}
+                        className="min-w-[240px] rounded-lg border border-[var(--sx-border)] bg-[var(--sx-card)] px-3 py-2 text-sm text-[var(--sx-text)] outline-none focus:border-red-400"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => borrar(o.org_id)}
+                        disabled={borrando || textoConfirma.trim() !== o.nombre}
+                        className="inline-flex items-center gap-2 rounded-lg bg-red-500 px-4 py-2 text-sm font-semibold text-white transition hover:bg-red-600 disabled:cursor-not-allowed disabled:opacity-40"
+                      >
+                        {borrando && <Loader2 className="h-4 w-4 animate-spin" />}
+                        {borrando ? 'Borrando…' : 'Borrar definitivamente'}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => pedirBorrar(o.org_id)}
+                        className="text-sm text-[var(--sx-text-muted)] transition hover:text-[var(--sx-text)]"
+                      >
+                        Cancelar
+                      </button>
+                    </div>
+                    {errorBorrar && (
+                      <p className="mt-3 flex items-start gap-2 rounded-lg bg-red-500/10 p-3 text-sm text-red-400">
+                        <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
+                        {errorBorrar}
+                      </p>
+                    )}
+                  </td>
+                </tr>
+              )}
+              </Fragment>
             ))}
           </tbody>
         </table>
