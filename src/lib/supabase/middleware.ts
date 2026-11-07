@@ -32,7 +32,9 @@ export async function updateSession(request: NextRequest) {
   // Rutas de plataforma protegidas (por ahora solo el launcher; /dashboard
   // sigue con Firebase hasta portar sus datos).
   const protegidas = ['/launcher', '/dashboard', '/scalex', '/scanx', '/boardx'];
-  const rutasPublicas = ['/diagnostico/']; // flujo de participante externo (multiperspectiva)
+  // Flujos sin sesión: el participante externo de SCANx y el portal de la
+  // persona evaluada en TEAMx, donde el token de la URL es la credencial.
+  const rutasPublicas = ['/diagnostico/', '/mi/'];
   const esPublica = rutasPublicas.some((p) => request.nextUrl.pathname.startsWith(p));
   const esProtegida = !esPublica && protegidas.some((p) => request.nextUrl.pathname.startsWith(p));
 

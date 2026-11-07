@@ -4,7 +4,9 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
-import { Pencil, Trash2, Eye } from 'lucide-react';
+import { Pencil, Trash2, Eye, Link2, Check, Loader2 } from 'lucide-react';
+import { useState } from 'react';
+import { createClient } from '@/lib/supabase/client';
 import { Empleado } from '@/types/empleado';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -30,6 +32,32 @@ export function EmpleadoTable({
   onDelete,
 }: EmpleadoTableProps) {
   const router = useRouter();
+  const [copiando, setCopiando] = useState<string | null>(null);
+  const [copiado, setCopiado] = useState<string | null>(null);
+
+  /**
+   * Genera un enlace nuevo para esa persona y lo deja en el portapapeles.
+   * Rota el anterior a propósito: si se volvió a pedir, lo más probable es que
+   * el viejo ande circulando donde no debía.
+   */
+  async function copiarEnlace(id: string) {
+    setCopiando(id);
+    const supabase = createClient();
+    const { data, error } = await supabase.rpc('portal_token_regenerar', { p_empleado: id });
+    setCopiando(null);
+    if (error || !data) {
+      alert(error?.message ?? 'No se pudo generar el enlace.');
+      return;
+    }
+    const url = `${window.location.origin}/mi/${data}`;
+    try {
+      await navigator.clipboard.writeText(url);
+      setCopiado(id);
+      setTimeout(() => setCopiado(null), 2500);
+    } catch {
+      window.prompt('Copia este enlace y compártelo:', url);
+    }
+  }
 
   if (empleados.length === 0) {
     return (
@@ -99,6 +127,19 @@ export function EmpleadoTable({
                     title="Ver detalles"
                   >
                     <Eye className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => copiarEnlace(empleado.id)}
+                    disabled={copiando === empleado.id}
+                    title="Copiar su enlace de seguimiento"
+                  >
+                    {copiando === empleado.id
+                      ? <Loader2 className="h-4 w-4 animate-spin" />
+                      : copiado === empleado.id
+                        ? <Check className="h-4 w-4 text-emerald-600" />
+                        : <Link2 className="h-4 w-4" />}
                   </Button>
                   <Button
                     variant="ghost"
