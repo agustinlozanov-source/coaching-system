@@ -6,6 +6,7 @@ import {
   Tags, 
   Sliders, 
   BookOpen,
+  Users,
   ArrowLeft
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -19,6 +20,7 @@ interface AdminTab {
 }
 
 const ADMIN_TABS: AdminTab[] = [
+  { id: 'equipo', label: 'Equipo', icon: <Users className="h-4 w-4" />, href: '/dashboard/admin/equipo' },
   { id: 'organizacion', label: 'Organización', icon: <Settings className="h-4 w-4" />, href: '/dashboard/admin/organizacion' },
   { id: 'categorias', label: 'Categorías', icon: <Tags className="h-4 w-4" />, href: '/dashboard/admin/categorias' },
   { id: 'escalas', label: 'Escalas', icon: <Sliders className="h-4 w-4" />, href: '/dashboard/admin/escalas' },
@@ -36,7 +38,7 @@ export default function AdminLayout({
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold">Administración</h1>
-          <p className="text-muted-foreground mt-1">Configura tu organización, categorías, escalas y competencias</p>
+          <p className="text-muted-foreground mt-1">Tu equipo, tu organización, categorías, escalas y competencias</p>
         </div>
         <Link href="/dashboard">
           <Button variant="outline" size="sm">

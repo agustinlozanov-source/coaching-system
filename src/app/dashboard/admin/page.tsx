@@ -8,6 +8,7 @@ import {
   Tags, 
   Sliders, 
   BookOpen,
+  Users,
   ArrowRight,
   Loader2
 } from 'lucide-react';
@@ -25,6 +26,13 @@ export default function AdminPage() {
   const { organization, loading } = useOrganization();
 
   const sections: AdminSection[] = [
+    {
+      title: 'Equipo',
+      description: 'Da de alta a los coaches que entran a la plataforma y evalúan',
+      icon: <Users className="h-6 w-6" />,
+      href: '/dashboard/admin/equipo',
+      color: 'text-teal-600 bg-teal-50',
+    },
     {
       title: 'Organización',
       description: 'Configura información general, datos de contacto y ve un resumen de tu organización',
