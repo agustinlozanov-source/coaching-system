@@ -23,6 +23,14 @@ type EquipoMiembro = {
   cargo: string | null; rol_en_org: string | null;
 };
 
+// Las apps que se contratan. SCANx no aparece: es la puerta de entrada
+// gratuita y el launcher la entrega siempre.
+const APPS = [
+  { slug: 'scalex', nombre: 'SCALEx', color: '#3533cd' },
+  { slug: 'teamx',  nombre: 'TEAMx',  color: '#1aab99' },
+  { slug: 'boardx', nombre: 'BOARDx', color: '#6366f1' },
+] as const;
+
 type Tab = 'orgs' | 'equipo' | 'cuenta';
 type ToastMsg = { id: number; text: string; type: 'success' | 'error' };
 
@@ -228,11 +236,24 @@ function OrgsTab({ onNuevaOrg }: { onNuevaOrg: () => void }) {
   const [borrando, setBorrando] = useState(false);
   const [errorBorrar, setErrorBorrar] = useState('');
 
+  // Apps contratadas por organización, desde org_herramientas.
+  const [ent, setEnt] = useState<Record<string, Set<string>>>({});
+  const [guardando, setGuardando] = useState<string | null>(null);
+
   const cargarOrgs = useCallback(async () => {
     const supabase = createClient();
-    const { data, error } = await supabase.rpc('listar_organizaciones_admin');
+    const [{ data, error }, { data: entRows }] = await Promise.all([
+      supabase.rpc('listar_organizaciones_admin'),
+      supabase.from('org_herramientas').select('organizacion_id, herramienta, estado')
+        .in('estado', ['activa', 'activo']),
+    ]);
     if (error) { setError(error.message); return; }
     setOrgs((data ?? []) as OrgAdminRow[]);
+    const mapa: Record<string, Set<string>> = {};
+    (entRows ?? []).forEach((r: { organizacion_id: string; herramienta: string }) => {
+      (mapa[r.organizacion_id] ??= new Set<string>()).add(r.herramienta);
+    });
+    setEnt(mapa);
   }, []);
 
   useEffect(() => { cargarOrgs(); }, [cargarOrgs]);
@@ -245,6 +266,41 @@ function OrgsTab({ onNuevaOrg }: { onNuevaOrg: () => void }) {
       const supabase = createClient();
       const { data } = await supabase.rpc('listar_equipo_org', { p_org_id: orgId });
       setEquipos((e) => ({ ...e, [orgId]: (data ?? []) as EquipoMiembro[] }));
+    }
+  }
+
+  function pintar(orgId: string, app: string, on: boolean) {
+    setEnt((prev) => {
+      const next = { ...prev };
+      const s2 = new Set(next[orgId] ?? []);
+      if (on) s2.add(app); else s2.delete(app);
+      next[orgId] = s2;
+      return next;
+    });
+  }
+
+  async function toggleApp(orgId: string, app: string) {
+    const key = `${orgId}:${app}`;
+    const tenia = ent[orgId]?.has(app) ?? false;
+    setGuardando(key);
+    pintar(orgId, app, !tenia); // optimista
+    const supabase = createClient();
+    try {
+      if (tenia) {
+        const { error } = await supabase.from('org_herramientas').delete()
+          .eq('organizacion_id', orgId).eq('herramienta', app);
+        if (error) throw error;
+      } else {
+        const { error } = await supabase.from('org_herramientas').upsert(
+          { organizacion_id: orgId, herramienta: app, estado: 'activa' },
+          { onConflict: 'organizacion_id,herramienta' },
+        );
+        if (error) throw error;
+      }
+    } catch {
+      pintar(orgId, app, tenia); // revertir
+    } finally {
+      setGuardando(null);
     }
   }
 
@@ -290,20 +346,20 @@ function OrgsTab({ onNuevaOrg }: { onNuevaOrg: () => void }) {
         <table className="w-full border-collapse text-left">
           <thead>
             <tr className="border-b border-[var(--sx-border)] bg-[var(--sx-card-hover)]">
-              {['Empresa', 'Dueño', 'Email', 'Ciudad', 'Sector', 'Creada', '', ''].map((h, i) => (
+              {['Empresa', 'Dueño', 'Email', 'Ciudad', 'Sector', 'Creada', 'Apps', '', ''].map((h, i) => (
                 <th key={h + i} className="whitespace-nowrap px-4 py-2.5 text-[11px] font-bold uppercase tracking-wide text-[var(--sx-text-dim)]">{h}</th>
               ))}
             </tr>
           </thead>
           <tbody>
             {error && (
-              <tr><td colSpan={8} className="p-8 text-center text-sm text-red-400">Error: {error}</td></tr>
+              <tr><td colSpan={9} className="p-8 text-center text-sm text-red-400">Error: {error}</td></tr>
             )}
             {!error && orgs === null && (
-              <tr><td colSpan={8} className="p-8 text-center text-sm text-[var(--sx-text-dim)]">Cargando organizaciones…</td></tr>
+              <tr><td colSpan={9} className="p-8 text-center text-sm text-[var(--sx-text-dim)]">Cargando organizaciones…</td></tr>
             )}
             {!error && orgs !== null && orgs.length === 0 && (
-              <tr><td colSpan={8} className="p-8 text-center text-sm text-[var(--sx-text-dim)]">Sin organizaciones registradas</td></tr>
+              <tr><td colSpan={9} className="p-8 text-center text-sm text-[var(--sx-text-dim)]">Sin organizaciones registradas</td></tr>
             )}
             {orgs?.map((org) => {
               const oid = org.org_id ?? org.id ?? '';
@@ -316,6 +372,31 @@ function OrgsTab({ onNuevaOrg }: { onNuevaOrg: () => void }) {
                   <td className="px-4 py-3 text-sm text-[var(--sx-text-muted)]">{org.ciudad || '—'}</td>
                   <td className="px-4 py-3 text-sm text-[var(--sx-text-muted)]">{org.sector || '—'}</td>
                   <td className="px-4 py-3 text-[11px] text-[var(--sx-text-dim)]">{formatFecha(org.created_at)}</td>
+                  <td className="px-4 py-3">
+                    <div className="flex items-center gap-1.5">
+                      {APPS.map((a) => {
+                        const on = ent[oid]?.has(a.slug) ?? false;
+                        return (
+                          <button
+                            key={a.slug}
+                            onClick={() => toggleApp(oid, a.slug)}
+                            disabled={guardando === `${oid}:${a.slug}`}
+                            aria-pressed={on}
+                            aria-label={`${on ? 'Quitar' : 'Dar'} ${a.nombre} a ${org.nombre}`}
+                            title={`${on ? 'Quitar' : 'Dar'} ${a.nombre}`}
+                            className="rounded-md border px-2 py-1 text-[10px] font-bold transition disabled:opacity-40"
+                            style={{
+                              borderColor: on ? a.color : 'var(--sx-border)',
+                              backgroundColor: on ? a.color : 'transparent',
+                              color: on ? '#fff' : 'var(--sx-text-faint)',
+                            }}
+                          >
+                            {a.nombre}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </td>
                   <td className="px-4 py-3">
                     <button
                       onClick={() => toggleEquipo(oid)}
@@ -338,7 +419,7 @@ function OrgsTab({ onNuevaOrg }: { onNuevaOrg: () => void }) {
 
                 {confirmando === oid && (
                   <tr className="border-b border-[var(--sx-border)] bg-red-500/[0.05]">
-                    <td colSpan={8} className="px-5 py-4">
+                    <td colSpan={9} className="px-5 py-4">
                       <p className="text-sm text-[var(--sx-text)]">
                         Esto borra <b>{org.nombre}</b> y todo lo que cuelga de ella: su equipo,
                         sus accesos, y los empleados, evaluaciones, sesiones, ciclos y
@@ -386,7 +467,7 @@ function OrgsTab({ onNuevaOrg }: { onNuevaOrg: () => void }) {
                 )}
                 {expanded === oid && (
                   <tr className="border-b border-[var(--sx-border)] bg-[var(--sx-card-hover)]">
-                    <td colSpan={8} className="px-5 py-4">
+                    <td colSpan={9} className="px-5 py-4">
                       <div className="mb-2.5 text-[11px] font-bold uppercase tracking-wide text-[var(--sx-text-dim)]">Equipo de {org.nombre}</div>
                       <div className="flex flex-wrap gap-2">
                         {equipos[oid] === 'loading' && <span className="text-xs text-[var(--sx-text-dim)]">Cargando…</span>}
