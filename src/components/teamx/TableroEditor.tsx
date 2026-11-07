@@ -288,7 +288,7 @@ export function TableroEditor({ evaluacionId }: { evaluacionId: string }) {
                         {escala.permiteNa && (
                           <button onClick={() => setValor(a.id, null, true)} disabled={readOnly}
                             className={`rounded-full border px-3 py-1 text-xs font-semibold transition disabled:opacity-60 ${r?.na ? 'border-slate-400 bg-slate-200 text-slate-700' : 'border-slate-300 text-slate-500'}`}>
-                            N/A
+                            No aplica
                           </button>
                         )}
                       </div>
