@@ -1,19 +1,10 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
-import { ArrowLeft, Edit2, Loader2, TrendingUp, AlertCircle } from 'lucide-react';
-import { getEmpleadoById } from '@/hooks/useEmpleados';
-import { useEvaluaciones } from '@/hooks/useEvaluaciones';
-import { Empleado } from '@/types/empleado';
-import { Evaluacion } from '@/types/evaluacion';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { EmpleadoDialog } from '@/components/empleados/EmpleadoDialog';
+import { ArrowLeft, Edit2, Loader2, TrendingUp, AlertCircle, AlertTriangle } from 'lucide-react';
 import {
   LineChart,
   Line,
@@ -21,153 +12,183 @@ import {
   YAxis,
   CartesianGrid,
   Tooltip,
+  Legend,
   ResponsiveContainer,
 } from 'recharts';
+
+import { getEmpleadoById, getCoaches } from '@/hooks/useEmpleados';
+import { listEvaluaciones } from '@/lib/teamx/evaluacion';
 import {
-  calcularDiasAntiguedad,
-  calcularSemanasAntiguedad,
-} from '@/lib/utils/calculations';
-import { calcularAvanceCurva } from '@/lib/constants/curvaAprendizaje';
+  buildEmpleadoStats,
+  iniciales,
+  semaforoEficiencia,
+  SEMAFORO_TEXT_CLASS,
+  SEMAFORO_BAR_CLASS,
+  type EmpleadoStats,
+} from '@/lib/teamx/equipo';
+import { cn } from '@/lib/utils/cn';
+import type { Empleado } from '@/types/empleado';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Progress } from '@/components/ui/progress';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { EmpleadoDialog } from '@/components/empleados/EmpleadoDialog';
 
 export const dynamic = 'force-dynamic';
 
 interface PageProps {
-  params: {
-    id: string;
-  };
+  params: { id: string };
+}
+
+const ESTADO_LABEL: Record<string, string> = {
+  borrador: 'Borrador',
+  revision: 'En revisión',
+  firmada: 'Firmada',
+  cofirmada: 'Co-firmada',
+  bloqueada: 'Bloqueada',
+};
+
+/** Un porcentaje listo para leer, o un guion cuando todavía no hay dato. */
+function pct(v: number | null | undefined): string {
+  return typeof v === 'number' ? `${Math.round(v)}%` : '—';
 }
 
 export default function EmpleadoDetailPage({ params }: PageProps) {
   const router = useRouter();
-  const { getEvaluacionesByEmpleado } = useEvaluaciones();
   const [empleado, setEmpleado] = useState<Empleado | null>(null);
-  const [evaluaciones, setEvaluaciones] = useState<Evaluacion[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [stats, setStats] = useState<EmpleadoStats | null>(null);
+  const [coachNombre, setCoachNombre] = useState<string | null>(null);
+  const [cargando, setCargando] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showDialog, setShowDialog] = useState(false);
+  const [recarga, setRecarga] = useState(0);
 
   useEffect(() => {
-    const loadDatos = async () => {
+    let activo = true;
+
+    const cargar = async () => {
       try {
-        setLoading(true);
+        setCargando(true);
         setError(null);
-        const data = await getEmpleadoById(params.id);
-        if (!data) {
+
+        const persona = await getEmpleadoById(params.id);
+        if (!activo) return;
+        if (!persona) {
           setError('Persona no encontrada');
-        } else {
-          setEmpleado(data);
-          // Cargar evaluaciones del empleado
-          const evals = await getEvaluacionesByEmpleado(params.id);
-          setEvaluaciones(evals);
+          return;
         }
+        setEmpleado(persona);
+
+        // listEvaluaciones() trae las de la organización activa; buildEmpleadoStats
+        // se queda con las de esta persona y calcula antigüedad, madurez y alertas.
+        const [evaluaciones, coaches] = await Promise.all([listEvaluaciones(), getCoaches()]);
+        if (!activo) return;
+
+        setStats(buildEmpleadoStats(persona, evaluaciones));
+        setCoachNombre(coaches.find((c) => c.id === persona.coachAsignado)?.nombre ?? null);
       } catch (err) {
-        console.error('Error al cargar datos:', err);
-        setError('Error al cargar la información');
+        console.error('Error al cargar la ficha de la persona:', err);
+        if (activo) setError('Error al cargar la información');
       } finally {
-        setLoading(false);
+        if (activo) setCargando(false);
       }
     };
 
-    loadDatos();
-  }, [params.id, getEvaluacionesByEmpleado]);
+    cargar();
+    return () => {
+      activo = false;
+    };
+  }, [params.id, recarga]);
 
-  const getInitials = (nombre: string) => {
-    return nombre
-      .split(' ')
-      .map((word) => word[0])
-      .join('')
-      .toUpperCase()
-      .slice(0, 2);
-  };
+  // Una línea por evaluación: competencias y eficiencia en la misma gráfica, que
+  // es la comparación que de verdad se mira (el qué sabe hacer contra el qué logró).
+  const serie = useMemo(() => {
+    if (!stats) return [];
+    return stats.evaluacionesAsc.map((e) => ({
+      etiqueta: e.semana ? `S${e.semana}` : format(new Date(`${e.fecha}T00:00:00`), 'dd/MM', { locale: es }),
+      competencias: typeof e.promedioGeneral === 'number' ? Math.round(e.promedioGeneral) : null,
+      eficiencia: typeof e.eficiencia?.logro === 'number' ? Math.round(e.eficiencia.logro) : null,
+    }));
+  }, [stats]);
 
-  if (loading) {
+  if (cargando) {
     return (
-      <div className="flex flex-col items-center justify-center py-12 space-y-4">
+      <div className="flex flex-col items-center justify-center space-y-4 py-12">
         <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
         <p className="text-muted-foreground">Cargando información de la persona...</p>
       </div>
     );
   }
 
-  if (error || !empleado) {
+  if (error || !empleado || !stats) {
     return (
       <div className="space-y-4">
-        <div className="flex items-center gap-2 mb-6">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => router.push('/dashboard/empleados')}
-          >
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Volver a personas
-          </Button>
-        </div>
+        <Button variant="ghost" size="sm" onClick={() => router.push('/dashboard/empleados')}>
+          <ArrowLeft className="mr-2 h-4 w-4" />
+          Volver a personas
+        </Button>
         <Card>
           <CardContent className="py-12 text-center">
-            <p className="text-lg font-semibold text-muted-foreground mb-4">
+            <p className="mb-4 text-lg font-semibold text-muted-foreground">
               {error || 'Persona no encontrada'}
             </p>
-            <Button onClick={() => router.push('/dashboard/empleados')}>
-              Volver a la lista
-            </Button>
+            <Button onClick={() => router.push('/dashboard/empleados')}>Volver a la lista</Button>
           </CardContent>
         </Card>
       </div>
     );
   }
 
-  const diasAntiguedad = calcularDiasAntiguedad(empleado.fechaIngreso);
-  const semanasAntiguedad = calcularSemanasAntiguedad(empleado.fechaIngreso);
-  const fechaIngresoFormato = format(empleado.fechaIngreso.toDate(), 'dd MMMM yyyy', {
-    locale: es,
-  });
+  const semaforo = semaforoEficiencia(stats.pctEficiencia);
+  const fechaIngresoFormato = format(empleado.fechaIngreso.toDate(), "d 'de' MMMM yyyy", { locale: es });
+  const evalsDesc = stats.evaluacionesAsc.slice().reverse();
 
   return (
     <div className="space-y-6">
-      {/* Header con botones */}
       <div className="flex items-center justify-between">
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={() => router.push('/dashboard/empleados')}
-        >
-          <ArrowLeft className="h-4 w-4 mr-2" />
+        <Button variant="ghost" size="sm" onClick={() => router.push('/dashboard/empleados')}>
+          <ArrowLeft className="mr-2 h-4 w-4" />
           Volver
         </Button>
         <Button onClick={() => setShowDialog(true)}>
-          <Edit2 className="h-4 w-4 mr-2" />
+          <Edit2 className="mr-2 h-4 w-4" />
           Editar
         </Button>
       </div>
 
-      {/* Card de información del empleado */}
       <Card>
         <CardContent className="pt-6">
           <div className="flex items-start gap-6">
             <Avatar className="h-20 w-20">
               <AvatarImage src={empleado.photoURL || undefined} alt="" />
               <AvatarFallback className="text-lg font-semibold">
-                {getInitials(empleado.nombre)}
+                {iniciales(empleado.nombre)}
               </AvatarFallback>
             </Avatar>
             <div className="flex-1">
-              <div className="flex items-center gap-3 mb-2">
-                <h1 className="text-3xl font-bold font-jakarta">
-                  {empleado.nombre}
-                </h1>
+              <div className="mb-2 flex flex-wrap items-center gap-3">
+                <h1 className="font-jakarta text-3xl font-bold">{empleado.nombre}</h1>
                 <Badge variant={empleado.activo ? 'success' : 'muted'}>
                   {empleado.activo ? 'Activo' : 'Inactivo'}
                 </Badge>
+                <Badge className={stats.madurez.badgeClass}>{stats.madurez.label}</Badge>
               </div>
-              <p className="text-lg text-muted-foreground mb-4">{empleado.cargo}</p>
-              <div className="flex gap-4 text-sm">
+              <p className="mb-4 text-lg text-muted-foreground">{empleado.cargo}</p>
+              <div className="flex flex-wrap gap-6 text-sm">
                 <div>
-                  <span className="text-muted-foreground">Consecutivo:</span>
+                  <span className="text-muted-foreground">Consecutivo</span>
                   <p className="font-semibold">#{empleado.consecutivo}</p>
                 </div>
                 <div>
-                  <span className="text-muted-foreground">Tipo Puesto:</span>
-                  <p className="font-semibold">{empleado.categorias?.['puesto'] || '-'}</p>
+                  <span className="text-muted-foreground">Puesto</span>
+                  <p className="font-semibold">{empleado.categorias?.['puesto'] || '—'}</p>
+                </div>
+                <div>
+                  <span className="text-muted-foreground">Antigüedad</span>
+                  <p className="font-semibold">
+                    {stats.antiguedadSemanas} {stats.antiguedadSemanas === 1 ? 'semana' : 'semanas'}
+                  </p>
                 </div>
               </div>
             </div>
@@ -175,17 +196,36 @@ export default function EmpleadoDetailPage({ params }: PageProps) {
         </CardContent>
       </Card>
 
-      {/* Grid de Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* Información Personal */}
+      {stats.alerta && (
+        <Card className="border-amber-300 bg-amber-50">
+          <CardContent className="flex items-center gap-3 py-4">
+            <AlertTriangle className="h-5 w-5 shrink-0 text-amber-600" />
+            <p className="text-sm text-amber-900">
+              {stats.ultimaEvaluacion
+                ? `Sin evaluar desde hace ${stats.semanasSinEvaluar} semanas.`
+                : 'Todavía no tiene ninguna evaluación.'}
+            </p>
+            <Button
+              size="sm"
+              variant="outline"
+              className="ml-auto shrink-0"
+              onClick={() => router.push(`/dashboard/evaluaciones/nueva?empleadoId=${params.id}`)}
+            >
+              Evaluar ahora
+            </Button>
+          </CardContent>
+        </Card>
+      )}
+
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
         <Card>
           <CardHeader>
-            <CardTitle className="text-lg">Información Personal</CardTitle>
+            <CardTitle className="text-lg">Información personal</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             {empleado.email && (
               <div>
-                <p className="text-sm text-muted-foreground">Email</p>
+                <p className="text-sm text-muted-foreground">Correo</p>
                 <p className="font-medium">{empleado.email}</p>
               </div>
             )}
@@ -196,154 +236,86 @@ export default function EmpleadoDetailPage({ params }: PageProps) {
               </div>
             )}
             <div>
-              <p className="text-sm text-muted-foreground">Fecha de Ingreso</p>
+              <p className="text-sm text-muted-foreground">Fecha de ingreso</p>
               <p className="font-medium">{fechaIngresoFormato}</p>
             </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <p className="text-sm text-muted-foreground">Antigüedad (días)</p>
-                <p className="text-2xl font-bold">{diasAntiguedad}</p>
-              </div>
-              <div>
-                <p className="text-sm text-muted-foreground">Antigüedad (semanas)</p>
-                <p className="text-2xl font-bold">{semanasAntiguedad}</p>
-              </div>
+            <div>
+              <p className="text-sm text-muted-foreground">Coach asignado</p>
+              <p className="font-medium">{coachNombre ?? 'Sin asignar'}</p>
             </div>
-            {empleado.coachAsignado && (
-              <div>
-                <p className="text-sm text-muted-foreground">Coach Asignado</p>
-                <p className="font-medium">{empleado.coachAsignado}</p>
-              </div>
-            )}
           </CardContent>
         </Card>
 
-        {/* Métricas */}
         <Card>
           <CardHeader>
-            <CardTitle className="text-lg">Métricas</CardTitle>
+            <CardTitle className="text-lg">Desempeño</CardTitle>
+            <CardDescription>
+              {stats.ultimaEvaluacion
+                ? `Última evaluación: ${format(
+                    new Date(`${stats.ultimaEvaluacion.fecha}T00:00:00`),
+                    "d 'de' MMMM",
+                    { locale: es }
+                  )}${stats.ultimaEvaluacion.semana ? ` · semana ${stats.ultimaEvaluacion.semana}` : ''}`
+                : 'Sin evaluaciones todavía'}
+            </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-4">
-            {evaluaciones.length > 0 ? (
-              <>
-                {/* Efectividad Actual */}
-                <div>
-                  <div className="flex justify-between mb-2">
-                    <p className="text-sm text-muted-foreground">Efectividad (Última)</p>
-                    <span className="text-sm font-semibold">
-                      {evaluaciones[0].efectividad.toFixed(1)}%
-                    </span>
-                  </div>
-                  <div className="h-2 bg-muted rounded-full overflow-hidden">
-                    <div
-                      className={`h-full ${
-                        evaluaciones[0].efectividad >= 80
-                          ? 'bg-green-500'
-                          : evaluaciones[0].efectividad >= 60
-                          ? 'bg-yellow-500'
-                          : 'bg-red-500'
-                      }`}
-                      style={{ width: `${Math.min(evaluaciones[0].efectividad, 100)}%` }}
-                    />
-                  </div>
-                </div>
+          <CardContent className="space-y-5">
+            <div>
+              <div className="mb-2 flex items-baseline justify-between">
+                <p className="text-sm text-muted-foreground">Competencias</p>
+                <span className="text-sm font-semibold tabular-nums">{pct(stats.pctCompetencias)}</span>
+              </div>
+              <Progress value={stats.pctCompetencias ?? 0} className="h-2" />
+            </div>
 
-                {/* Avance en Curva */}
-                <div>
-                  <div className="flex justify-between mb-2">
-                    <p className="text-sm text-muted-foreground">Avance en Curva</p>
-                    <span className="text-sm font-semibold">
-                      {calcularAvanceCurva(
-                        evaluaciones[0].promedioGeneral,
-                        calcularSemanasAntiguedad(empleado.fechaIngreso)
-                      ).toFixed(1)}%
-                    </span>
-                  </div>
-                  <div className="h-2 bg-muted rounded-full overflow-hidden">
-                    <div
-                      className="h-full bg-blue-500"
-                      style={{
-                        width: `${Math.min(
-                          calcularAvanceCurva(
-                            evaluaciones[0].promedioGeneral,
-                            calcularSemanasAntiguedad(empleado.fechaIngreso)
-                          ),
-                          100
-                        )}%`,
-                      }}
-                    />
-                  </div>
-                </div>
+            <div>
+              <div className="mb-2 flex items-baseline justify-between">
+                <p className="text-sm text-muted-foreground">Eficiencia (logro)</p>
+                <span className={cn('text-sm font-semibold tabular-nums', SEMAFORO_TEXT_CLASS[semaforo])}>
+                  {pct(stats.pctEficiencia)}
+                </span>
+              </div>
+              <Progress
+                value={Math.min(100, stats.pctEficiencia ?? 0)}
+                className={cn('h-2', SEMAFORO_BAR_CLASS[semaforo])}
+              />
+            </div>
 
-                {/* Áreas de Oportunidad */}
-                <div>
-                  <p className="text-sm text-muted-foreground mb-2">Áreas de Oportunidad</p>
-                  {evaluaciones[0].areasOportunidad &&
-                  evaluaciones[0].areasOportunidad.length > 0 ? (
-                    <ul className="space-y-1">
-                      {evaluaciones[0].areasOportunidad.slice(0, 3).map((area: string, idx: number) => (
-                        <li key={idx} className="text-xs flex items-start gap-2">
-                          <span className="text-blue-600">•</span>
-                          <span>{area}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  ) : (
-                    <p className="text-xs text-muted-foreground">Sin áreas de oportunidad</p>
+            <div className="grid grid-cols-2 gap-4 border-t pt-4 text-sm">
+              <div>
+                <p className="text-muted-foreground">Evaluaciones</p>
+                <p className="text-2xl font-bold tabular-nums">{stats.evaluacionesAsc.length}</p>
+              </div>
+              <div>
+                <p className="text-muted-foreground">Semanas sin evaluar</p>
+                <p
+                  className={cn(
+                    'text-2xl font-bold tabular-nums',
+                    stats.alerta && 'text-amber-600'
                   )}
-                </div>
-              </>
-            ) : (
-              <>
-                <div>
-                  <div className="flex justify-between mb-2">
-                    <p className="text-sm text-muted-foreground">Efectividad</p>
-                    <span className="text-sm font-semibold">--</span>
-                  </div>
-                  <div className="h-2 bg-muted rounded-full"></div>
-                </div>
-                <div>
-                  <div className="flex justify-between mb-2">
-                    <p className="text-sm text-muted-foreground">Avance Curva</p>
-                    <span className="text-sm font-semibold">--</span>
-                  </div>
-                  <div className="h-2 bg-muted rounded-full"></div>
-                </div>
-                <div>
-                  <div className="flex justify-between mb-2">
-                    <p className="text-sm text-muted-foreground">Áreas de Oportunidad</p>
-                    <span className="text-sm font-semibold">--</span>
-                  </div>
-                  <div className="h-2 bg-muted rounded-full"></div>
-                </div>
-                <p className="text-xs text-muted-foreground mt-4">
-                  Las métricas se actualizarán cuando haya evaluaciones disponibles
+                >
+                  {stats.semanasSinEvaluar ?? '—'}
                 </p>
-              </>
-            )}
+              </div>
+            </div>
           </CardContent>
         </Card>
       </div>
 
-      {/* Evolución */}
-      {evaluaciones.length > 1 && (
+      {serie.length > 1 && (
         <Card>
           <CardHeader>
-            <CardTitle className="text-lg flex items-center gap-2">
+            <CardTitle className="flex items-center gap-2 text-lg">
               <TrendingUp className="h-5 w-5" />
-              Evolución de Efectividad
+              Evolución
             </CardTitle>
+            <CardDescription>Competencias y eficiencia a lo largo del ciclo.</CardDescription>
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={300}>
-              <LineChart
-                data={evaluaciones.reverse().map((evaluation) => ({
-                  fecha: format(evaluation.fecha.toDate(), 'dd/MM', { locale: es }),
-                  efectividad: evaluation.efectividad,
-                }))}
-              >
+              <LineChart data={serie}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-                <XAxis dataKey="fecha" stroke="#6b7280" />
+                <XAxis dataKey="etiqueta" stroke="#6b7280" />
                 <YAxis domain={[0, 100]} stroke="#6b7280" />
                 <Tooltip
                   contentStyle={{
@@ -351,14 +323,27 @@ export default function EmpleadoDetailPage({ params }: PageProps) {
                     border: '1px solid #e5e7eb',
                     borderRadius: '6px',
                   }}
-                  formatter={(value: any) => `${value.toFixed(1)}%`}
+                  formatter={(value: any) => (value === null ? 'sin dato' : `${value}%`)}
+                />
+                <Legend />
+                <Line
+                  type="monotone"
+                  dataKey="competencias"
+                  name="Competencias"
+                  stroke="#3b82f6"
+                  strokeWidth={2}
+                  connectNulls
+                  dot={{ fill: '#3b82f6', r: 4 }}
+                  activeDot={{ r: 6 }}
                 />
                 <Line
                   type="monotone"
-                  dataKey="efectividad"
-                  stroke="#3b82f6"
+                  dataKey="eficiencia"
+                  name="Eficiencia"
+                  stroke="#10b981"
                   strokeWidth={2}
-                  dot={{ fill: '#3b82f6', r: 4 }}
+                  connectNulls
+                  dot={{ fill: '#10b981', r: 4 }}
                   activeDot={{ r: 6 }}
                 />
               </LineChart>
@@ -367,72 +352,61 @@ export default function EmpleadoDetailPage({ params }: PageProps) {
         </Card>
       )}
 
-      {/* Evaluaciones Recientes */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-lg">Evaluaciones Recientes</CardTitle>
-          <CardDescription>
-            Historial de evaluaciones de desempeño
-          </CardDescription>
+          <CardTitle className="text-lg">Evaluaciones</CardTitle>
+          <CardDescription>Historial de evaluaciones de desempeño.</CardDescription>
         </CardHeader>
         <CardContent>
-          {evaluaciones.length === 0 ? (
-            <div className="text-center py-8 space-y-4">
-              <AlertCircle className="h-8 w-8 text-muted-foreground mx-auto opacity-50" />
-              <p className="text-muted-foreground">Sin evaluaciones aún</p>
+          {evalsDesc.length === 0 ? (
+            <div className="space-y-4 py-8 text-center">
+              <AlertCircle className="mx-auto h-8 w-8 text-muted-foreground opacity-50" />
+              <p className="text-muted-foreground">Sin evaluaciones todavía</p>
               <Button
-                onClick={() =>
-                  router.push(`/dashboard/evaluaciones/nueva?empleadoId=${params.id}`)
-                }
                 size="sm"
+                onClick={() => router.push(`/dashboard/evaluaciones/nueva?empleadoId=${params.id}`)}
               >
-                Crear Primera Evaluación
+                Crear la primera evaluación
               </Button>
             </div>
           ) : (
             <div className="space-y-3">
-              {evaluaciones.slice(0, 5).map((evaluation) => (
+              {evalsDesc.slice(0, 5).map((ev) => (
                 <div
-                  key={evaluation.id}
-                  className="flex items-center justify-between p-3 border rounded-lg hover:bg-gray-50 transition-colors"
+                  key={ev.id}
+                  className="flex items-center justify-between gap-3 rounded-lg border p-3 transition-colors hover:bg-muted/50"
                 >
-                  <div className="flex-1">
+                  <div className="min-w-0 flex-1">
                     <p className="font-medium">
-                      {format(evaluation.fecha.toDate(), 'dd MMM yyyy', { locale: es })}
+                      {format(new Date(`${ev.fecha}T00:00:00`), "d 'de' MMM yyyy", { locale: es })}
+                      {ev.semana ? <span className="text-muted-foreground"> · semana {ev.semana}</span> : null}
                     </p>
                     <p className="text-sm text-muted-foreground">
-                      Promedio: {evaluation.promedioGeneral.toFixed(2)}
+                      Competencias {pct(ev.promedioGeneral)} · Eficiencia{' '}
+                      {pct(typeof ev.eficiencia?.logro === 'number' ? ev.eficiencia.logro : null)}
                     </p>
                   </div>
-                  <div className="flex items-center gap-3">
-                    <Badge
-                      className={
-                        evaluation.efectividad >= 80
-                          ? 'bg-green-100 text-green-800'
-                          : evaluation.efectividad >= 60
-                          ? 'bg-yellow-100 text-yellow-800'
-                          : 'bg-red-100 text-red-800'
-                      }
-                    >
-                      {evaluation.efectividad.toFixed(1)}%
+                  <div className="flex shrink-0 items-center gap-3">
+                    <Badge variant={ev.estado === 'borrador' ? 'secondary' : 'default'}>
+                      {ESTADO_LABEL[ev.estado] ?? ev.estado}
                     </Badge>
                     <Button
                       variant="ghost"
                       size="sm"
-                      onClick={() => router.push(`/dashboard/evaluaciones/${evaluation.id}`)}
+                      onClick={() => router.push(`/dashboard/evaluaciones/${ev.id}`)}
                     >
                       Ver
                     </Button>
                   </div>
                 </div>
               ))}
-              {evaluaciones.length > 5 && (
+              {evalsDesc.length > 5 && (
                 <Button
                   variant="outline"
                   className="w-full"
                   onClick={() => router.push('/dashboard/evaluaciones')}
                 >
-                  Ver todas ({evaluaciones.length})
+                  Ver todas ({evalsDesc.length})
                 </Button>
               )}
             </div>
@@ -440,28 +414,24 @@ export default function EmpleadoDetailPage({ params }: PageProps) {
         </CardContent>
       </Card>
 
-      {/* Dialog para editar */}
       <EmpleadoDialog
         open={showDialog}
         empleado={empleado}
         onClose={() => setShowDialog(false)}
         onSuccess={() => {
           setShowDialog(false);
-          // Los datos se recargarán automáticamente si es necesario
+          setRecarga((n) => n + 1);
         }}
       />
 
-      {/* Botón flotante Evaluar Ahora */}
       <div className="fixed bottom-6 right-6">
         <Button
           size="lg"
-          onClick={() =>
-            router.push(`/dashboard/evaluaciones/nueva?empleadoId=${params.id}`)
-          }
           className="rounded-full shadow-lg"
+          onClick={() => router.push(`/dashboard/evaluaciones/nueva?empleadoId=${params.id}`)}
         >
-          <TrendingUp className="h-5 w-5 mr-2" />
-          Evaluar Ahora
+          <TrendingUp className="mr-2 h-5 w-5" />
+          Evaluar ahora
         </Button>
       </div>
     </div>
