@@ -9,7 +9,12 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { saveConfiguracion } from '@/lib/teamx/config';
-import { AlertCircle, CheckCircle2, Loader2 } from 'lucide-react';
+import { getCicloActivo, semanaDeCiclo, actualizarInicioCiclo } from '@/lib/teamx/evaluacion';
+import type { Ciclo } from '@/types/teamx';
+import { AlertCircle, CheckCircle2, Loader2, CalendarClock, RotateCcw } from 'lucide-react';
+
+/** Fecha de hoy en formato YYYY-MM-DD (zona horaria local). */
+const hoyISO = () => new Date().toLocaleDateString('en-CA');
 
 export default function OrganizacionPage() {
   const { organization, refreshOrganization, loading } = useOrganization();
@@ -22,6 +27,9 @@ export default function OrganizacionPage() {
     email: '',
     telefono: '',
   });
+  const [ciclo, setCiclo] = useState<Ciclo | null>(null);
+  const [fechaInicio, setFechaInicio] = useState('');
+  const [savingCiclo, setSavingCiclo] = useState(false);
 
   useEffect(() => {
     if (organization) {
@@ -31,8 +39,27 @@ export default function OrganizacionPage() {
         email: organization.email || '',
         telefono: organization.telefono || '',
       });
+      getCicloActivo(organization.id)
+        .then((c) => { setCiclo(c); if (c) setFechaInicio(c.fechaInicio); })
+        .catch(() => {});
     }
   }, [organization]);
+
+  const guardarInicioCiclo = async (fechaISO: string) => {
+    if (!ciclo) return;
+    try {
+      setSavingCiclo(true);
+      await actualizarInicioCiclo(ciclo.id, fechaISO);
+      const actualizado = { ...ciclo, fechaInicio: fechaISO };
+      setCiclo(actualizado);
+      setFechaInicio(fechaISO);
+      toast({ title: 'Ciclo actualizado', description: `La semana 1 ahora inicia el ${fechaISO}.` });
+    } catch {
+      toast({ title: 'Error', description: 'No se pudo actualizar el inicio del ciclo.', variant: 'destructive' });
+    } finally {
+      setSavingCiclo(false);
+    }
+  };
 
   const handleSave = async () => {
     if (!organization) return;
@@ -86,6 +113,56 @@ export default function OrganizacionPage() {
           </div>
         </CardContent>
       </Card>
+
+      {/* Ciclo del programa */}
+      {ciclo && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <CalendarClock className="h-5 w-5" /> Ciclo del programa
+            </CardTitle>
+            <CardDescription>
+              Las semanas del tablero cuentan desde esta fecha — no desde que diste de alta el equipo.
+              Ponla en el día que de verdad empiezan a evaluar.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-5">
+            <div className="grid gap-4 sm:grid-cols-3">
+              <div className="rounded-lg border p-3">
+                <div className="text-xs font-semibold uppercase text-muted-foreground">Semana actual</div>
+                <div className="mt-1 text-2xl font-extrabold tabular-nums">
+                  {semanaDeCiclo({ ...ciclo, fechaInicio: fechaInicio || ciclo.fechaInicio })} <span className="text-base font-medium text-muted-foreground">de {ciclo.semanas}</span>
+                </div>
+              </div>
+              <div className="space-y-2 sm:col-span-2">
+                <Label htmlFor="fechaInicio">Inicio del ciclo (semana 1)</Label>
+                <div className="flex flex-wrap items-center gap-2">
+                  <Input
+                    id="fechaInicio"
+                    type="date"
+                    value={fechaInicio}
+                    onChange={(e) => setFechaInicio(e.target.value)}
+                    className="w-auto"
+                  />
+                  <Button variant="outline" disabled={savingCiclo || !fechaInicio || fechaInicio === ciclo.fechaInicio} onClick={() => guardarInicioCiclo(fechaInicio)}>
+                    {savingCiclo ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Guardar fecha'}
+                  </Button>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-dashed p-3">
+              <p className="text-sm text-muted-foreground">
+                ¿Empiezan hoy? Reinicia el conteo para que <b className="text-foreground">hoy sea la semana 1</b>.
+              </p>
+              <Button disabled={savingCiclo} onClick={() => guardarInicioCiclo(hoyISO())}>
+                {savingCiclo ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <RotateCcw className="h-4 w-4 mr-2" />}
+                Empezar hoy
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Información General */}
       <Card>

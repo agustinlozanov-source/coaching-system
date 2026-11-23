@@ -59,6 +59,17 @@ export function semanaDeCiclo(ciclo: Ciclo | null): number {
   return Math.min(Math.max(diff + 1, 1), ciclo.semanas);
 }
 
+/** Reancla el inicio del ciclo. La "semana 1" del programa empieza en `fechaISO`
+ *  (YYYY-MM-DD), no en la fecha de alta del equipo. Úsalo para "empezar hoy". */
+export async function actualizarInicioCiclo(cicloId: string, fechaISO: string): Promise<void> {
+  const supabase = createClient();
+  const { error } = await supabase
+    .from('teamx_ciclos')
+    .update({ fecha_inicio: fechaISO })
+    .eq('id', cicloId);
+  if (error) throw error;
+}
+
 /* ── Mapear fila → Evaluacion ────────────────────────────────────────────── */
 function rowToEval(row: any): Evaluacion {
   return {
