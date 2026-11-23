@@ -75,9 +75,18 @@ export default async function PortalPersona({ params }: { params: { token: strin
       <header className="bg-gradient-to-br from-[#1aab99] to-[#3533cd] px-5 pb-10 pt-8 text-white">
         <div className="mx-auto max-w-2xl">
           <div className="flex items-center gap-4">
-            <span className="flex h-14 w-14 flex-shrink-0 items-center justify-center rounded-full bg-white/20 text-lg font-extrabold">
-              {iniciales(d.persona.nombre)}
-            </span>
+            {d.persona.foto ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={d.persona.foto}
+                alt={d.persona.nombre}
+                className="h-14 w-14 flex-shrink-0 rounded-full object-cover ring-2 ring-white/30"
+              />
+            ) : (
+              <span className="flex h-14 w-14 flex-shrink-0 items-center justify-center rounded-full bg-white/20 text-lg font-extrabold">
+                {iniciales(d.persona.nombre)}
+              </span>
+            )}
             <div className="min-w-0">
               <h1 className="truncate text-xl font-extrabold">{d.persona.nombre}</h1>
               <p className="truncate text-sm text-white/80">
